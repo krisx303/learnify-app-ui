@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "learnify-app-ui",
+    "name": "Learnify",
     "slug": "learnify-app-ui",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/learnify-app-icon-inner.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/learnify-app-logo-with-background.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#590d82"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -19,9 +19,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "foregroundImage": "./assets/learnify-app-icon-inner.png",
+        "backgroundColor": "#590d82"
+      },
+      "package": "com.brightpath.learnify"
     },
     "web": {
       "favicon": "./assets/favicon.png"
