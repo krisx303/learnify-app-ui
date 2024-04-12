@@ -1,14 +1,18 @@
 import React from 'react';
-import { View, StyleSheet, Text, useWindowDimensions } from 'react-native';
-import LoginForm from './LoginForm';
+import { View, StyleSheet, Text, useWindowDimensions, Button } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 import LearnifyAppLogo from "../../icons/learnify-app-logo";
+import LoginForm from "../login/LoginForm";
+
+//TODO add authentication state and redirect to the MainPage when user is already authenticated
 
 const LoginPage = () => {
     const { width: windowWidth } = useWindowDimensions();
+    const navigation = useNavigation(); // Initialize navigation
 
     const onLogin = (username: string, password: string) => {
-        console.log(username, password);
         //TODO implement the authentication of users
+        navigation.navigate("Main");
     };
 
     return (
