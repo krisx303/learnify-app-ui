@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     container: {
         width: '100%',
         alignItems: 'center',
-        padding: 100
+        padding: 20
     },
     input: {
         marginBottom: 20,

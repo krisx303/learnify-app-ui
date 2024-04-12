@@ -1,23 +1,22 @@
 import React from 'react';
-import {View, StyleSheet, Text, useWindowDimensions, TouchableOpacity} from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
+import { View, StyleSheet, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import LearnifyAppLogo from "../../icons/learnify-app-logo";
-import LoginForm from "../login/LoginForm";
 import RegisterForm from "./RegisterForm";
 
-//TODO add authentication state and redirect to the MainPage when user is already authenticated
-
-const LoginPage = () => {
+const RegisterPage = () => {
     const { width: windowWidth } = useWindowDimensions();
-    const navigation = useNavigation(); // Initialize navigation
+    const navigation = useNavigation();
 
-    const onLogin = (username: string, password: string) => {
-        //TODO implement the authentication of users
+    const onRegister = (username: string, password: string) => {
+        // TODO: Implement registration logic
+        console.log("Registered:", username, password);
+        // After successful registration, navigate to the main page
         navigation.navigate("Main");
     };
 
-    const navigateToRegisterPage = () => {
-        navigation.navigate("Register");
+    const navigateToLoginPage = () => {
+        navigation.navigate("Login");
     };
 
     return (
@@ -26,13 +25,13 @@ const LoginPage = () => {
                 <View style={styles.logoContainer}>
                     <LearnifyAppLogo size={200} />
                     <Text style={styles.description}>
-                        Welcome back to Learnify! Login to continue learning.
+                        Join Learnify and start your learning journey!
                     </Text>
                 </View>
                 <View style={styles.formContainer}>
-                    <LoginForm onLogin={onLogin} />
-                    <TouchableOpacity onPress={navigateToRegisterPage}>
-                        <Text style={styles.hyperlink}>Do not have an account? Create new here</Text>
+                    <RegisterForm onRegister={onRegister} />
+                    <TouchableOpacity onPress={navigateToLoginPage}>
+                        <Text style={styles.hyperlink}>A returning user? Log in instead</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -96,4 +95,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default LoginPage;
+export default RegisterPage;
