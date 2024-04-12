@@ -1,19 +1,22 @@
-import { StyleSheet, Text, View } from 'react-native';
-import LearnifyAppLogo from "./src/icons/learnify-app-logo";
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import LoginPage from "./src/pages/login/LoginPage";
 
-export default function App() {
+const App: React.FC = () => {
   return (
-    <View style={styles.container}>
-      <LearnifyAppLogo size={400}/>
-    </View>
+      <View style={styles.container}>
+        <LoginPage />
+      </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#590d82',
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
 });
+
+export default App;
