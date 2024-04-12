@@ -1,19 +1,42 @@
-import { StyleSheet, Text, View } from 'react-native';
-import LearnifyAppLogo from "./src/icons/learnify-app-logo";
+import {NavigationContainer} from "@react-navigation/native";
+import MainPage from "./src/pages/main/MainPage";
+import LoginPage from "./src/pages/auth/LoginPage";
+import RegisterPage from "./src/pages/auth/RegisterPage";
+import {createStackNavigator, CardStyleInterpolators} from "@react-navigation/stack";
+import {Platform, Text, View} from "react-native";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <LearnifyAppLogo size={400}/>
-    </View>
-  );
+const Stack = createStackNavigator();
+
+const linking = {
+    prefixes: ['https://learnify.pl', 'learnify://'],
+    config: {
+        screens: {
+            Main: '',
+            Login: '/login',
+            Register: '/register',
+        },
+    },
+};
+
+function App() {
+    const isPhone = Platform.OS === 'android' || Platform.OS === 'ios'; // Check if the platform is Android or iOS
+
+    const navigationOptions = {
+        headerShown: false,
+        animationEnabled: isPhone,
+        cardStyleInterpolator: isPhone ? CardStyleInterpolators.forHorizontalIOS : undefined
+    };
+
+
+    return (
+        <NavigationContainer linking={linking} fallback={<View><Text>Loading</Text></View>}>
+            <Stack.Navigator initialRouteName="Login">
+                <Stack.Screen name="Main" component={MainPage} options={navigationOptions}/>
+                <Stack.Screen name="Login" component={LoginPage} options={navigationOptions}/>
+                <Stack.Screen name="Register" component={RegisterPage} options={navigationOptions}/>
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#590d82',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
