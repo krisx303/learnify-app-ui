@@ -1,0 +1,61 @@
+@import '../../styles/colors';
+
+.container {
+  background-color: $secondaryColor;
+  width: 100%;
+  height: 100%;
+}
+
+.contentHorizontal {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.contentVertical {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 20px;
+}
+
+.logoContainer {
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.formContainer {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border-width: 0;
+  margin: 0;
+}
+
+.description {
+  color: $primaryTextColor;
+  font-size: 20px;
+  text-align: center;
+  margin-top: 20px;
+  font-family: sans-serif;
+  width: 100%;
+}
+
+.hyperlink {
+  color: $primaryTextColor;
+  margin-top: 20px;
+  text-decoration: underline;
+}

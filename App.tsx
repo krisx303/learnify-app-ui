@@ -1,7 +1,7 @@
 import {NavigationContainer} from "@react-navigation/native";
 import MainPage from "./src/pages/main/MainPage";
-import LoginPage from "./src/pages/login/LoginPage";
-import RegisterPage from "./src/pages/login/RegisterPage";
+import LoginPage from "./src/pages/auth/LoginPage";
+import RegisterPage from "./src/pages/auth/RegisterPage";
 import {createStackNavigator, CardStyleInterpolators} from "@react-navigation/stack";
 import {Platform, Text, View} from "react-native";
 

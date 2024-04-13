@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
+import styles from './LoginForm.scss'
 
 interface Props {
     onLogin: (username: string, password: string) => void;
@@ -37,26 +38,5 @@ const LoginForm: React.FC<Props> = ({ onLogin }) => {
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        width: '100%',
-        alignItems: 'center',
-        padding: 20
-    },
-    input: {
-        marginBottom: 20,
-        width: '70%',
-        minWidth: 250, // Minimum width for inputs
-        maxWidth: 400,
-    },
-    button: {
-        marginTop: 20,
-        backgroundColor: '#390854',
-        width: '70%',
-        minWidth: 200, // Minimum width for buttons
-        maxWidth: 400,
-    },
-});
 
 export default LoginForm;

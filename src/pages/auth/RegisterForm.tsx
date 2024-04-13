@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, Text } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
+import styles from './RegisterForm.scss'
 
 interface Props {
     onRegister: (username: string, password: string) => void;
@@ -57,30 +58,5 @@ const RegisterForm: React.FC<Props> = ({ onRegister }) => {
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        width: '100%',
-        alignItems: 'center',
-        padding: 20
-    },
-    input: {
-        marginBottom: 20,
-        width: '70%',
-        minWidth: 250, // Minimum width for inputs
-        maxWidth: 400,
-    },
-    button: {
-        marginTop: 20,
-        backgroundColor: '#390854',
-        width: '70%',
-        minWidth: 200, // Minimum width for buttons
-        maxWidth: 400,
-    },
-    passwordMatchError: {
-        color: 'red',
-        marginBottom: 10,
-    },
-});
 
 export default RegisterForm;

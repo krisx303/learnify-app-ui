@@ -1,0 +1,29 @@
+@import '../../styles/colors';
+
+$errorColor: red;
+
+.container {
+  width: 100%;
+  align-items: center;
+  padding: 20px;
+}
+
+.input {
+  margin-bottom: 20px;
+  width: 70%;
+  min-width: 250px;
+  max-width: 400px;
+}
+
+.button {
+  margin-top: 20px;
+  background-color: $primaryColor;
+  width: 70%;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.passwordMatchError {
+  color: $errorColor;
+  margin-bottom: 10px;
+}
