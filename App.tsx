@@ -1,15 +1,24 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
-import { Platform } from 'react-native'; // Import Platform module
-import LoginPage from './src/pages/login/LoginPage';
-import MainPage from './src/pages/main/MainPage';
+import {NavigationContainer} from "@react-navigation/native";
+import MainPage from "./src/pages/main/MainPage";
+import LoginPage from "./src/pages/login/LoginPage";
 import RegisterPage from "./src/pages/login/RegisterPage";
-import { Linking } from 'react-native';
+import {createStackNavigator, CardStyleInterpolators} from "@react-navigation/stack";
+import {Platform, Text, View} from "react-native";
 
 const Stack = createStackNavigator();
 
-const App: React.FC = () => {
+const linking = {
+    prefixes: ['https://learnify.pl', 'learnify://'],
+    config: {
+        screens: {
+            Main: '',
+            Login: '/login',
+            Register: '/register',
+        },
+    },
+};
+
+function App() {
     const isPhone = Platform.OS === 'android' || Platform.OS === 'ios'; // Check if the platform is Android or iOS
 
     const navigationOptions = {
@@ -18,49 +27,16 @@ const App: React.FC = () => {
         cardStyleInterpolator: isPhone ? CardStyleInterpolators.forHorizontalIOS : undefined
     };
 
+
     return (
-        <NavigationContainer
-            linking={{
-                prefixes: isPhone ? ['learnify://'] : ['https://learnify.pl'],
-                config: {
-                    screens: {
-                        Register: 'register',
-                        Login: 'login',
-                        Main: 'main'
-                    }
-                },
-            }}
-            onReady={() => {
-                if (!isPhone) {
-                    const { initialURL } = Linking.getInitialURL();
-                    if (initialURL) {
-                        const route = initialURL.includes('login') ? 'Login' :
-                            initialURL.includes('main') ? 'Main' : 'Register';
-                        console.log('Navigating to:', route);
-                        Linking.openURL(route);
-                    }
-                }
-            }}
-        >
-            <Stack.Navigator initialRouteName="Register">
-                <Stack.Screen
-                    name="Register"
-                    component={RegisterPage}
-                    options={navigationOptions}
-                />
-                <Stack.Screen
-                    name="Login"
-                    component={LoginPage}
-                    options={navigationOptions}
-                />
-                <Stack.Screen
-                    name="Main"
-                    component={MainPage}
-                    options={navigationOptions}
-                />
+        <NavigationContainer linking={linking} fallback={<View><Text>Loading</Text></View>}>
+            <Stack.Navigator initialRouteName="Login">
+                <Stack.Screen name="Main" component={MainPage} options={navigationOptions}/>
+                <Stack.Screen name="Login" component={LoginPage} options={navigationOptions}/>
+                <Stack.Screen name="Register" component={RegisterPage} options={navigationOptions}/>
             </Stack.Navigator>
         </NavigationContainer>
     );
-};
+}
 
 export default App;
