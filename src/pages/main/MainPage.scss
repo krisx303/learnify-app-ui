@@ -1,0 +1,30 @@
+@import '../../styles/colors';
+
+.container {
+  background-image: url('../../../assets/purple_background.png');
+  flex: 1;
+}
+
+.content {
+  flex: 1;
+  padding: 20px; /* Adding 'px' for metric */
+  flex-direction: row;
+}
+
+.sectionTitle {
+  font-size: 18px; /* Adding 'px' for metric */
+  font-weight: bold;
+  margin-left: 40px;
+  color: $primaryTextColor
+}
+
+.section {
+  margin-bottom: 20px; /* Adding 'px' for metric */
+  width: 50%;
+}
+
+.cardContainer {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
