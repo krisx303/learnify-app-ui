@@ -13,7 +13,6 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
             <Card.Content>
                 <Title style={styles.cardHeader}>{note.title}</Title>
                 <Paragraph>{note.summary}</Paragraph>
-                {/* Additional details */}
                 <Paragraph style={styles.details}>
                     {/* Add additional details here */}
                     <Text>Author: {note.author}</Text>

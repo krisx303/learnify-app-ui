@@ -11,8 +11,8 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz }) => {
     return (
         <Card key={quiz.id} style={styles.card}>
             <Card.Content>
-                <Title>{quiz.title}</Title>
-                <Paragraph>Score: {quiz.score}</Paragraph>
+                <Title style={styles.cardHeader}>{quiz.title}</Title>
+                <Paragraph style={styles.details}>Score: {quiz.score}</Paragraph>
             </Card.Content>
         </Card>
     );

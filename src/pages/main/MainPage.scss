@@ -5,32 +5,6 @@
   flex: 1;
 }
 
-.topBar {
-  background-color: #590d82;
-  padding-vertical: 10px; /* Adding 'px' for metric */
-  padding-horizontal: 20px; /* Adding 'px' for metric */
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.topBarText {
-  color: #ffffff;
-  font-size: 18px; /* Adding 'px' for metric */
-  font-weight: bold;
-}
-
-.userInfo {
-  flex-direction: row;
-  align-items: center;
-}
-
-.username {
-  margin-right: 10px; /* Adding 'px' for metric */
-  color: #ffffff;
-  font-size: 16px; /* Adding 'px' for metric */
-}
-
 .content {
   flex: 1;
   padding: 20px; /* Adding 'px' for metric */

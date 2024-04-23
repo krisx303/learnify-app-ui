@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import { Avatar, Title } from 'react-native-paper';
+import { View } from 'react-native';
+import { Title } from 'react-native-paper';
 import styles from './MainPage.scss';
 import NoteCard from "./NoteCard";
 import QuizCard from "./QuizCard";
+import TopBar from "./TopBar";
 const MainPage = () => {
     // Sample user information
     const user = {
@@ -28,14 +29,7 @@ const MainPage = () => {
 
     return (
         <View style={styles.container}>
-            {/* Top bar with information */}
-            <View style={styles.topBar}>
-                <Text style={styles.topBarText}>Learnify</Text>
-                <View style={styles.userInfo}>
-                    <Text style={styles.username}>{user.username}</Text>
-                    <Avatar.Image size={40} source={{ uri: user.avatarUrl }} />
-                </View>
-            </View>
+            <TopBar username={user.username} avatarUrl={user.avatarUrl} />
             <View style={styles.content}>
                 <View style={styles.section}>
                     <Title style={styles.sectionTitle}>Recent Viewed Notes</Title>

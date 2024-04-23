@@ -7,8 +7,8 @@ export interface Note {
     id: number;
     title: string;
     summary: string;
-    author: string | null;
-    date: string | null;
+    author: string | undefined;
+    date: string | undefined;
 }
 
 export interface Quiz {
