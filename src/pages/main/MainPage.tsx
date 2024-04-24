@@ -14,10 +14,10 @@ const MainPage = () => {
 
     // Sample data for recent viewed notes
     const recentViewedNotes = [
-        { id: 1, title: 'Note 1', summary: 'Summary of Note 1' },
-        { id: 2, title: 'Note 2', summary: 'Summary of Note 2' },
-        { id: 3, title: 'Note 3', summary: 'Summary of Note 3' },
-        { id: 4, title: 'Note 4', summary: 'Summary of Note 4' },
+        { id: 'algebra', title: 'Note 1', summary: 'Summary of Note 1' },
+        { id: 'dyskretna', title: 'Note 2', summary: 'Summary of Note 2' },
+        { id: 'analiza', title: 'Note 3', summary: 'Summary of Note 3' },
+        { id: 'wdi', title: 'Note 4', summary: 'Summary of Note 4' },
     ];
 
     // Sample data for recent attempted tests

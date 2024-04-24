@@ -13,7 +13,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
 
     const handlePress = () => {
         // Navigate to the Card page
-        navigation.navigate('CardPage', { noteId: note.id, workspaceId: 1});
+        navigation.navigate('CardPage', { noteId: note.id, workspaceId: 'semestr1'});
     };
 
     return (

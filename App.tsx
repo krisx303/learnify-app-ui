@@ -16,7 +16,7 @@ const linking = {
             Main: '',
             Login: '/login',
             Register: '/register',
-            CardPage: 'workspace/:workspaceId/notes/:noteId',
+            CardPage: 'workspaces/:workspaceId/notes/:noteId',
         },
     },
 };
