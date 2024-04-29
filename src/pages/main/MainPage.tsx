@@ -15,7 +15,7 @@ const MainPage = () => {
     // Sample data for recent viewed notes
     const recentViewedNotes = [
         { id: 'algebra', title: 'Note 1', summary: 'Summary of Note 1' },
-        { id: 'dyskretna', title: 'Note 2', summary: 'Summary of Note 2' },
+        { id: 'Sieci komputerowe', title: 'Note 2', summary: 'Summary of Note 2' },
         { id: 'analiza', title: 'Note 3', summary: 'Summary of Note 3' },
         { id: 'wdi', title: 'Note 4', summary: 'Summary of Note 4' },
     ];
