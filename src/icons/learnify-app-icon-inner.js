@@ -1,7 +1,7 @@
 import * as React from "react";
 import Svg, { Defs, G, Path } from "react-native-svg";
 const SVGComponent = (props) => (
-  <Svg width={200} height={200} viewBox="0 0 400 400" {...props}>
+  <Svg width={50} height={50} viewBox="0 0 400 400" {...props}>
     <Defs id="SvgjsDefs2411" />
     <G
       id="SvgjsG2412"
