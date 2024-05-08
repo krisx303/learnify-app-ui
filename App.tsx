@@ -1,12 +1,13 @@
-import React from 'react';
-import { NavigationContainer } from "@react-navigation/native";
+import {NavigationContainer} from "@react-navigation/native";
 import MainPage from "./src/pages/main/MainPage";
 import LoginPage from "./src/pages/auth/LoginPage";
 import RegisterPage from "./src/pages/auth/RegisterPage";
+import {CardStyleInterpolators, createStackNavigator} from "@react-navigation/stack";
+import {Platform, Text, View} from "react-native";
+import React from 'react';
 import CardPage from "./src/pages/CardPage"; // Import the CardPage component
-import { createStackNavigator, CardStyleInterpolators } from "@react-navigation/stack";
-import { Platform, Text, View } from "react-native";
 import QuizPage from "./src/pages/QuizPage";
+
 
 const Stack = createStackNavigator();
 
@@ -31,6 +32,7 @@ function App() {
         animationEnabled: isPhone,
         cardStyleInterpolator: isPhone ? CardStyleInterpolators.forHorizontalIOS : undefined
     };
+
 
     return (
         <NavigationContainer linking={linking} fallback={<View><Text>Loading</Text></View>}>
