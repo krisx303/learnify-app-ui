@@ -1,7 +1,5 @@
 @import '../../styles/colors';
 
-$errorColor: red;
-
 .container {
   width: 100%;
   align-items: center;
@@ -17,7 +15,7 @@ $errorColor: red;
 
 .button {
   margin-top: 20px;
-  background-color: $primaryColor;
+  background-color: $secondaryColor;
   width: 70%;
   min-width: 200px;
   max-width: 400px;
