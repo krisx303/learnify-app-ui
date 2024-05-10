@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, ImageBackground} from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import {RouteProp, useRoute} from '@react-navigation/native';
 import TopBar from './main/TopBar'; // Assuming TopBar component exists
 import styles from './CardPage.scss';
 import Two from 'two.js';
+
 type RootStackParamList = {
     CardPage: { workspaceId: string; noteId: string };
 };
@@ -41,18 +42,18 @@ const CardPage: React.FC = () => {
 
     // Access route params
     const route = useRoute<CardPageRouteProp>();
-    const { workspaceId, noteId } = route.params;
+    const {workspaceId, noteId} = route.params;
 
     return (
         <View style={styles.container}>
-            <TopBar username={user.username} avatarUrl={user.avatarUrl} />
+            <TopBar username={user.username} avatarUrl={user.avatarUrl}/>
             <View style={styles.content}>
                 <View style={styles.toolPanel}>
                     {/* Buttons for tool panel */}
                     <Text>Tool Panel</Text>
                 </View>
                 <ImageBackground
-                    source={{ uri: backgroundImage }}
+                    source={{uri: backgroundImage}}
                     style={styles.imageBackground}
                     resizeMode="repeat"
                 >
