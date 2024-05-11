@@ -1,0 +1,13 @@
+@import '../../styles/colors';
+
+.button {
+  margin-top: 20px;
+  background-color: $secondaryColor;
+  width: 70%;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.spinner {
+  margin-right: 10px;
+}

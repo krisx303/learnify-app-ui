@@ -27,7 +27,6 @@ const MainPage = () => {
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [openedModal, setOpenedModal] = useState<Modal>(null);
     const navigation = useNavigation<NavigationProps>();
-
     const fetchRecent = () => {
         httpClient.getRecentNotes()
             .then(setRecentViewedNotes)
