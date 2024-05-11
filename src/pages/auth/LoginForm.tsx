@@ -1,40 +1,40 @@
 import React from 'react';
-import { View } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
+import {View} from 'react-native';
+import {TextInput} from 'react-native-paper';
 import styles from './LoginForm.scss'
+import AsyncButton from "./AsyncButton";
 
 interface Props {
     onLogin: (username: string, password: string) => void;
+    loading: boolean;
 }
 
-const LoginForm: React.FC<Props> = ({ onLogin }) => {
-    const [username, setUsername] = React.useState('');
+const LoginForm: React.FC<Props> = ({onLogin, loading}) => {
+    const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
 
     const handleLogin = () => {
-        onLogin(username, password);
+        onLogin(email, password);
     };
 
     return (
         <View style={styles.container}>
             <TextInput
-                label="Login"
-                mode="outlined"
+                label="Email"
+                mode="flat"
                 style={styles.input}
-                value={username}
-                onChangeText={setUsername}
+                value={email}
+                onChangeText={setEmail}
             />
             <TextInput
                 label="Password"
-                mode="outlined"
+                mode="flat"
                 secureTextEntry
                 style={styles.input}
                 value={password}
                 onChangeText={setPassword}
             />
-            <Button mode="contained" style={styles.button} onPress={handleLogin}>
-                Login
-            </Button>
+            <AsyncButton loading={loading} onPress={handleLogin} buttonText="Login"/>
         </View>
     );
 };

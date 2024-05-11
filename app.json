@@ -1,6 +1,10 @@
 {
   "expo": {
     "name": "Learnify",
+    "packagerOpts": {
+      "config": "metro.config.js",
+      "sourceExts": ["js", "jsx", "scss", "sass"]
+    },
     "slug": "learnify-app-ui",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -25,7 +29,8 @@
       "package": "com.brightpath.learnify"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     }
   }
 }

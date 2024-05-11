@@ -1,21 +1,23 @@
-import React, { useState } from 'react';
-import { View, Text } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
+import React, {useState} from 'react';
+import {View, Text} from 'react-native';
+import {TextInput} from 'react-native-paper';
 import styles from './RegisterForm.scss'
+import AsyncButton from "./AsyncButton";
 
 interface Props {
-    onRegister: (username: string, password: string) => void;
+    onRegister: (email: string, password: string) => void;
+    loading: boolean;
 }
 
-const RegisterForm: React.FC<Props> = ({ onRegister }) => {
-    const [username, setUsername] = useState('');
+const RegisterForm: React.FC<Props> = ({onRegister, loading}) => {
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordsMatch, setPasswordsMatch] = useState(true);
 
     const handleRegister = () => {
         if (password === confirmPassword) {
-            onRegister(username, password);
+            onRegister(email, password);
         } else {
             setPasswordsMatch(false);
         }
@@ -24,15 +26,15 @@ const RegisterForm: React.FC<Props> = ({ onRegister }) => {
     return (
         <View style={styles.container}>
             <TextInput
-                label="Username"
-                mode="outlined"
+                label="Email"
+                mode="flat"
                 style={styles.input}
-                value={username}
-                onChangeText={setUsername}
+                value={email}
+                onChangeText={setEmail}
             />
             <TextInput
                 label="Password"
-                mode="outlined"
+                mode="flat"
                 secureTextEntry
                 style={styles.input}
                 value={password}
@@ -40,7 +42,7 @@ const RegisterForm: React.FC<Props> = ({ onRegister }) => {
             />
             <TextInput
                 label="Confirm Password"
-                mode="outlined"
+                mode="flat"
                 secureTextEntry
                 style={styles.input}
                 value={confirmPassword}
@@ -52,9 +54,7 @@ const RegisterForm: React.FC<Props> = ({ onRegister }) => {
             {!passwordsMatch && (
                 <Text style={styles.passwordMatchError}>Passwords do not match!</Text>
             )}
-            <Button mode="contained" style={styles.button} onPress={handleRegister}>
-                Register
-            </Button>
+            <AsyncButton loading={loading} onPress={handleRegister} buttonText="Register"/>
         </View>
     );
 };
