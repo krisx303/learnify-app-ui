@@ -12,6 +12,7 @@ import {QuizDetails} from "./src/pages/quiz/summmary/QuizDetails";
 import QuizEditor from "./src/pages/quiz/creation/QuizEditor";
 import BoardNotePage from "./src/pages/notes/board/BoardNotePage";
 import DocumentNotePage from "./src/pages/notes/document/DocumentNotePage";
+import {AuthProvider} from "./src/pages/auth/AuthProvider";
 
 const Stack = createStackNavigator();
 
@@ -53,18 +54,20 @@ function App() {
     };
 
     return (
-        <NavigationContainer linking={linking} fallback={<View><Text>Loading</Text></View>}>
-            <Stack.Navigator initialRouteName="Login">
-                <Stack.Screen name="Main" component={MainPage} options={navigationOptions}/>
-                <Stack.Screen name="Login" component={LoginPage} options={navigationOptions}/>
-                <Stack.Screen name="Register" component={RegisterPage} options={navigationOptions}/>
-                <Stack.Screen name="BoardNotePage" component={BoardNotePage} options={navigationOptions}/>
-                <Stack.Screen name="DocumentNotePage" component={DocumentNotePage} options={navigationOptions}/>
-                <Stack.Screen name="QuizPage" component={QuizPage} options={navigationOptions}/>
-                <Stack.Screen name="QuestionsScreen" component={QuestionsScreen} options={navigationOptions}/>
-                <Stack.Screen name="QuizEditor" component={QuizEditor} options={navigationOptions}/>
-            </Stack.Navigator>
-        </NavigationContainer>
+        <AuthProvider>
+            <NavigationContainer linking={linking} fallback={<View><Text>Loading</Text></View>}>
+                <Stack.Navigator initialRouteName="Login">
+                    <Stack.Screen name="Main" component={MainPage} options={navigationOptions}/>
+                    <Stack.Screen name="Login" component={LoginPage} options={navigationOptions}/>
+                    <Stack.Screen name="Register" component={RegisterPage} options={navigationOptions}/>
+                    <Stack.Screen name="BoardNotePage" component={BoardNotePage} options={navigationOptions}/>
+                    <Stack.Screen name="DocumentNotePage" component={DocumentNotePage} options={navigationOptions}/>
+                    <Stack.Screen name="QuizPage" component={QuizPage} options={navigationOptions}/>
+                    <Stack.Screen name="QuestionsScreen" component={QuestionsScreen} options={navigationOptions}/>
+                    <Stack.Screen name="QuizEditor" component={QuizEditor} options={navigationOptions}/>
+                </Stack.Navigator>
+            </NavigationContainer>
+        </AuthProvider>
     );
 }
 
