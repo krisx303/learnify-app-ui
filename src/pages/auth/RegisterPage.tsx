@@ -1,19 +1,35 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useState} from 'react';
+import {View, Text, TouchableOpacity, useWindowDimensions} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import LearnifyAppLogo from "../../icons/learnify-app-logo";
 import RegisterForm from "./RegisterForm";
-import styles from './RegisterPage.scss'
+import styles from './RegisterPage.scss';
+import {createUserWithEmailAndPassword} from "firebase/auth";
+import {auth} from "../../../firebase";
 
 const RegisterPage = () => {
-    const { width: windowWidth } = useWindowDimensions();
+    const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const {width: windowWidth} = useWindowDimensions();
     const navigation = useNavigation<any>();
 
-    const onRegister = (username: string, password: string) => {
-        // TODO: Implement registration logic
-        console.log("Registered:", username, password);
-        // After successful registration, navigate to the main page
+    const register = (email: string, password: string) => {
+        setLoading(true)
+        setErrorMessage("");
+        createUserWithEmailAndPassword(auth, email, password)
+            .then(onRegistered)
+            .catch(onRegisterFailed);
+    };
+
+    const onRegistered = (credentials: any) => {
+        setLoading(false);
+        setErrorMessage("");
         navigation.navigate("Main");
+    };
+
+    const onRegisterFailed = (error: any) => {
+        setLoading(false)
+        setErrorMessage(error.message);
     };
 
     const navigateToLoginPage = () => {
@@ -24,13 +40,16 @@ const RegisterPage = () => {
         <View style={styles.container}>
             <View style={windowWidth < 700 ? styles.contentVertical : styles.contentHorizontal}>
                 <View style={styles.logoContainer}>
-                    <LearnifyAppLogo size={200} />
+                    <LearnifyAppLogo size={200}/>
                     <Text style={styles.description}>
                         Join Learnify and start your learning journey!
                     </Text>
                 </View>
                 <View style={styles.formContainer}>
-                    <RegisterForm onRegister={onRegister} />
+                    <RegisterForm onRegister={register} loading={loading}/>
+                    {errorMessage && (
+                        <Text style={styles.errorMessage}>{errorMessage}</Text>
+                    )}
                     <TouchableOpacity onPress={navigateToLoginPage}>
                         <Text style={styles.hyperlink}>A returning user? Log in instead</Text>
                     </TouchableOpacity>
