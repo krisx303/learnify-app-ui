@@ -2,10 +2,10 @@ import React from 'react';
 import { Card, Title, Paragraph, TouchableRipple, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import styles from './Card.scss';
-import { Note } from './Types';
+import { NoteSummary } from './Types';
 
 interface NoteCardProps {
-    note: Note;
+    note: NoteSummary;
 }
 
 const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
@@ -13,7 +13,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
 
     const handlePress = () => {
         // Navigate to the Card page
-        navigation.navigate('CardPage', { noteId: note.id, workspaceId: 'semestr1'});
+        navigation.navigate('CardPage', { noteId: note.id, workspaceId: note.workspaceId});
     };
 
     return (

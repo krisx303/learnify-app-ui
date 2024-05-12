@@ -1,35 +1,30 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { View } from 'react-native';
 import { Title } from 'react-native-paper';
 import styles from './MainPage.scss';
 import NoteCard from "./NoteCard";
 import QuizCard from "./QuizCard";
 import TopBar from "./TopBar";
+import {useHttpClient} from "../../transport/HttpClient";
+import {NoteSummary, QuizSummary} from "./Types";
+
 const MainPage = () => {
-    // Sample user information
-    const user = {
-        username: 'JohnDoe',
-        avatarUrl: 'https://cdn2.iconfinder.com/data/icons/people-round-icons/128/man_avatar-512.png',
-    };
+    const httpClient = useHttpClient();
+    const [recentViewedNotes, setRecentViewedNotes] = useState<NoteSummary[]>([]);
+    const [recentAttemptedQuizzes, setRecentAttemptedQuizzes] = useState<QuizSummary[]>([]);
 
-    // Sample data for recent viewed notes
-    const recentViewedNotes = [
-        { id: 'algebra', title: 'Note 1', summary: 'Summary of Note 1' },
-        { id: 'dyskretna', title: 'Note 2', summary: 'Summary of Note 2' },
-        { id: 'analiza', title: 'Note 3', summary: 'Summary of Note 3' },
-        { id: 'wdi', title: 'Note 4', summary: 'Summary of Note 4' },
-    ];
-
-    // Sample data for recent attempted tests
-    const recentAttemptedTests = [
-        { id: 1, title: 'Test 1', score: '80%' },
-        { id: 2, title: 'Test 2', score: '75%' },
-        { id: 3, title: 'Test 3', score: '90%' },
-    ];
+    useEffect(() => {
+        httpClient.getRecentNotes()
+            .then(setRecentViewedNotes)
+            .catch(console.error);
+        httpClient.getRecentQuizzes()
+            .then(setRecentAttemptedQuizzes)
+            .catch(console.error);
+    }, [httpClient])
 
     return (
         <View style={styles.container}>
-            <TopBar username={user.username} avatarUrl={user.avatarUrl} />
+            <TopBar />
             <View style={styles.content}>
                 <View style={styles.section}>
                     <Title style={styles.sectionTitle}>Recent Viewed Notes</Title>
@@ -42,8 +37,8 @@ const MainPage = () => {
                 <View style={styles.section}>
                     <Title style={styles.sectionTitle}>Recent Attempted Tests</Title>
                     <View style={styles.cardContainer}>
-                        {recentAttemptedTests.map((test) => (
-                            <QuizCard quiz={test} key={test.id} />
+                        {recentAttemptedQuizzes.map((quiz) => (
+                            <QuizCard quiz={quiz} key={quiz.id} />
                         ))}
                     </View>
                 </View>
