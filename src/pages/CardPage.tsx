@@ -13,10 +13,6 @@ type CardPageRouteProp = RouteProp<RootStackParamList, 'CardPage'>;
 
 const CardPage: React.FC = () => {
     const [backgroundImage, setBackgroundImage] = useState('');
-    const user = {
-        username: 'JohnDoe',
-        avatarUrl: 'https://cdn2.iconfinder.com/data/icons/people-round-icons/128/man_avatar-512.png',
-    };
 
     const createGrid = (s: number) => {
         const size = s || 30;
@@ -46,7 +42,7 @@ const CardPage: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            <TopBar username={user.username} avatarUrl={user.avatarUrl}/>
+            <TopBar/>
             <View style={styles.content}>
                 <View style={styles.toolPanel}>
                     {/* Buttons for tool panel */}

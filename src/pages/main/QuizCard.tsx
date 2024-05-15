@@ -1,11 +1,11 @@
 import React from 'react';
 import {Card, Title, Paragraph, Text, TouchableRipple} from 'react-native-paper';
 import styles from './Card.scss';
-import { Quiz } from './Types';
+import { QuizSummary } from './Types';
 import {useNavigation} from "@react-navigation/native";
 
 interface QuizCardProps {
-    quiz: Quiz;
+    quiz: QuizSummary;
 }
 
 const QuizCard: React.FC<QuizCardProps> = ({ quiz }) => {
@@ -13,7 +13,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz }) => {
 
     const handlePress = () => {
         // Navigate to the Quiz page
-        navigation.navigate('QuizPage', { quizId: quiz.id, workspaceId: 'semestr1'});
+        navigation.navigate('QuizPage', { quizId: quiz.id, workspaceId: quiz.workspaceId});
     };
 
     return (

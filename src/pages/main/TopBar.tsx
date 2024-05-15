@@ -4,12 +4,11 @@ import { Avatar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import styles from './TopBar.scss';
 
-interface TopBarProps {
-    username: string;
-    avatarUrl: string;
-}
-
-const TopBar: React.FC<TopBarProps> = ({ username, avatarUrl }) => {
+const TopBar = () => {
+    const user = {
+        username: 'JohnDoe',
+        avatarUrl: 'https://cdn2.iconfinder.com/data/icons/people-round-icons/128/man_avatar-512.png',
+    };
     const navigation = useNavigation();
 
     const handleLearnifyPress = () => {
@@ -22,8 +21,8 @@ const TopBar: React.FC<TopBarProps> = ({ username, avatarUrl }) => {
                 <Text style={styles.topBarText}>Learnify</Text>
             </TouchableHighlight>
             <View style={styles.userInfo}>
-                <Text style={styles.username}>{username}</Text>
-                <Avatar.Image size={40} source={{ uri: avatarUrl }} />
+                <Text style={styles.username}>{user.username}</Text>
+                <Avatar.Image size={40} source={{ uri: user.avatarUrl }} />
             </View>
         </View>
     );
