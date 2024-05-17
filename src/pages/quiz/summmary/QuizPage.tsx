@@ -1,9 +1,16 @@
 import {RouteProp, useRoute} from "@react-navigation/native";
 import React, {useEffect, useState} from "react";
 import {ActivityIndicator, Text, View} from "react-native";
+import {RouteProp, useNavigation} from "@react-navigation/native";
+import React, {useEffect, useState} from "react";
+import {Text, View} from "react-native";
 import PieChart from "react-native-pie-chart";
 import {Button, Icon} from "react-native-paper";
 import styles from './QuizPage.scss';
+import TopBar from "../../main/TopBar";
+import {Question} from "../creation/Question";
+import {useHttpClient} from "../../../transport/HttpClient";
+import {QuizInfo} from "./QuizInfo";
 import TopBar from "./main/TopBar";
 import {QuizDetails} from "./main/Types";
 import {useHttpClient} from "../transport/HttpClient";
@@ -33,7 +40,30 @@ const QuizPage: React.FC = () => {
     const onLoadedDetails = (quizDetails: QuizDetails) => {
         setQuizDetails(quizDetails);
         setLoading(false);
+    const navigation = useNavigation();
+    const user = {
+        username: 'JohnDoe',
+        avatarUrl: 'https://cdn2.iconfinder.com/data/icons/people-round-icons/128/man_avatar-512.png',
+    };
+    const quiz: QuizInfo = {
+        id: "agh_sieci_komputerowe_lab_1",
+        name: "Sieci komputerowe - lab 1",
+        description: "Warstwy modelu OSI/ISO",
+        numberOfExercises: 20,
+        lastScore: {
+            incorrect: 6,
+            correct: 12,
+            unanswered: 2,
+        }
     }
+    const httpClient = useHttpClient();
+    const [questions, setQuestions] = useState<Question[]>([]);
+
+    useEffect(() => {
+        httpClient.getQuizQuestions(quiz.id)
+            .then(setQuestions)
+            .catch(console.error);
+    }, [httpClient]);
 
     const asPercentage = (num: number) => {
         const percentage = (num / (quiz.numberOfExercises)) * 100;
@@ -69,7 +99,8 @@ const QuizPage: React.FC = () => {
                     radius={"sm"}
                     type="solid"
                     onPress={() =>
-                        navigation.navigate("QuestionsHolderScreen", {
+                        navigation.navigate("QuestionsScreen", {
+                            quizId: quiz.id,
                             questions: questions,
                             quiz: quiz
                         })

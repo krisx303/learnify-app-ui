@@ -6,7 +6,8 @@ import RegisterPage from "./src/pages/auth/RegisterPage";
 import CardPage from "./src/pages/CardPage"; // Import the CardPage component
 import {createStackNavigator, CardStyleInterpolators} from "@react-navigation/stack";
 import {Platform, Text, View} from "react-native";
-import QuizPage from "./src/pages/QuizPage";
+import QuizPage from "./src/pages/quiz/summmary/QuizPage";
+import QuestionsScreen from "./src/pages/quiz/creation/QuestionsScreen";
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,7 @@ const linking = {
             Register: '/register',
             CardPage: 'workspaces/:workspaceId/notes/:noteId',
             QuizPage: 'workspaces/:workspaceId/quizzes/:quizId',
+            QuestionsScreen: 'quizzes/:quizId/'
         },
     },
 };
@@ -32,7 +34,6 @@ function App() {
         cardStyleInterpolator: isPhone ? CardStyleInterpolators.forHorizontalIOS : undefined
     };
 
-
     return (
         <NavigationContainer linking={linking} fallback={<View><Text>Loading</Text></View>}>
             <Stack.Navigator initialRouteName="Login">
@@ -41,6 +42,7 @@ function App() {
                 <Stack.Screen name="Register" component={RegisterPage} options={navigationOptions}/>
                 <Stack.Screen name="CardPage" component={CardPage} options={navigationOptions}/>
                 <Stack.Screen name="QuizPage" component={QuizPage} options={navigationOptions}/>
+                <Stack.Screen name="QuestionsScreen" component={QuestionsScreen} options={navigationOptions}/>
             </Stack.Navigator>
         </NavigationContainer>
     );
