@@ -1,5 +1,5 @@
 /** Interface representing the structure of a quiz */
-export interface QuizInfo {
+export interface QuizDetails {
     /** The unique ID of quiz */
     id: string;
     /** The name of quiz */

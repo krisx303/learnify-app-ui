@@ -4,11 +4,11 @@ import {StyleSheet, View} from "react-native";
 import QuestionsHolder from "./QuestionsHolder";
 import {Question} from "Question";
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
-import {QuizInfo} from "../summmary/QuizInfo";
+import {QuizDetails} from "../summmary/QuizDetails";
 import TopBar from "../../main/TopBar";
 
 interface QuestionsHolderParamList {
-    QuestionsHolderScreenProps: { questions: Question[]; quizId: string, quiz: QuizInfo };
+    QuestionsHolderScreenProps: { questions: Question[]; quizId: string, quiz: QuizDetails };
 }
 
 type QuestionsHolderScreenProps = RouteProp<QuestionsHolderParamList, 'QuestionsHolderScreen'>;
@@ -29,10 +29,6 @@ const QuestionsHolderScreen: React.FC<QuestionsHolderScreenProps> = () => {
     const [question, setQuestion] = useState<Question>(questions[0]);
     const [userAnswer, setUserAnswer] = useState<any>(getBaseUserAnswer(question));
     const [isEditable, setEditable] = useState<boolean>(true);
-    const user = {
-        username: 'JohnDoe',
-        avatarUrl: 'https://cdn2.iconfinder.com/data/icons/people-round-icons/128/man_avatar-512.png',
-    };
     const navigation = useNavigation();
 
     const handleNext = () => {
@@ -59,7 +55,7 @@ const QuestionsHolderScreen: React.FC<QuestionsHolderScreenProps> = () => {
 
     return (
         <View style={styles.container2}>
-            <TopBar username={user.username} avatarUrl={user.avatarUrl}/>
+            <TopBar/>
             <View style={styles.container}>
                 <Text h4 style={styles.questionText}>
                     {question.question}

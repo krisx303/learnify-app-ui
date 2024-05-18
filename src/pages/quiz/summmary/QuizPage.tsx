@@ -1,19 +1,13 @@
-import {RouteProp, useRoute} from "@react-navigation/native";
+import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import React, {useEffect, useState} from "react";
 import {ActivityIndicator, Text, View} from "react-native";
-import {RouteProp, useNavigation} from "@react-navigation/native";
-import React, {useEffect, useState} from "react";
-import {Text, View} from "react-native";
 import PieChart from "react-native-pie-chart";
 import {Button, Icon} from "react-native-paper";
 import styles from './QuizPage.scss';
 import TopBar from "../../main/TopBar";
 import {Question} from "../creation/Question";
+import {QuizDetails} from "./QuizDetails";
 import {useHttpClient} from "../../../transport/HttpClient";
-import {QuizInfo} from "./QuizInfo";
-import TopBar from "./main/TopBar";
-import {QuizDetails} from "./main/Types";
-import {useHttpClient} from "../transport/HttpClient";
 
 type RootStackParamList = {
     QuizPage: { workspaceId: string; quizId: string };
@@ -26,8 +20,9 @@ type QuizPageRouteProp = RouteProp<RootStackParamList, 'QuizPage'>;
 const QuizPage: React.FC = () => {
     const [quiz, setQuizDetails] = useState<QuizDetails | undefined>();
     const [loading, setLoading] = useState(true);
+    const [questions, setQuestions] = useState<Question[]>([]);
     const httpClient = useHttpClient();
-
+    const navigation = useNavigation();
     const route = useRoute<QuizPageRouteProp>();
     const {workspaceId, quizId} = route.params;
 
@@ -35,35 +30,23 @@ const QuizPage: React.FC = () => {
         httpClient.getQuizDetails(workspaceId, quizId)
             .then(onLoadedDetails)
             .catch(console.error);
-    }, [httpClient, workspaceId, quizId])
+    }, [httpClient, workspaceId, quizId]);
+
+    useEffect(() => {
+        httpClient.getQuizQuestions(quizId)
+            .then(setQuestions)
+            .catch(console.error);
+    }, [httpClient, quiz]);
+
+    useEffect(() => {
+        if (quiz != undefined && questions.length > 0) {
+            setLoading(false);
+        }
+    }, [quiz, questions]);
 
     const onLoadedDetails = (quizDetails: QuizDetails) => {
         setQuizDetails(quizDetails);
-        setLoading(false);
-    const navigation = useNavigation();
-    const user = {
-        username: 'JohnDoe',
-        avatarUrl: 'https://cdn2.iconfinder.com/data/icons/people-round-icons/128/man_avatar-512.png',
-    };
-    const quiz: QuizInfo = {
-        id: "agh_sieci_komputerowe_lab_1",
-        name: "Sieci komputerowe - lab 1",
-        description: "Warstwy modelu OSI/ISO",
-        numberOfExercises: 20,
-        lastScore: {
-            incorrect: 6,
-            correct: 12,
-            unanswered: 2,
-        }
     }
-    const httpClient = useHttpClient();
-    const [questions, setQuestions] = useState<Question[]>([]);
-
-    useEffect(() => {
-        httpClient.getQuizQuestions(quiz.id)
-            .then(setQuestions)
-            .catch(console.error);
-    }, [httpClient]);
 
     const asPercentage = (num: number) => {
         const percentage = (num / (quiz.numberOfExercises)) * 100;
@@ -117,13 +100,13 @@ const QuizPage: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            <TopBar />
+            <TopBar/>
             {loading ? (
-                <ActivityIndicator size="small" color="#fff" style={styles.spinner} />
+                <ActivityIndicator size="small" color="#fff" style={styles.spinner}/>
             ) : quiz && quiz.id === undefined ? (
                 <Text style={styles.error}>Error loading quiz details</Text>
             ) : (
-                <QuizDetailsContent quiz={quiz!!} />
+                <QuizDetailsContent quiz={quiz!!}/>
             )}
         </View>
     );
