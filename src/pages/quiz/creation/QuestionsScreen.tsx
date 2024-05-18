@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Button, Text} from "@rneui/themed";
 import {StyleSheet, View} from "react-native";
 import QuestionsHolder from "./QuestionsHolder";
-import {Question} from "Question";
+import {Question} from "./Question";
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import {QuizDetails} from "../summmary/QuizDetails";
 import TopBar from "../../main/TopBar";
