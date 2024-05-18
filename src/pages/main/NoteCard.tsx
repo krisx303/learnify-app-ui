@@ -18,16 +18,16 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
 
     return (
         <TouchableRipple onPress={handlePress}>
-        <Card key={note.id} style={styles.card}>
-            <Card.Content>
-                <Title style={styles.cardHeader}>{note.title}</Title>
-                <Paragraph>{note.summary}</Paragraph>
-                <Paragraph style={styles.details}>
-                    <Text>Author: {note.author}</Text>
-                    <Text>Date: {note.date}</Text>
-                </Paragraph>
-            </Card.Content>
-        </Card>
+            <Card key={note.id} style={styles.card}>
+                <Card.Content>
+                    <Title style={styles.cardHeader}>{note.title}</Title>
+                    <Paragraph>{note.summary}</Paragraph>
+                    <Paragraph style={styles.details}>
+                        <Text>Author: {note.author}</Text>
+                        <Text>Date: {note.date}</Text>
+                    </Paragraph>
+                </Card.Content>
+            </Card>
         </TouchableRipple>
     );
 };
