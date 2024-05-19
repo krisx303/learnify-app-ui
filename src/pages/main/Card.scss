@@ -1,16 +1,37 @@
-.card {
+.cardContainer {
   margin: 60px 40px 40px 40px;
+}
+
+.card {
   background-color: #f0f0f0;
   border-radius: 10px;
+  padding: 10px;
   width: 300px;
   height: 300px;
 }
 
 .cardHeader {
   color: #590d82;
+  font-size: 18px;
   font-weight: bold;
+}
+
+.line {
+  height: 4px;
+  background-color: #590d82;
+  margin: 10px 0;
 }
 
 .details {
   color: #666666;
+  margin: 5px 0;
+  font-size: 15px;
+}
+
+.iconContainer {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: #b19cd9;
+  border-radius: 50%;
 }

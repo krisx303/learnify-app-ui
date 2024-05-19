@@ -1,5 +1,7 @@
 import {useMemo} from "react";
-import {NoteSummary, QuizDetails, QuizSummary, Workspace} from "../pages/main/Types";
+import {NoteSummary, QuizSummary, Workspace} from "../pages/main/Types";
+import {QuizDetails} from "../pages/quiz/summmary/QuizDetails";
+import {Question} from "../pages/quiz/creation/Question";
 
 /** Interface representing base HTTP client */
 interface HttpClientBase {
@@ -22,7 +24,7 @@ class StubHttpClient implements HttpClientBase {
     getRecentNotes(): Promise<NoteSummary[]> {
         return new Promise((resolve) => {
             resolve([
-                {id: 'algebra', title: 'Note 1', summary: 'Summary of Note 1', workspaceId: 'semestr1'},
+                {id: 'agh_sieci_komputerowe_lab_1', title: 'Sieci komputerowe - lab 1', summary: 'Warstwy modelu OSI/ISO', workspaceId: 'semestr5', author: 'Krzysztof Usnarski', date: '2024-04-28'},
                 {id: 'dyskretna', title: 'Note 2', summary: 'Summary of Note 2', workspaceId: 'semestr1'},
                 {id: 'analiza', title: 'Note 3', summary: 'Summary of Note 3', workspaceId: 'semestr1'},
                 {id: 'wdi', title: 'Note 4', summary: 'Summary of Note 4', workspaceId: 'semestr1'},
@@ -32,7 +34,7 @@ class StubHttpClient implements HttpClientBase {
 
     getRecentQuizzes(): Promise<QuizSummary[]> {
         return Promise.resolve([
-            {id: 1, title: 'Test 1', score: '80%', workspaceId: 'semestr1'},
+            {id: 1, title: 'Test 1', score: '15%', workspaceId: 'semestr1'},
             {id: 2, title: 'Test 2', score: '75%', workspaceId: 'semestr1'},
             {id: 3, title: 'Test 3', score: '90%', workspaceId: 'semestr1'},
         ]);
