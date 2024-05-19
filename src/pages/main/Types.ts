@@ -20,15 +20,3 @@ export interface QuizSummary {
     author: string | undefined;
     date: string | undefined;
 }
-
-export interface QuizDetails {
-    id: string;
-    name: string;
-    description: string;
-    numberOfExercises: number;
-    lastScore: {
-        correct: number;
-        incorrect: number;
-        unanswered: number;
-    };
-}

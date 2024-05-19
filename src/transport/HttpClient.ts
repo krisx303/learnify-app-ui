@@ -43,6 +43,55 @@ class StubHttpClient implements HttpClientBase {
             }
         });
     }
+
+    getQuizQuestions(quizId: string): Promise<Question[]> {
+        return new Promise((resolve) => resolve([
+            {
+                question: "Zadaniem warstwy drugiej modelu OSI/ISO jest:",
+                type: "multiple-choice",
+                weight: 1,
+                choices: [
+                    "wykrywanie błędów transmisji",
+                    "nadawanie adresacji fizycznej",
+                    "wybór kodowania danych",
+                    "komunikacja w ramach segmentu fizycznego sieci",
+                    "taktowanie wysyłania danych",
+                    "budowa drzewa rozpinającego",
+                ],
+                answer: [true, true, false, true, false, true],
+                feedback: [
+                    "tak - bo to tutaj są np. ramki Ethernet z polami kontrolnymi, sumami kontrolnymi",
+                    "tak - adresacja fizyczna jest tutaj, logiczna wyżej",
+                    "nie - to warstwa 1",
+                    "tak - bo ta sama sieć (fizycznie)",
+                    "nie - to warstwa 1",
+                    "tak - STP buduje swoje drzewo na urządzeniach warstwy 2",
+                ],
+            },
+            {
+                question: "Ile żyrafa ma nóg",
+                type: "multiple-choice",
+                weight: 1,
+                choices: [
+                    "na pewno więcej niż 1",
+                    "mniej niż 5",
+                    "dokładnie 4",
+                    "czasem 3",
+                    "prawie 2",
+                    "2 + 2",
+                ],
+                answer: [true, true, true, false, false, true],
+                feedback: [
+                    "tak - 4>1",
+                    "tak - 4<5",
+                    "tak - 4=4",
+                    "nie - czasem to i ślepej kurze się trafi ziarno",
+                    "nie - prawie za mało",
+                    "tak - 2 + 2 = 4 (jeszcze)",
+                ],
+            }
+        ]));
+    }
 }
 
 /** Hook to provide an instance of the HTTP client */

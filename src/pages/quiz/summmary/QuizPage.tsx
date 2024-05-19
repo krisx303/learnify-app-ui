@@ -1,12 +1,13 @@
-import {RouteProp, useRoute} from "@react-navigation/native";
+import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import React, {useEffect, useState} from "react";
 import {ActivityIndicator, Text, View} from "react-native";
 import PieChart from "react-native-pie-chart";
 import {Button, Icon} from "react-native-paper";
 import styles from './QuizPage.scss';
-import TopBar from "./main/TopBar";
-import {QuizDetails} from "./main/Types";
-import {useHttpClient} from "../transport/HttpClient";
+import TopBar from "../../main/TopBar";
+import {Question} from "../creation/Question";
+import {QuizDetails} from "./QuizDetails";
+import {useHttpClient} from "../../../transport/HttpClient";
 
 type RootStackParamList = {
     QuizPage: { workspaceId: string; quizId: string };
@@ -19,8 +20,9 @@ type QuizPageRouteProp = RouteProp<RootStackParamList, 'QuizPage'>;
 const QuizPage: React.FC = () => {
     const [quiz, setQuizDetails] = useState<QuizDetails | undefined>();
     const [loading, setLoading] = useState(true);
+    const [questions, setQuestions] = useState<Question[]>([]);
     const httpClient = useHttpClient();
-
+    const navigation = useNavigation();
     const route = useRoute<QuizPageRouteProp>();
     const {workspaceId, quizId} = route.params;
 
@@ -28,11 +30,22 @@ const QuizPage: React.FC = () => {
         httpClient.getQuizDetails(workspaceId, quizId)
             .then(onLoadedDetails)
             .catch(console.error);
-    }, [httpClient, workspaceId, quizId])
+    }, [httpClient, workspaceId, quizId]);
+
+    useEffect(() => {
+        httpClient.getQuizQuestions(quizId)
+            .then(setQuestions)
+            .catch(console.error);
+    }, [httpClient, quiz]);
+
+    useEffect(() => {
+        if (quiz != undefined && questions.length > 0) {
+            setLoading(false);
+        }
+    }, [quiz, questions]);
 
     const onLoadedDetails = (quizDetails: QuizDetails) => {
         setQuizDetails(quizDetails);
-        setLoading(false);
     }
 
     const asPercentage = (num: number) => {
@@ -69,7 +82,8 @@ const QuizPage: React.FC = () => {
                     radius={"sm"}
                     type="solid"
                     onPress={() =>
-                        navigation.navigate("QuestionsHolderScreen", {
+                        navigation.navigate("QuestionsScreen", {
+                            quizId: quiz.id,
                             questions: questions,
                             quiz: quiz
                         })
@@ -86,13 +100,13 @@ const QuizPage: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            <TopBar />
+            <TopBar/>
             {loading ? (
-                <ActivityIndicator size="small" color="#fff" style={styles.spinner} />
+                <ActivityIndicator size="small" color="#fff" style={styles.spinner}/>
             ) : quiz && quiz.id === undefined ? (
                 <Text style={styles.error}>Error loading quiz details</Text>
             ) : (
-                <QuizDetailsContent quiz={quiz!!} />
+                <QuizDetailsContent quiz={quiz!!}/>
             )}
         </View>
     );
