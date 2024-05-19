@@ -1,8 +1,9 @@
 @import '../../styles/colors';
 
 .container {
-  background-image: url('../../../assets/purple_background.png');
-  flex: 1;
+   background-image: url('../../../assets/purple_background.png');
+   background-size: cover;
+   flex: 1;
 }
 
 .content {
@@ -14,17 +15,36 @@
 .sectionTitle {
   font-size: 18px; /* Adding 'px' for metric */
   font-weight: bold;
+  margin-top: 20px;
   margin-left: 40px;
   color: $primaryTextColor
 }
 
-.section {
+.sectionHorizontal {
   margin-bottom: 20px; /* Adding 'px' for metric */
   width: 50%;
+}
+
+.sectionVertical {
+  margin-bottom: 20px; /* Adding 'px' for metric */
+  width: 100%;
 }
 
 .cardContainer {
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: flex-start;
+}
+
+.contentHorizontal {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.contentVertical {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }
