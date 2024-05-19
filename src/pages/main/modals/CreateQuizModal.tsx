@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {View, Button, StyleSheet, Text, Switch} from 'react-native';
-import {Title, TextInput} from 'react-native-paper';
+import {View, StyleSheet, Text, Switch} from 'react-native';
+import {Title, TextInput, Button} from 'react-native-paper';
 import {useHttpClient} from "../../../transport/HttpClient";
 import {Workspace} from "../Types";
 import {generateID} from "./Utils";
@@ -123,8 +123,22 @@ const CreateQuizModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, on
                 />
             </GenericModal.Body>
             <GenericModal.Footer>
-                <Button title="Cancel" onPress={onClose}/>
-                <Button title="Submit" onPress={handleQuizSubmit}/>
+                <Button
+                    mode="outlined"
+                    onPress={onClose}
+                    style={[styles.button, styles.cancelButton]}
+                    labelStyle={{color: '#7912b0'}}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    mode="contained"
+                    onPress={handleQuizSubmit}
+                    style={[styles.button, styles.submitButton]}
+                    labelStyle={{color: 'white'}}
+                >
+                    Submit
+                </Button>
             </GenericModal.Footer>
         </GenericModal>
     );
@@ -151,6 +165,17 @@ const styles = StyleSheet.create({
     errorText: {
         color: 'red',
         marginBottom: 10,
+    },
+    button: {
+        marginHorizontal: 10,
+        marginVertical: 5,
+    },
+    cancelButton: {
+        borderColor: '#7912b0',
+        color: '#7912b0',
+    },
+    submitButton: {
+        backgroundColor: '#7912b0',
     },
 });
 
