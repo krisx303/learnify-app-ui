@@ -5,13 +5,17 @@ import { View } from 'react-native';
 import styles from './Card.scss';
 import { QuizSummary } from './Types';
 import ProgressBar from './ProgressBar';
+import {RootStackParamList} from "../../../App";
+import {StackNavigationProp} from "@react-navigation/stack";
 
 interface QuizCardProps {
     quiz: QuizSummary;
 }
 
+type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
+
 const QuizCard: React.FC<QuizCardProps> = ({ quiz }) => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProps>();
 
     const handlePress = () => {
         navigation.navigate('QuizPage', { quizId: quiz.id, workspaceId: quiz.workspaceId });
