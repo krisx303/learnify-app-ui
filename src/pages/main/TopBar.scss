@@ -5,6 +5,7 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  z-index: 10;
 }
 
 .topBarText {
@@ -12,6 +13,7 @@
   color: #ffffff;
   font-size: 18px;
   font-weight: bold;
+  margin-right: 20px;
 }
 
 .userInfo {
@@ -23,4 +25,9 @@
   margin-right: 10px;
   color: #ffffff;
   font-size: 16px;
+}
+
+.leftContent {
+    flex-direction: row;
+    align-items: center;
 }

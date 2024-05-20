@@ -12,13 +12,12 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
     const navigation = useNavigation();
 
     const handlePress = () => {
-        // Navigate to the Card page
         navigation.navigate('CardPage', { noteId: note.id, workspaceId: note.workspaceId});
     };
 
     return (
-        <TouchableRipple onPress={handlePress}>
-            <Card key={note.id} style={styles.card}>
+        <TouchableRipple onPress={handlePress} style={styles.card}>
+            <Card key={note.id} style={{flex: 1}}>
                 <Card.Content>
                     <Title style={styles.cardHeader}>{note.title}</Title>
                     <Paragraph>{note.summary}</Paragraph>

@@ -6,10 +6,11 @@ import styles from './TopBar.scss';
 import LearnifyAppIconInner from "../../icons/learnify-app-icon-inner";
 
 interface TopBarProps {
-    text: string | undefined;
+    text?: string;
+    children?: React.ReactElement;
 }
 
-const TopBar: React.FC<TopBarProps> = ({text}) => {
+const TopBar: React.FC<TopBarProps> = ({text, children}) => {
     const navigation = useNavigation();
     const user = {
         username: 'JohnDoe',
@@ -22,16 +23,19 @@ const TopBar: React.FC<TopBarProps> = ({text}) => {
 
     return (
         <View style={styles.topBar}>
-            <TouchableHighlight onPress={handleLearnifyPress} underlayColor="transparent">
-                <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
-                    <LearnifyAppIconInner/>
-                    {text ? <Text style={styles.topBarText}>{text}</Text> :
-                        <Text style={styles.topBarText}>Learnify</Text>}
-                </View>
-            </TouchableHighlight>
+            <View style={styles.leftContent}>
+                <TouchableHighlight onPress={handleLearnifyPress} underlayColor="transparent">
+                    <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
+                        <LearnifyAppIconInner/>
+                        {text ? <Text style={styles.topBarText}>{text}</Text> :
+                            <Text style={styles.topBarText}>Learnify</Text>}
+                    </View>
+                </TouchableHighlight>
+                {children}
+            </View>
             <View style={styles.userInfo}>
                 <Text style={styles.username}>{user.username}</Text>
-                <Avatar.Image size={40} source={{ uri: user.avatarUrl }} />
+                <Avatar.Image size={40} source={{uri: user.avatarUrl}}/>
             </View>
         </View>
     );

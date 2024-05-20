@@ -67,6 +67,10 @@ const Drawing = () => {
         };
 
     const onDrawingActive = (touchInfo: TouchInfo) => {
+        if (touchInfo.force == 0) {
+            setActive(false);
+            return;
+        }
         setPaths((currentPaths) => {
             if (!active || currentPaths.length === 0) return currentPaths;
             const {x, y} = touchInfo;

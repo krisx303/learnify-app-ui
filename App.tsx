@@ -3,8 +3,8 @@ import {NavigationContainer} from "@react-navigation/native";
 import MainPage from "./src/pages/main/MainPage";
 import LoginPage from "./src/pages/auth/LoginPage";
 import RegisterPage from "./src/pages/auth/RegisterPage";
-import CardPage from "./src/pages/CardPage"; // Import the CardPage component
-import {CardStyleInterpolators, createStackNavigator} from "@react-navigation/stack";
+import CardPage from "./src/pages/CardPage";
+import {createStackNavigator, CardStyleInterpolators} from "@react-navigation/stack";
 import {Platform, Text, View} from "react-native";
 import QuizPage from "./src/pages/quiz/summmary/QuizPage";
 import QuestionsScreen from "./src/pages/quiz/creation/QuestionsScreen";

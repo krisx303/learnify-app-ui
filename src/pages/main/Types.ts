@@ -8,8 +8,8 @@ export interface NoteSummary {
     workspaceId: string;
     title: string;
     summary: string;
-    author: string | undefined;
-    date: string | undefined;
+    author?: string | undefined;
+    date?: string | undefined;
 }
 
 export interface QuizSummary {
@@ -17,6 +17,11 @@ export interface QuizSummary {
     workspaceId: string;
     title: string;
     score: string;
-    author: string | undefined;
-    date: string | undefined;
+    author?: string | undefined;
+    date?: string | undefined;
+}
+
+export interface Workspace {
+    id: string;
+    name: string;
 }
