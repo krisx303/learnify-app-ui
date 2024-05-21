@@ -10,6 +10,7 @@ import QuizPage from "./src/pages/quiz/summmary/QuizPage";
 import QuestionsScreen from "./src/pages/quiz/creation/QuestionsScreen";
 import {Question} from "./src/pages/quiz/creation/Question";
 import {QuizDetails} from "./src/pages/quiz/summmary/QuizDetails";
+import QuizEditor from "./src/pages/QuizEditor";
 
 const Stack = createStackNavigator();
 
@@ -17,10 +18,11 @@ export type RootStackParamList = {
     Main: undefined;
     Login: undefined;
     Register: undefined;
-    CardPage: {workspaceId: string, noteId: string};
-    QuizPage: {workspaceId: string, quizId: string};
+    CardPage: { workspaceId: string, noteId: string };
+    QuizPage: { workspaceId: string, quizId: string };
     // TODO delete advanced objects from route
     QuestionsScreen: { questions: Question[]; quizId: string, quiz: QuizDetails };
+    QuizEditor: { workspaceId: string, quizId: string };
 };
 
 const linking = {
@@ -32,7 +34,8 @@ const linking = {
             Register: '/register',
             CardPage: 'workspaces/:workspaceId/notes/:noteId',
             QuizPage: 'workspaces/:workspaceId/quizzes/:quizId',
-            QuestionsScreen: 'quizzes/:quizId/'
+            QuestionsScreen: 'quizzes/:quizId/',
+            QuizEditor: 'workspaces/:workspaceId/quizzes/:quizId/edit'
         },
     },
 };
@@ -55,6 +58,7 @@ function App() {
                 <Stack.Screen name="CardPage" component={CardPage} options={navigationOptions}/>
                 <Stack.Screen name="QuizPage" component={QuizPage} options={navigationOptions}/>
                 <Stack.Screen name="QuestionsScreen" component={QuestionsScreen} options={navigationOptions}/>
+                <Stack.Screen name="QuizEditor" component={QuizEditor} options={navigationOptions}/>
             </Stack.Navigator>
         </NavigationContainer>
     );

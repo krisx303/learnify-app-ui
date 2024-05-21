@@ -7,10 +7,17 @@ import {generateID} from "./Utils";
 import GenericModal from "./GenericModal";
 import {WorkspaceDropdownSelector} from "./WorkspaceDropdownSelector";
 
+export interface QuizCreateDetails {
+    id: string;
+    name: string;
+    description: string;
+    workspaceId: string;
+}
+
 interface CreateQuizModalProps {
     isVisible: boolean;
     onClose: () => void;
-    onSubmit: (quiz: { id: string; name: string; description: string; workspace: string }) => void;
+    onSubmit: (quiz: QuizCreateDetails) => void;
 }
 
 const CreateQuizModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, onSubmit}) => {
@@ -60,7 +67,7 @@ const CreateQuizModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, on
         }
         if (isError || !isQuizIdUnique)
             return;
-        onSubmit({id: quizId, name: quizName, description, workspace});
+        onSubmit({id: quizId, name: quizName, description, workspaceId: workspace});
         setQuizName('');
         setQuizId('');
         setDescription('');

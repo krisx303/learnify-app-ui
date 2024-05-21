@@ -9,7 +9,12 @@ import {useHttpClient} from '../../transport/HttpClient';
 import {NoteSummary, QuizSummary} from './Types';
 import DropdownButton from './DropdownButton';
 import CreateNoteModal from "./modals/CreateNoteModal";
-import CreateQuizModal from "./modals/CreateQuizModal";
+import CreateQuizModal, {QuizCreateDetails} from "./modals/CreateQuizModal";
+import {StackNavigationProp} from "@react-navigation/stack";
+import {RootStackParamList} from "../../../App";
+import {useNavigation} from "@react-navigation/native";
+
+type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
 
 const MainPage = () => {
     const { width: windowWidth } = useWindowDimensions();
@@ -19,6 +24,7 @@ const MainPage = () => {
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [isNoteModalVisible, setIsNoteModalVisible] = useState(false);
     const [isQuizModalVisible, setIsQuizModalVisible] = useState(false);
+    const navigation = useNavigation<NavigationProps>();
 
     useEffect(() => {
         httpClient.getRecentNotes()
@@ -35,6 +41,10 @@ const MainPage = () => {
         }else if(item === "Quiz") {
             setIsQuizModalVisible(true);
         }
+    };
+
+    const navigateToQuizEditor = (details: QuizCreateDetails) => {
+        navigation.navigate('QuizEditor', {quizId: details.id, workspaceId: details.workspaceId});
     };
 
     return (
@@ -68,7 +78,10 @@ const MainPage = () => {
                 <CreateNoteModal isVisible={isNoteModalVisible} onClose={() => setIsNoteModalVisible(false)}
                                  onSubmit={() => {}}
                 />
-                <CreateQuizModal isVisible={isQuizModalVisible} onClose={() => setIsQuizModalVisible(false)} onSubmit={() => {}}
+                <CreateQuizModal
+                    isVisible={isQuizModalVisible}
+                    onClose={() => setIsQuizModalVisible(false)}
+                    onSubmit={navigateToQuizEditor}
                 />
             </View>
         </TouchableWithoutFeedback>

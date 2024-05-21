@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Title, Paragraph, TouchableRipple, Text, IconButton } from 'react-native-paper';
+import {Card, Title, Paragraph, TouchableRipple, Text, IconButton, Icon} from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { View } from 'react-native';
 import styles from './Card.scss';
@@ -33,9 +33,9 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                         <Text>Z przestrzeni: {note.workspaceId}</Text>
                     </Paragraph>
                     <View style={styles.iconContainer}>
-                        <IconButton
-                            icon="fountain-pen"
-                            iconColor="#000"
+                        <Icon
+                            source="fountain-pen"
+                            color="#000"
                             size={26}
                         />
                     </View>
