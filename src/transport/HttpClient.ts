@@ -99,6 +99,28 @@ class StubHttpClient implements HttpClientBase {
                     "nie - prawie za mało",
                     "tak - 2 + 2 = 4 (jeszcze)",
                 ],
+            },
+            {
+                question: "Ile to 4-2",
+                type: "single-choice",
+                weight: 1,
+                choices: [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                ],
+                answer: 1,
+                feedback: [
+                    "nie",
+                    "tak",
+                    "nie",
+                    "nie",
+                    "nie",
+                    "nie",
+                ],
             }
         ]));
     }

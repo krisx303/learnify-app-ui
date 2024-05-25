@@ -14,6 +14,21 @@ export type MultipleChoiceQuestion = {
     feedback: string[];
 };
 
+export type SingleChoiceQuestion = {
+    /** The textual content of the question. */
+    question: string;
+    /** The type of the question, indicating it's a "multiple-choice" type. */
+    type: "single-choice";
+    /** The weight/importance of the question. */
+    weight: number;
+    /** The available choices for the question. */
+    choices: string[];
+    /** Index of the correct answer **/
+    answer: number;
+    /** Feedback for each choice, explaining why it is correct or incorrect. */
+    feedback: string[];
+};
+
 
 /** Generic type of question */
-export type Question = MultipleChoiceQuestion;
+export type Question = MultipleChoiceQuestion | SingleChoiceQuestion;
