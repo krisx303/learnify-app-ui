@@ -17,7 +17,7 @@ export type MultipleChoiceQuestion = {
 export type SingleChoiceQuestion = {
     /** The textual content of the question. */
     question: string;
-    /** The type of the question, indicating it's a "multiple-choice" type. */
+    /** The type of the question, indicating it's a "single-choice" type. */
     type: "single-choice";
     /** The weight/importance of the question. */
     weight: number;
