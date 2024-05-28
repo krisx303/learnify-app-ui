@@ -7,10 +7,10 @@ import CardPage from "./src/pages/CardPage";
 import {createStackNavigator, CardStyleInterpolators} from "@react-navigation/stack";
 import {Platform, Text, View} from "react-native";
 import QuizPage from "./src/pages/quiz/summmary/QuizPage";
-import QuestionsScreen from "./src/pages/quiz/creation/QuestionsScreen";
-import {Question} from "./src/pages/quiz/creation/Question";
+import QuestionsScreen from "./src/pages/quiz/solving/QuestionsScreen";
+import {Question} from "./src/pages/quiz/solving/Question";
 import {QuizDetails} from "./src/pages/quiz/summmary/QuizDetails";
-import QuizEditor from "./src/pages/QuizEditor";
+import QuizEditor from "./src/pages/quiz/creation/QuizEditor";
 
 const Stack = createStackNavigator();
 

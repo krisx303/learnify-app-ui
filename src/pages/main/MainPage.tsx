@@ -44,6 +44,7 @@ const MainPage = () => {
     };
 
     const navigateToQuizEditor = (details: QuizCreateDetails) => {
+        //TODO save base quiz details to backend
         navigation.navigate('QuizEditor', {quizId: details.id, workspaceId: details.workspaceId});
     };
 

@@ -1,7 +1,7 @@
 import {Text, View, StyleSheet, ScrollView} from "react-native";
 import {Checkbox, Icon} from "react-native-paper";
 import React from "react";
-import {Question, MultipleChoiceQuestion} from "./quiz/creation/Question";
+import {Question, MultipleChoiceQuestion} from "../solving/Question";
 
 interface QuestionCardProps {
     question: Question;
@@ -11,8 +11,8 @@ interface QuestionCardProps {
 }
 
 export const QuestionCard = ({question, isExpanded, onEdit, onDelete}: QuestionCardProps) => {
-    const renderChoices = () => {
-        if (question.type !== "multiple-choice") return null;
+
+    const MultipleChoiceQuestionCardContent = ({question}: { question: MultipleChoiceQuestion }) => {
         const {choices, answer, feedback} = question as MultipleChoiceQuestion;
         return (
             <ScrollView style={styles.choicesContainer}>
@@ -30,6 +30,12 @@ export const QuestionCard = ({question, isExpanded, onEdit, onDelete}: QuestionC
                 ))}
             </ScrollView>
         );
+    }
+    const renderQuestionContent = () => {
+        if (question.type === "multiple-choice") {
+            return (<MultipleChoiceQuestionCardContent question={question as MultipleChoiceQuestion}/>);
+        }
+        return null;
     };
 
     return (
@@ -44,7 +50,7 @@ export const QuestionCard = ({question, isExpanded, onEdit, onDelete}: QuestionC
                     />
                 </View>
             </View>
-            {isExpanded && renderChoices()}
+            {isExpanded && renderQuestionContent()}
         </View>
     );
 };
