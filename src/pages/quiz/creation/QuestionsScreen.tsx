@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, Text} from "@rneui/themed";
-import {StyleSheet, View} from "react-native";
+import {Button, StyleSheet, View} from "react-native";
 import QuestionsHolder from "./QuestionsHolder";
 import {Question} from "./Question";
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
@@ -18,6 +17,8 @@ const getBaseUserAnswer = (q: Question): any => {
     switch (q.type) {
         case "multiple-choice":
             return Array(q.choices?.length || 0).fill(false);
+        case "single-choice":
+            return 0;
     }
     return {};
 };
@@ -57,14 +58,13 @@ const QuestionsHolderScreen: React.FC<QuestionsHolderScreenProps> = () => {
         <View style={styles.container2}>
             <TopBar/>
             <View style={styles.container}>
-                <Text h4 style={styles.questionText}>
+                <h4 style={styles.questionText}>
                     {question.question}
-                </Text>
+                </h4>
                 <QuestionsHolder
                     question={question}
                     userAnswer={userAnswer}
                     setUserAnswer={setUserAnswer}
-                    answer={question.answer}
                     isEditable={isEditable}
                 />
                 <View style={styles.buttonContainer}>
@@ -86,7 +86,8 @@ const styles = StyleSheet.create({
     questionText: {
         marginTop: 20,
         textAlign: "center",
-        color: "white"
+        color: "white",
+        fontSize: 30
     },
     buttonContainer: {
         alignSelf: "center",
