@@ -7,7 +7,7 @@ import {QuestionCard} from "./QuestionCard";
 import {EditableQuestionCard} from "./EditableQuestionCard";
 import {useHttpClient} from "../../../transport/HttpClient";
 import {QuizDetails} from "../summmary/QuizDetails";
-import {Question, MultipleChoiceQuestion} from "../solving/Question";
+import {Question, MultipleChoiceQuestion, SingleChoiceQuestion} from "../solving/Question";
 import {IconButton, Menu, Button, PaperProvider} from "react-native-paper";
 
 type QuizEditorRouteProp = RouteProp<RootStackParamList, 'QuizEditor'>;
@@ -44,8 +44,9 @@ const QuizEditor: React.FC = () => {
 
     const addNewQuestion = (type: string) => {
         setMenuVisible(false);
+        let newQuestion: Question = {} as Question;
         if (type === "multiple-choice") {
-            const newQuestion: MultipleChoiceQuestion = {
+            newQuestion = {
                 question: "",
                 type: "multiple-choice",
                 weight: 1,
@@ -53,10 +54,19 @@ const QuizEditor: React.FC = () => {
                 answer: [false, false, false, false],
                 feedback: ["", "", "", ""],
             };
-            setQuestions([...questions, newQuestion]);
-            setExpanded([...expanded, true]);
-            setEditableQuestion(questions.length);
+        }else if(type === "single-choice"){
+            newQuestion = {
+                question: "",
+                type: "single-choice",
+                weight: 1,
+                choices: ["", "", "", ""],
+                answer: 0,
+                feedback: ["", "", "", ""],
+            };
         }
+        setQuestions([...questions, newQuestion]);
+        setExpanded([...expanded, true]);
+        setEditableQuestion(questions.length);
     };
 
     const startEditQuestion = (index: number) => {
@@ -95,7 +105,6 @@ const QuizEditor: React.FC = () => {
                     <ScrollView contentContainerStyle={styles.scrollContent}>
                         {questions.map((question, index) => (
                             <View style={styles.cardContainer} key={index}>
-
                                 {editableQuestion == index ? (
                                     <View style={{flex: 1}}>
                                         <EditableQuestionCard
@@ -109,10 +118,8 @@ const QuizEditor: React.FC = () => {
                                         <QuestionCard
                                             question={question}
                                             isExpanded={expanded[index]}
-                                            onEdit={() => {
-                                            }}
-                                            onDelete={() => {
-                                            }}
+                                            onEdit={() => {}}
+                                            onDelete={() => {}}
                                         />
                                     </TouchableOpacity>
                                 )}
@@ -175,7 +182,7 @@ const QuizEditor: React.FC = () => {
                                 }>
                                 <Menu.Item onPress={() => addNewQuestion("multiple-choice")}
                                            title="Multiple Choice"/>
-                                <Menu.Item onPress={() => addNewQuestion("multiple-choice")}
+                                <Menu.Item onPress={() => addNewQuestion("single-choice")}
                                            title="Single Choice"/>
                             </Menu>
                         </PaperProvider>

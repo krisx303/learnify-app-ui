@@ -1,7 +1,7 @@
 import {Text, View, StyleSheet, ScrollView} from "react-native";
-import {Checkbox, Icon} from "react-native-paper";
+import {Checkbox, Icon, RadioButton} from "react-native-paper";
 import React from "react";
-import {Question, MultipleChoiceQuestion} from "../solving/Question";
+import {Question, MultipleChoiceQuestion, SingleChoiceQuestion} from "../solving/Question";
 
 interface QuestionCardProps {
     question: Question;
@@ -31,9 +31,33 @@ export const QuestionCard = ({question, isExpanded, onEdit, onDelete}: QuestionC
             </ScrollView>
         );
     }
+
+    const SingleChoiceQuestionCardContent = ({question}: { question: SingleChoiceQuestion }) => {
+        const {choices, answer, feedback} = question as SingleChoiceQuestion;
+        return (
+            <ScrollView style={styles.choicesContainer}>
+                {choices.map((choice, index) => (
+                    <View key={index} style={styles.choiceContainer}>
+                        <RadioButton
+                            status={answer === index ? 'checked' : 'unchecked'}
+                            disabled
+                            value={index + ''}/>
+                        <View style={styles.answerContainer}>
+                            <Text style={styles.choiceText}>{choice}</Text>
+                            {feedback[index] && <Text style={styles.feedbackText}>{feedback[index]}</Text>}
+                        </View>
+                    </View>
+                ))}
+            </ScrollView>
+        );
+    }
+
     const renderQuestionContent = () => {
         if (question.type === "multiple-choice") {
             return (<MultipleChoiceQuestionCardContent question={question as MultipleChoiceQuestion}/>);
+        }
+        else if(question.type === "single-choice") {
+            return (<SingleChoiceQuestionCardContent question={question as SingleChoiceQuestion}/>);
         }
         return null;
     };

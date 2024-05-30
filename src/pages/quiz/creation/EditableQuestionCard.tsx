@@ -1,13 +1,12 @@
 import {View, StyleSheet, TextInput, ScrollView} from "react-native";
-import {Checkbox, IconButton} from "react-native-paper";
+import {Checkbox, IconButton, RadioButton} from "react-native-paper";
 import React, {useState} from "react";
-import {Question, MultipleChoiceQuestion} from "../solving/Question";
+import {Question, MultipleChoiceQuestion, SingleChoiceQuestion} from "../solving/Question";
 
 
 interface EditableMultipleChoiceContentProps {
     editableQuestion: MultipleChoiceQuestion;
     setEditableQuestion: any;
-
 }
 
 const EditableMultipleChoiceContent = ({editableQuestion, setEditableQuestion}: EditableMultipleChoiceContentProps) => {
@@ -76,6 +75,74 @@ const EditableMultipleChoiceContent = ({editableQuestion, setEditableQuestion}: 
     );
 };
 
+interface EditableSingleChoiceContentProps {
+    editableQuestion: SingleChoiceQuestion;
+    setEditableQuestion: any;
+}
+
+const EditableSingleChoiceContent = ({editableQuestion, setEditableQuestion}: EditableSingleChoiceContentProps) => {
+    const handleChoiceChange = (index: number, value: string) => {
+        const choices = [...(editableQuestion).choices];
+        choices[index] = value;
+        setEditableQuestion({...editableQuestion, choices});
+    };
+
+    const handleAnswerToggle = (index: number) => {
+        setEditableQuestion({...editableQuestion, answer: index});
+    };
+
+    const handleFeedbackChange = (index: number, value: string) => {
+        const feedback = [...(editableQuestion).feedback];
+        feedback[index] = value;
+        setEditableQuestion({...editableQuestion, feedback});
+    };
+
+    const {choices, answer, feedback} = editableQuestion;
+    return (
+        <ScrollView style={styles.choicesContainer}>
+            {choices.map((choice, index) => (
+                <View key={index} style={styles.choiceContainer}>
+                    <RadioButton
+                        value={index.toString()}
+                        status={answer === index ? 'checked' : 'unchecked'}
+                        onPress={() => handleAnswerToggle(index)}
+                    />
+                    <View style={styles.answerContainer}>
+                        <TextInput
+                            style={styles.choiceText}
+                            value={choice}
+                            onChangeText={(value) => handleChoiceChange(index, value)}
+                            placeholder="Enter choice"
+                        />
+                        <TextInput
+                            style={styles.feedbackText}
+                            value={feedback[index]}
+                            onChangeText={(value) => handleFeedbackChange(index, value)}
+                            placeholder="Feedback (optional)"
+                        />
+                    </View>
+                    <IconButton icon={'delete'} onPress={() => {
+                        // delete choice with given index
+                        const choices = [...editableQuestion.choices];
+                        choices.splice(index, 1);
+                        const answer = editableQuestion.answer === index ? 0 : (editableQuestion.answer > index ? editableQuestion.answer - 1 : editableQuestion.answer)
+                        const feedback = [...editableQuestion.feedback];
+                        feedback.splice(index, 1);
+                        setEditableQuestion({...editableQuestion, choices, answer, feedback});
+                    }}/>
+                </View>
+            ))}
+            {<View key={"new-one"}><IconButton icon={'plus'} style={{marginLeft: 2}} onPress={() => {
+                const choices = [...editableQuestion.choices];
+                choices.push("");
+                const feedback = [...editableQuestion.feedback];
+                feedback.push("");
+                setEditableQuestion({...editableQuestion, choices, feedback});
+            }}/></View>}
+        </ScrollView>
+    );
+};
+
 interface EditableQuestionCardProps {
     question: Question;
     isExpanded: boolean;
@@ -97,6 +164,13 @@ export const EditableQuestionCard = ({
                     setEditableQuestion={setEditableQuestion}
                 />
             );
+        } else if (editableQuestion.type === "single-choice") {
+            return (
+                <EditableSingleChoiceContent
+                    editableQuestion={editableQuestion as SingleChoiceQuestion}
+                    setEditableQuestion={setEditableQuestion}
+                />
+            )
         }
         return null;
     };
