@@ -1,7 +1,7 @@
 import {useMemo} from "react";
 import {NoteSummary, QuizSummary, Workspace} from "../pages/main/Types";
 import {QuizDetails} from "../pages/quiz/summmary/QuizDetails";
-import {Question} from "../pages/quiz/creation/Question";
+import {Question} from "../pages/quiz/solving/Question";
 
 /** Interface representing base HTTP client */
 interface HttpClientBase {

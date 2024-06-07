@@ -2,10 +2,10 @@ import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import React, {useEffect, useState} from "react";
 import {ActivityIndicator, Text, View} from "react-native";
 import PieChart from "react-native-pie-chart";
-import {Button, Icon} from "react-native-paper";
+import {Button, IconButton} from "react-native-paper";
 import styles from './QuizPage.scss';
 import TopBar from "../../main/TopBar";
-import {Question} from "../creation/Question";
+import {Question} from "../solving/Question";
 import {QuizDetails} from "./QuizDetails";
 import {useHttpClient} from "../../../transport/HttpClient";
 import {RootStackParamList} from "../../../../App";
@@ -48,14 +48,28 @@ const QuizPage: React.FC = () => {
     }
 
     const asPercentage = (num: number) => {
-        const percentage = (num / (quiz.numberOfExercises)) * 100;
+        const percentage = (num / (quiz!!.numberOfExercises)) * 100;
         return parseFloat(percentage.toFixed(2));
     };
 
+    const navigateToEditor = () => {
+        navigation.navigate("QuizEditor", {quizId, workspaceId})
+    };
+
     const QuizDetailsContent = ({quiz}: { quiz: QuizDetails }) => {
+        const navigateToQuestionScreen = () => {
+            navigation.navigate("QuestionsScreen", {
+                quizId: quizId,
+                questions: questions,
+                quiz: quiz
+            });
+        };
         return (
             <View style={styles.container2}>
-                <Text style={styles.title}>{quiz.name}</Text>
+                <View style={styles.row}>
+                    <Text style={styles.title}>{quiz.name}</Text>
+                    <IconButton icon={"pencil"} size={30} iconColor="white" onPress={navigateToEditor}/>
+                </View>
                 <Text style={styles.description}>{quiz.description}</Text>
                 <Text style={styles.info}>Number of questions: {quiz.numberOfExercises} </Text>
                 <Text style={styles.subtitle}>Subtitle</Text>
@@ -76,22 +90,8 @@ const QuizPage: React.FC = () => {
                             style={[styles.percentageText, {color: "#ff3c00"}]}>Incorrect: {asPercentage(quiz.lastScore.incorrect)}%</Text>
                     </View>
                 </View>
-                <Button
-                    style={styles.button}
-                    radius={"sm"}
-                    type="solid"
-                    onPress={() =>
-                        navigation.navigate("QuestionsScreen", {
-                            quizId: quiz.id,
-                            questions: questions,
-                            quiz: quiz
-                        })
-                    }
-                >
-                    <Text style={styles.buttonText}>
-                        Start quiz
-                    </Text>
-                    <Icon name="arrow-forward" color="white"/>
+                <Button style={styles.button} onPress={navigateToQuestionScreen}>
+                    <Text style={styles.buttonText}>Start quiz</Text>
                 </Button>
             </View>
         );
