@@ -14,10 +14,6 @@ interface HttpClientBase {
     getQuizQuestions(quizId: string): Promise<Question[]>;
 
     getWorkspaces(): Promise<Workspace[]>;
-
-    verifyNoteIdIdentity(workspaceId: string, noteId: string): Promise<boolean>;
-
-    verifyQuizIdIdentity(quizId: string): Promise<boolean>;
 }
 
 class StubHttpClient implements HttpClientBase {
@@ -133,14 +129,6 @@ class StubHttpClient implements HttpClientBase {
             {id: 'semestr4', name: 'Semestr 4'},
             {id: 'semestr5', name: 'Semestr 5'},
         ]);
-    }
-
-    verifyNoteIdIdentity(workspaceId : string, noteId: string): Promise<boolean> {
-        return Promise.resolve(noteId != 'note1');
-    }
-
-    verifyQuizIdIdentity(quizId: string): Promise<boolean> {
-        return Promise.resolve(quizId != 'quiz1');
     }
 }
 

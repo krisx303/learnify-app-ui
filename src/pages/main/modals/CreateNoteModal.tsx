@@ -10,20 +10,16 @@ import {generateID} from "./Utils";
 interface CreateNoteModalProps {
     isVisible: boolean;
     onClose: () => void;
-    onSubmit: (note: { id: string; name: string; description: string; workspaceId: string }) => void;
+    onSubmit: (note: {name: string; description: string; workspaceId: string }) => void;
 }
 
 const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, onSubmit}) => {
-    const [noteId, setNoteId] = useState('');
     const [noteName, setNoteName] = useState('');
     const [description, setDescription] = useState('');
     const [workspace, setWorkspace] = useState('');
     const [errorNoteName, setErrorNoteName] = useState('');
-    const [errorNoteId, setErrorNoteId] = useState('');
-    const [isOverride, setIsOverride] = useState(false);
     const [workspaceOptions, setWorkspaceOptions] = useState<Workspace[]>([]);
     const httpClient = useHttpClient();
-    const [isNoteIdUnique, setIsNoteIdUnique] = useState(true);
 
     useEffect(() => {
         httpClient.getWorkspaces()
@@ -32,35 +28,17 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
     }, [httpClient]);
 
     useEffect(() => {
-        if (!isOverride) {
-            setNoteId(generateID(noteName));
-        }
         if (noteName) {
             setErrorNoteName('');
         }
-    }, [isOverride, noteName]);
-
-    useEffect(() => {
-        if (!noteId) return;
-        setErrorNoteId('');
-        httpClient.verifyNoteIdIdentity(workspace, noteId)
-            .then(setIsNoteIdUnique)
-            .catch(console.error);
-    }, [httpClient, noteId])
+    }, [noteName]);
 
     const handleNoteSubmit = () => {
-        let isError = false;
         if (noteName.trim() === '') {
             setErrorNoteName('* Note Name is required');
-            isError = true;
-        }
-        if (noteId.trim() === '') {
-            setErrorNoteId('* Note ID is required');
-            isError = true;
-        }
-        if (isError || !isNoteIdUnique)
             return;
-        onSubmit({id: noteId, name: noteName, description, workspaceId: workspace});
+        }
+        onSubmit({name: noteName, description, workspaceId: workspace});
         setNoteName('');
         setDescription('');
         setWorkspace('');
@@ -82,31 +60,6 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
                     onChangeText={setNoteName}
                 />
                 {errorNoteName ? <Text style={styles.errorText}>{errorNoteName}</Text> : null}
-                <View style={styles.row}>
-                    <TextInput
-                        label="Note ID"
-                        mode="outlined"
-                        style={[styles.input, {flex: 1}]}
-                        value={noteId}
-                        onChangeText={setNoteId}
-                        disabled={!isOverride}
-                    />
-                    <View style={styles.switchContainer}>
-                        <Text>Override</Text>
-                        <Switch
-                            value={isOverride}
-                            trackColor={{false: '#c3bdce', true: '#6200ee'}}
-                            onValueChange={(value) => {
-                                setIsOverride(value);
-                                if (value) {
-                                    setNoteId('');
-                                }
-                            }}
-                        />
-                    </View>
-                </View>
-                {errorNoteId ? <Text style={styles.errorText}>{errorNoteId}</Text> : null}
-                {!isNoteIdUnique ? <Text style={styles.errorText}>* This ID is already used!</Text> : null}
                 <TextInput
                     style={[styles.input, {height: 80}]}
                     label="Description (optional)"
@@ -149,17 +102,6 @@ const styles = StyleSheet.create({
         height: 40,
         marginBottom: 5,
         paddingLeft: 8,
-    },
-    row: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 10,
-        marginTop: 10
-    },
-    switchContainer: {
-        flexDirection: 'column',
-        alignItems: 'center',
-        marginLeft: 10,
     },
     errorText: {
         color: 'red',
