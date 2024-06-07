@@ -30,7 +30,6 @@ const MainPage = () => {
     }, [httpClient]);
 
     const onCreateDropdownSelected = (item: string) => {
-        console.log(`Selected item: ${item}`);
         if(item === "HandWrittenNote") {
             setIsNoteModalVisible(true);
         }else if(item === "Quiz") {

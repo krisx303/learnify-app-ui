@@ -1,8 +1,3 @@
-export interface User {
-    username: string;
-    avatarUrl: string;
-}
-
 export interface NoteSummary {
     id: string;
     workspaceId: string;
@@ -13,7 +8,7 @@ export interface NoteSummary {
 }
 
 export interface QuizSummary {
-    id: number;
+    id: string;
     workspaceId: string;
     title: string;
     score: string;

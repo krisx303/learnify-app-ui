@@ -4,21 +4,25 @@ import {Avatar} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import styles from './TopBar.scss';
 import LearnifyAppIconInner from "../../icons/learnify-app-icon-inner";
+import {RootStackParamList} from "../../../App";
+import {StackNavigationProp} from "@react-navigation/stack";
 
 interface TopBarProps {
     text?: string;
     children?: React.ReactElement;
 }
 
+type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
+
 const TopBar: React.FC<TopBarProps> = ({text, children}) => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProps>();
     const user = {
         username: 'JohnDoe',
         avatarUrl: 'https://cdn2.iconfinder.com/data/icons/people-round-icons/128/man_avatar-512.png',
     };
 
     const handleLearnifyPress = () => {
-        navigation.navigate('Main'); // Navigate to the main screen
+        navigation.navigate('Main');
     };
 
     return (

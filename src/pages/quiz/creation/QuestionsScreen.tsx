@@ -3,14 +3,12 @@ import {Button, StyleSheet, View} from "react-native";
 import QuestionsHolder from "./QuestionsHolder";
 import {Question} from "./Question";
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
-import {QuizDetails} from "../summmary/QuizDetails";
 import TopBar from "../../main/TopBar";
+import {RootStackParamList} from "../../../../App";
+import {StackNavigationProp} from "@react-navigation/stack";
 
-interface QuestionsHolderParamList {
-    QuestionsHolderScreenProps: { questions: Question[]; quizId: string, quiz: QuizDetails };
-}
-
-type QuestionsHolderScreenProps = RouteProp<QuestionsHolderParamList, 'QuestionsHolderScreen'>;
+type NavigationProps = StackNavigationProp<RootStackParamList, 'QuestionsScreen'>;
+type RouteProps = RouteProp<RootStackParamList, 'QuestionsScreen'>;
 
 /** Provides a base version of user answer (for example for multiple choice question sets all options for not-chosen) */
 const getBaseUserAnswer = (q: Question): any => {
@@ -23,14 +21,14 @@ const getBaseUserAnswer = (q: Question): any => {
     return {};
 };
 
-const QuestionsHolderScreen: React.FC<QuestionsHolderScreenProps> = () => {
-    const route = useRoute<QuestionsHolderScreenProps>();
+const QuestionsScreen: React.FC = () => {
+    const route = useRoute<RouteProps>();
     const {questions, quiz} = route.params;
     const [index, setIndex] = useState<number>(0);
     const [question, setQuestion] = useState<Question>(questions[0]);
     const [userAnswer, setUserAnswer] = useState<any>(getBaseUserAnswer(question));
     const [isEditable, setEditable] = useState<boolean>(true);
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProps>();
 
     const handleNext = () => {
         if (!isEditable) {
@@ -100,4 +98,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default QuestionsHolderScreen;
+export default QuestionsScreen;

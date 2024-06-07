@@ -4,15 +4,17 @@ import { useNavigation } from '@react-navigation/native';
 import LearnifyAppLogo from "../../icons/learnify-app-logo";
 import RegisterForm from "./RegisterForm";
 import styles from './RegisterPage.scss'
+import {StackNavigationProp} from "@react-navigation/stack";
+import {RootStackParamList} from "../../../App";
+
+type NavigationProps = StackNavigationProp<RootStackParamList, 'Register'>;
 
 const RegisterPage = () => {
     const { width: windowWidth } = useWindowDimensions();
-    const navigation = useNavigation<any>();
+    const navigation = useNavigation<NavigationProps>();
 
     const onRegister = (username: string, password: string) => {
         // TODO: Implement registration logic
-        console.log("Registered:", username, password);
-        // After successful registration, navigate to the main page
         navigation.navigate("Main");
     };
 

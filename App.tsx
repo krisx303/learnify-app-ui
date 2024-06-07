@@ -8,8 +8,20 @@ import {createStackNavigator, CardStyleInterpolators} from "@react-navigation/st
 import {Platform, Text, View} from "react-native";
 import QuizPage from "./src/pages/quiz/summmary/QuizPage";
 import QuestionsScreen from "./src/pages/quiz/creation/QuestionsScreen";
+import {Question} from "./src/pages/quiz/creation/Question";
+import {QuizDetails} from "./src/pages/quiz/summmary/QuizDetails";
 
 const Stack = createStackNavigator();
+
+export type RootStackParamList = {
+    Main: undefined;
+    Login: undefined;
+    Register: undefined;
+    CardPage: {workspaceId: string, noteId: string};
+    QuizPage: {workspaceId: string, quizId: string};
+    // TODO delete advanced objects from route
+    QuestionsScreen: { questions: Question[]; quizId: string, quiz: QuizDetails };
+};
 
 const linking = {
     prefixes: ['https://learnify.pl', 'learnify://'],

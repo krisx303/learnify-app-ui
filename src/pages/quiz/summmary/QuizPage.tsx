@@ -8,13 +8,12 @@ import TopBar from "../../main/TopBar";
 import {Question} from "../creation/Question";
 import {QuizDetails} from "./QuizDetails";
 import {useHttpClient} from "../../../transport/HttpClient";
-
-type RootStackParamList = {
-    QuizPage: { workspaceId: string; quizId: string };
-};
+import {RootStackParamList} from "../../../../App";
+import {StackNavigationProp} from "@react-navigation/stack";
 
 
-type QuizPageRouteProp = RouteProp<RootStackParamList, 'QuizPage'>;
+type NavigationProps = StackNavigationProp<RootStackParamList, 'QuizPage'>;
+type RouteProps = RouteProp<RootStackParamList, 'QuizPage'>;
 
 
 const QuizPage: React.FC = () => {
@@ -22,8 +21,8 @@ const QuizPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [questions, setQuestions] = useState<Question[]>([]);
     const httpClient = useHttpClient();
-    const navigation = useNavigation();
-    const route = useRoute<QuizPageRouteProp>();
+    const navigation = useNavigation<NavigationProps>();
+    const route = useRoute<RouteProps>();
     const {workspaceId, quizId} = route.params;
 
     useEffect(() => {
