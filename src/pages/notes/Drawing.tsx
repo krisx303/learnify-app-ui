@@ -1,52 +1,71 @@
 import {
     Canvas,
     Path,
-    SkPath,
     Skia,
     TouchInfo,
     useTouchHandler,
 } from "@shopify/react-native-skia";
-import React, {useEffect, useState} from "react";
-import {ImageBackground, Pressable, StyleSheet, Text, View} from "react-native";
-import Two from "two.js";
+import React, {useEffect, useRef, useState} from "react";
+import {ImageBackground, StyleSheet, View} from "react-native";
 import styles from "../CardPage.scss";
+import MovableImage from "./MoveableImage";
+import {Action, Color, Colors, PathWithColorAndWidth, Position, strokes, Tool} from "./types";
+import {Toolbar} from "./Toolbar";
+import {createGrid} from "./utils";
 
-type PathWithColorAndWidth = {
-    path: SkPath;
-    color: Color;
-    strokeWidth: number;
-};
+type GenericElement = {
+    id: string;
+    position: Position;
+    isMoving: boolean;
+    isEditingMode: boolean;
+    setPosition: (position: Position) => void;
+    setIsMoving: (isMoving: boolean) => void;
+    setIsEditingMode: (isEditingMode: boolean) => void;
+    content: string;
+    width: number;
+    height: number;
+}
 
 const Drawing = () => {
     const [backgroundImage, setBackgroundImage] = useState('');
-
-    const createGrid = (s: number) => {
-        const size = s || 30;
-        const two = new Two({
-            type: Two.Types.canvas,
-            width: size,
-            height: size
-        });
-
-        // Create grid lines
-        const a = two.makeLine(two.width / 2, 0, two.width / 2, two.height);
-        const b = two.makeLine(0, two.height / 2, two.width, two.height / 2);
-        a.stroke = b.stroke = '#6dcff6';
-        two.update();
-        const imageData = two.renderer.domElement.toDataURL('image/png');
-        console.log(imageData)
-        setBackgroundImage(imageData);
-    };
-
-    useEffect(() => {
-        createGrid(30);
-    }, [])
-
+    const [elements, setElements] = useState<GenericElement[]>([]);
+    const movingElement = useRef<GenericElement>(null);
+    const [selectedTool, setSelectedTool] = useState<Tool>('pen');
     const [paths, setPaths] = useState<PathWithColorAndWidth[]>([]);
     const [color, setColor] = useState<Color>(Colors[0]);
     const [active, setActive] = useState(false);
-
     const [strokeWidth, setStrokeWidth] = useState(strokes[0]);
+
+    const createMoveableImage = () => {
+        const id = Math.random().toString(36).substr(2, 9); // unique ID for each element
+        const element = {
+            id,
+            position: { x: Math.floor(Math.random() * 100), y: Math.floor(Math.random() * 100) },
+            isMoving: false,
+            isEditingMode: false,
+            content: "https://picsum.photos/200/300",
+            width: 200,
+            height: 300,
+            setPosition: (position: Position) => {
+                element.position = position;
+                setElements((prevElements) => prevElements.map((el) => el.id === id ? { ...el, position: position } : el));
+            },
+            setIsMoving: (isMoving: boolean) => {
+                element.isMoving = isMoving;
+                setElements((prevElements) => prevElements.map((el) => el.id === id ? { ...el, isMoving } : el));
+            },
+            setIsEditingMode: (isEditingMode: boolean) => {
+                element.isEditingMode = isEditingMode;
+                setElements((prevElements) => prevElements.map((el) => el.id === id ? { ...el, isEditingMode } : el));
+            },
+        } as GenericElement;
+        setElements((prevElements) => [...prevElements, element]);
+    };
+
+    useEffect(() => {
+        const gridImage = createGrid(30);
+        setBackgroundImage(gridImage);
+    }, [])
 
     const onDrawingStart =
         (touchInfo: TouchInfo) => {
@@ -61,6 +80,7 @@ const Drawing = () => {
                         path: newPath,
                         color,
                         strokeWidth,
+                        blendMode: selectedTool === "pen" ? "src" : "clear"
                     },
                 ];
             });
@@ -70,6 +90,8 @@ const Drawing = () => {
         if (touchInfo.force == 0) {
             setActive(false);
             return;
+        }else if(!active) {
+            onDrawingStart(touchInfo);
         }
         setPaths((currentPaths) => {
             if (!active || currentPaths.length === 0) return currentPaths;
@@ -84,27 +106,113 @@ const Drawing = () => {
         });
     };
 
-    const touchHandler = useTouchHandler(
-        {
-            onActive: onDrawingActive,
-            onStart: onDrawingStart,
-            onEnd: () => {
-                setActive(false)
-            },
+    const moveElement = (element: GenericElement, position: Position) => {
+        element.setPosition({ x: position.x - element.width / 2, y: position.y - element.height / 2 });
+    };
+
+    const touchHandler = useTouchHandler({
+        onStart: (touchInfo) => {
+            elements.forEach(element => {
+                if (element.isMoving) {
+                    element.setIsMoving(false);
+                } else if (element.isEditingMode) {
+                    element.setIsEditingMode(false);
+                }
+            });
+            setActive(false);
+            movingElement.current = null;
+            switch (selectedTool) {
+                case "pointer":
+                    const { x: touchX, y: touchY } = touchInfo;
+                    const element = elements.find(el =>
+                        touchX >= el.position.x && touchX <= el.position.x + el.width &&
+                        touchY >= el.position.y && touchY <= el.position.y + el.height
+                    );
+                    if (element) {
+                        movingElement.current = element;
+
+                        elements.filter(el => el.id !== element.id).forEach(el => {
+                            el.setIsEditingMode(false);
+                            el.setIsMoving(false);
+                        });
+                        moveElement(movingElement.current, {x: touchX, y: touchY})
+
+                        movingElement.current.setIsMoving(true);
+                        movingElement.current.setIsEditingMode(true);
+                    }
+                    break;
+                case "pen":
+                    onDrawingStart(touchInfo);
+                    break;
+                case "eraser":
+                    onDrawingStart(touchInfo);
+                    break;
+            }
         },
-        [onDrawingActive, onDrawingStart]
-    );
+        onActive: (touchInfo) => {
+            switch (selectedTool) {
+                case "pointer":
+                    const { x: touchX, y: touchY, force } = touchInfo;
+                    if (movingElement.current && force > 0) {
+                        moveElement(movingElement.current, { x: touchX, y: touchY })
+                    }
+                    break;
+                case "pen":
+                    onDrawingActive(touchInfo);
+                    break;
+                case "eraser":
+                    onDrawingActive(touchInfo);
+                    break;
+            }
+        },
+        onEnd: () => {
+            elements.forEach(element => {
+                if (element.isMoving) {
+                    element.setIsMoving(false);
+                } else if (element.isEditingMode) {
+                    element.setIsEditingMode(false);
+                }
+            });
+            setActive(false);
+            movingElement.current = null;
+        }
+    }, [elements, onDrawingActive, onDrawingStart]);
+
+    const performAction = (action: Action) => {
+        switch (action) {
+            case "add":
+                createMoveableImage();
+                break;
+            case "undo":
+                setPaths((currentPaths) => currentPaths.slice(0, currentPaths.length - 1));
+                break;
+            case "paste":
+                break;
+        }
+    }
+
+    useEffect(() => {
+        const performPasteAction = (event) => {
+            performAction("paste");
+        }
+        const performUndoAction = (event) => {
+            if (event.ctrlKey && event.key === 'z') {
+                performAction("undo");
+            }
+        };
+        window.addEventListener("paste", performPasteAction);
+
+        window.addEventListener('keydown', performUndoAction);
+
+        return () => {
+            window.removeEventListener('keydown', performUndoAction);
+            window.removeEventListener("paste", performPasteAction);
+        };
+    }, []);
+
 
     return (
         <View style={styles.content}>
-            <View style={styles.toolPanel}>
-                <Toolbar
-                    color={color}
-                    strokeWidth={strokeWidth}
-                    setColor={setColor}
-                    setStrokeWidth={setStrokeWidth}
-                />
-            </View>
             <View style={style.container}>
                 <ImageBackground
                     source={{uri: backgroundImage}}
@@ -119,99 +227,35 @@ const Drawing = () => {
                                 color={path.color}
                                 style={"stroke"}
                                 strokeWidth={path.strokeWidth}
+                                blendMode={path.blendMode}
+                            />
+                        ))}
+                        {elements.map((element, index) => (
+                            <MovableImage
+                                key={element.id}
+                                src={element.content}
+                                imageWidth={element.width}
+                                imageHeight={element.height}
+                                imagePosition={element.position}
+                                isMoving={element.isMoving}
+                                isEditingMode={element.isEditingMode}
                             />
                         ))}
                     </Canvas>
                 </ImageBackground>
             </View>
-        </View>
-    );
-};
-
-const Colors = ["black", "red", "blue", "green", "yellow", "white"] as const;
-
-type Color = (typeof Colors)[number];
-
-type ToolbarProps = {
-    color: Color;
-    strokeWidth: number;
-    setColor: (color: Color) => void;
-    setStrokeWidth: (strokeWidth: number) => void;
-};
-
-const strokes = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20];
-
-export const Toolbar = ({
-                            color,
-                            strokeWidth,
-                            setColor,
-                            setStrokeWidth,
-                        }: ToolbarProps) => {
-    const [showStrokes, setShowStrokes] = useState(false);
-
-    const handleStrokeWidthChange = (stroke: number) => {
-        setStrokeWidth(stroke);
-        setShowStrokes(false);
-    };
-
-    const handleChangeColor = (color: Color) => {
-        setColor(color);
-    };
-
-    return (
-        <>
-            {showStrokes && (
-                <View style={[style.toolbar, style.strokeToolbar]}>
-                    {strokes.map((stroke) => (
-                        <Pressable
-                            onPress={() => handleStrokeWidthChange(stroke)}
-                            key={stroke}
-                        >
-                            <Text style={style.strokeOption}>{stroke}</Text>
-                        </Pressable>
-                    ))}
-                </View>
-            )}
-            <View style={[style.toolbar]}>
-                <Pressable
-                    style={style.currentStroke}
-                    onPress={() => setShowStrokes(!showStrokes)}
-                >
-                    <Text>{strokeWidth}</Text>
-                </Pressable>
-                <View style={style.separator}/>
-                {Colors.map((item) => (
-                    <ColorButton
-                        isSelected={item === color}
-                        key={item}
-                        color={item}
-                        onPress={() => handleChangeColor(item)}
-                    />
-                ))}
+            <View style={styles.toolPanel}>
+                <Toolbar
+                    color={color}
+                    strokeWidth={strokeWidth}
+                    setColor={setColor}
+                    setStrokeWidth={setStrokeWidth}
+                    selectedTool={selectedTool}
+                    setSelectedTool={setSelectedTool}
+                    onAction={performAction}
+                />
             </View>
-        </>
-    );
-};
-
-type ColorButtonProps = {
-    color: Color;
-    isSelected: boolean;
-    onPress: () => void;
-};
-
-const ColorButton = ({color, onPress, isSelected}: ColorButtonProps) => {
-    return (
-        <Pressable
-            onPress={onPress}
-            style={[
-                style.colorButton,
-                {backgroundColor: color},
-                isSelected && {
-                    borderWidth: 2,
-                    borderColor: "black",
-                },
-            ]}
-        />
+        </View>
     );
 };
 
@@ -222,49 +266,5 @@ const style = StyleSheet.create({
         flex: 1,
         width: "100%",
         height: "100%"
-    },
-    strokeOption: {
-        fontSize: 18,
-        backgroundColor: "#f7f7f7",
-        zIndex: 100000,
-    },
-    toolbar: {
-        backgroundColor: "#ffffff",
-        height: "100%",
-        width: 50,
-        borderRadius: 100,
-        borderColor: "#f0f0f0",
-        borderWidth: 1,
-        flexDirection: "column",
-        paddingHorizontal: 12,
-        justifyContent: "center",
-        alignItems: "center",
-        alignSelf: "center",
-    },
-    separator: {
-        height: 30,
-        borderWidth: 1,
-        borderColor: "#f0f0f0",
-        marginHorizontal: 10,
-    },
-    currentStroke: {
-        backgroundColor: "#f7f7f7",
-        borderRadius: 5,
-    },
-    strokeToolbar: {
-        height: 300,
-        width: 50,
-        position: "absolute",
-        top: 120,
-        left: 40,
-        justifyContent: "space-between",
-        zIndex: 100,
-        flexDirection: "column",
-    },
-    colorButton: {
-        width: 30,
-        height: 30,
-        borderRadius: 100,
-        marginVertical: 5,
     },
 });
