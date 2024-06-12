@@ -6,10 +6,11 @@ import {
     TouchInfo,
     useTouchHandler,
 } from "@shopify/react-native-skia";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {ImageBackground, Pressable, StyleSheet, Text, View} from "react-native";
 import Two from "two.js";
 import styles from "../CardPage.scss";
+import MovableImage from "./MoveableImage";
 
 type PathWithColorAndWidth = {
     path: SkPath;
@@ -19,6 +20,36 @@ type PathWithColorAndWidth = {
 
 const Drawing = () => {
     const [backgroundImage, setBackgroundImage] = useState('');
+
+    const [elements, setElements] = useState([]);
+    const imageWidth = 200;
+    const imageHeight = 300;
+    const movingElement = useRef(null);
+
+    const createMoveableImage = () => {
+        const id = Math.random().toString(36).substr(2, 9); // unique ID for each element
+        const element = {
+            id,
+            imagePosition: { x: Math.floor(Math.random() * 100), y: Math.floor(Math.random() * 100) },
+            isMoving: false,
+            isEditingMode: false,
+            setImagePosition: (position) => {
+                setElements((prevElements) => prevElements.map((el) => el.id === id ? { ...el, imagePosition: position } : el));
+            },
+            setIsMoving: (isMoving) => {
+                setElements((prevElements) => prevElements.map((el) => el.id === id ? { ...el, isMoving } : el));
+            },
+            setIsEditingMode: (isEditingMode) => {
+                setElements((prevElements) => prevElements.map((el) => el.id === id ? { ...el, isEditingMode } : el));
+            },
+        };
+        setElements((prevElements) => [...prevElements, element]);
+    };
+
+    useEffect(() => {
+        createMoveableImage();
+        createMoveableImage();
+    }, []);
 
     const createGrid = (s: number) => {
         const size = s || 30;
@@ -84,16 +115,47 @@ const Drawing = () => {
         });
     };
 
-    const touchHandler = useTouchHandler(
-        {
-            onActive: onDrawingActive,
-            onStart: onDrawingStart,
-            onEnd: () => {
-                setActive(false)
-            },
+    const touchHandler = useTouchHandler({
+        onStart: (touchInfo) => {
+            const { x: touchX, y: touchY } = touchInfo;
+            const element = elements.find(el =>
+                touchX >= el.imagePosition.x && touchX <= el.imagePosition.x + imageWidth &&
+                touchY >= el.imagePosition.y && touchY <= el.imagePosition.y + imageHeight
+            );
+            if (element) {
+                movingElement.current = element;
+
+                elements.filter(el => el.id !== element.id).forEach(el => {
+                    el.setIsEditingMode(false);
+                    el.setIsMoving(false);
+                });
+                movingElement.current.setImagePosition({ x: touchX - imageWidth / 2, y: touchY - imageHeight / 2 });
+                movingElement.current.setIsMoving(true);
+                movingElement.current.setIsEditingMode(true);
+            }else {
+                onDrawingStart(touchInfo);
+            }
         },
-        [onDrawingActive, onDrawingStart]
-    );
+        onActive: (touchInfo) => {
+            const { x: touchX, y: touchY, force } = touchInfo;
+            if (movingElement.current && force > 0) {
+                movingElement.current.setImagePosition({ x: touchX - imageWidth / 2, y: touchY - imageHeight / 2 });
+            }else {
+                onDrawingActive(touchInfo);
+            }
+        },
+        onEnd: () => {
+            elements.forEach(element => {
+                if (element.isMoving) {
+                    element.setIsMoving(false);
+                } else if (element.isEditingMode) {
+                    element.setIsEditingMode(false);
+                }
+            });
+            setActive(false);
+            movingElement.current = null;
+        }
+    }, [elements, onDrawingActive, onDrawingStart]);
 
     return (
         <View style={styles.content}>
@@ -119,6 +181,16 @@ const Drawing = () => {
                                 color={path.color}
                                 style={"stroke"}
                                 strokeWidth={path.strokeWidth}
+                            />
+                        ))}
+                        {elements.map((element, index) => (
+                            <MovableImage
+                                key={element.id}
+                                src="https://picsum.photos/200/300"
+                                imageWidth={imageWidth}
+                                imageHeight={imageHeight}
+                                imagePosition={element.imagePosition}
+                                isEditingMode={element.isEditingMode}
                             />
                         ))}
                     </Canvas>

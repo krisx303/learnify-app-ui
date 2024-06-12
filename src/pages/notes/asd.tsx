@@ -47,9 +47,9 @@ const App = () => {
                     el.setIsEditingMode(false);
                     el.setIsMoving(false);
                 });
-                element.setImagePosition({ x: touchX - imageWidth / 2, y: touchY - imageHeight / 2 });
-                element.setIsMoving(true);
-                element.setIsEditingMode(true);
+                movingElement.current.setImagePosition({ x: touchX - imageWidth / 2, y: touchY - imageHeight / 2 });
+                movingElement.current.setIsMoving(true);
+                movingElement.current.setIsEditingMode(true);
             }
         },
         onActive: ({ x: touchX, y: touchY, force }) => {
@@ -65,6 +65,7 @@ const App = () => {
                     element.setIsEditingMode(false);
                 }
             });
+            movingElement.current = null;
         }
     }, [elements]);
 

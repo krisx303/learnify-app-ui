@@ -15,7 +15,7 @@ const CardPage: React.FC = () => {
                         `https://cdn.jsdelivr.net/npm/canvaskit-wasm@${version}/bin/full/${file}`,
                 }}
                 // @ts-ignore
-                getComponent={() => import("./notes/asd")}
+                getComponent={() => import("./notes/Drawing")}
             />
         </View>
     );
