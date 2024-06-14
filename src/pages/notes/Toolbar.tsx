@@ -1,13 +1,16 @@
 import React, {useState} from "react";
 import {Pressable, StyleSheet, Text, View} from "react-native";
-import {Color, Colors, strokes, Action, Actions, Tool, Tools} from "./types";
-import {IconButton, PaperProvider, Tooltip} from "react-native-paper";
+import {Color, Colors, strokes, Action, Tool} from "./types";
+import {IconButton, PaperProvider} from "react-native-paper";
 
 type ToolbarProps = {
     color: Color;
     strokeWidth: number;
     setColor: (color: Color) => void;
     setStrokeWidth: (strokeWidth: number) => void;
+    setSelectedTool: (tool: Tool) => void;
+    selectedTool: Tool;
+    onAction: (action: Action) => void;
 };
 
 type Extension = "color" | "stroke" | "none";
@@ -18,9 +21,11 @@ export const Toolbar = ({
                             strokeWidth,
                             setColor,
                             setStrokeWidth,
+                            setSelectedTool,
+                            selectedTool,
+                            onAction,
                         }: ToolbarProps) => {
     const [extension, setExtension] = useState<Extension>("none");
-    const [selectedTool, setSelectedTool] = useState<Tool>('pointer');
 
     const handleStrokeWidthChange = (stroke: number) => {
         setStrokeWidth(stroke);
@@ -35,7 +40,9 @@ export const Toolbar = ({
     const toggleExtension = (asd: Extension) => {
         if (extension === "none") {
             setExtension(asd);
-        } else {
+        } else if (asd !== extension) {
+            setExtension(asd);
+        }else {
             setExtension("none");
         }
     }
@@ -71,21 +78,21 @@ export const Toolbar = ({
                     icon={'arrow-top-left'}
                     size={26}
                     iconColor={'#000000'}
-                    onPress={() => {}}
+                    onPress={() => {setSelectedTool('pointer')}}
                     style={selectedTool === 'pointer' ? style.selectedTool : {}}
                 />
                 <IconButton
                     icon={'pen'}
                     size={26}
-                    iconColor={'#000000'}
-                    onPress={() => {}}
+                    iconColor={color}
+                    onPress={() => {setSelectedTool('pen')}}
                     style={selectedTool === 'pen' ? style.selectedTool : {}}
                 />
                 <IconButton
                     icon={'eraser-variant'}
                     size={26}
                     iconColor={'#000000'}
-                    onPress={() => {}}
+                    onPress={() => {setSelectedTool('eraser')}}
                     style={selectedTool === 'eraser' ? style.selectedTool : {}}
                 />
                 <Pressable
@@ -105,19 +112,19 @@ export const Toolbar = ({
                     icon={'content-paste'}
                     size={26}
                     iconColor={'#000000'}
-                    onPress={() => {}}
+                    onPress={() => {onAction('paste')}}
                 />
                 <IconButton
                     icon={'plus'}
                     size={26}
                     iconColor={'#000000'}
-                    onPress={() => {}}
+                    onPress={() => {onAction('add')}}
                 />
                 <IconButton
                     icon={'undo'}
                     size={26}
                     iconColor={'#000000'}
-                    onPress={() => {}}
+                    onPress={() => {onAction('undo')}}
                 />
             </View>
         </PaperProvider>

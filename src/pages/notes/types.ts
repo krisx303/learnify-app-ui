@@ -1,21 +1,19 @@
-import {SkPath} from "@shopify/react-native-skia";
+import {BlendMode, SkPath} from "@shopify/react-native-skia";
+import {SkEnum} from "@shopify/react-native-skia/lib/typescript/src/dom/types/Common";
 
 export type Color = (typeof Colors)[number];
 
-export const Colors = ["black", "red", "blue", "green", "yellow", "white"];
+export const Colors = ["black", "red", "blue", "green", "yellow", "purple"];
 
-export type Tool = (typeof Tools)[number];
+export type Tool = "pointer" | "pen" | "eraser";
 
-export const Tools = ["pointer", "pen", "eraser"];
-
-export type Action = (typeof Actions)[number];
-
-export const Actions = ["paste", "add", "undo"];
+export type Action = "paste" | "add" | "undo";
 
 export type PathWithColorAndWidth = {
     path: SkPath;
     color: Color;
     strokeWidth: number;
+    blendMode: SkEnum<typeof BlendMode>;
 };
 
 export type Position = {
