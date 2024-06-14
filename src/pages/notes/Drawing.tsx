@@ -191,6 +191,26 @@ const Drawing = () => {
         }
     }
 
+    useEffect(() => {
+        const performPasteAction = (event) => {
+            performAction("paste");
+        }
+        const performUndoAction = (event) => {
+            if (event.ctrlKey && event.key === 'z') {
+                performAction("undo");
+            }
+        };
+        window.addEventListener("paste", performPasteAction);
+
+        window.addEventListener('keydown', performUndoAction);
+
+        return () => {
+            window.removeEventListener('keydown', performUndoAction);
+            window.removeEventListener("paste", performPasteAction);
+        };
+    }, []);
+
+
     return (
         <View style={styles.content}>
             <View style={style.container}>
