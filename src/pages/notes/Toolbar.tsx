@@ -186,12 +186,12 @@ const style = StyleSheet.create({
         padding: 10,
     },
     strokeToolbar: {
-        top: 70,
-        left: 70,
+        top: 164,
+        left: 50,
     },
     colorToolbar: {
-        top: 150,
-        left: 70,
+        top: 225,
+        left: 50,
     },
     colorButton: {
         width: 30,

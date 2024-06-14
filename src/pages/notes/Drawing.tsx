@@ -30,7 +30,7 @@ const Drawing = () => {
     const [backgroundImage, setBackgroundImage] = useState('');
     const [elements, setElements] = useState<GenericElement[]>([]);
     const movingElement = useRef<GenericElement>(null);
-    const [selectedTool, setSelectedTool] = useState<Tool>('pointer');
+    const [selectedTool, setSelectedTool] = useState<Tool>('pen');
     const [paths, setPaths] = useState<PathWithColorAndWidth[]>([]);
     const [color, setColor] = useState<Color>(Colors[0]);
     const [active, setActive] = useState(false);
@@ -121,25 +121,25 @@ const Drawing = () => {
             });
             setActive(false);
             movingElement.current = null;
-            const { x: touchX, y: touchY } = touchInfo;
-            const element = elements.find(el =>
-                touchX >= el.position.x && touchX <= el.position.x + el.width &&
-                touchY >= el.position.y && touchY <= el.position.y + el.height
-            );
-            if (element) {
-                movingElement.current = element;
-
-                elements.filter(el => el.id !== element.id).forEach(el => {
-                    el.setIsEditingMode(false);
-                    el.setIsMoving(false);
-                });
-                moveElement(movingElement.current, {x: touchX, y: touchY})
-
-                movingElement.current.setIsMoving(true);
-                movingElement.current.setIsEditingMode(true);
-            }
             switch (selectedTool) {
                 case "pointer":
+                    const { x: touchX, y: touchY } = touchInfo;
+                    const element = elements.find(el =>
+                        touchX >= el.position.x && touchX <= el.position.x + el.width &&
+                        touchY >= el.position.y && touchY <= el.position.y + el.height
+                    );
+                    if (element) {
+                        movingElement.current = element;
+
+                        elements.filter(el => el.id !== element.id).forEach(el => {
+                            el.setIsEditingMode(false);
+                            el.setIsMoving(false);
+                        });
+                        moveElement(movingElement.current, {x: touchX, y: touchY})
+
+                        movingElement.current.setIsMoving(true);
+                        movingElement.current.setIsEditingMode(true);
+                    }
                     break;
                 case "pen":
                     onDrawingStart(touchInfo);
@@ -150,11 +150,19 @@ const Drawing = () => {
             }
         },
         onActive: (touchInfo) => {
-            const { x: touchX, y: touchY, force } = touchInfo;
-            if (movingElement.current && force > 0) {
-                moveElement(movingElement.current, { x: touchX, y: touchY })
-            }else {
-                onDrawingActive(touchInfo);
+            switch (selectedTool) {
+                case "pointer":
+                    const { x: touchX, y: touchY, force } = touchInfo;
+                    if (movingElement.current && force > 0) {
+                        moveElement(movingElement.current, { x: touchX, y: touchY })
+                    }
+                    break;
+                case "pen":
+                    onDrawingActive(touchInfo);
+                    break;
+                case "eraser":
+                    onDrawingActive(touchInfo);
+                    break;
             }
         },
         onEnd: () => {
