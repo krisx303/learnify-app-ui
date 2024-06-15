@@ -16,7 +16,7 @@
     "@react-native/metro-config": "^0.74.81",
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/stack": "^6.3.29",
-    "@shopify/react-native-skia": "0.1.241",
+    "@shopify/react-native-skia": "0.1.172",
     "expo": "~48.0.15",
     "expo-dev-client": "~2.2.1",
     "expo-status-bar": "~1.11.1",

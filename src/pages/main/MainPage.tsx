@@ -8,7 +8,7 @@ import TopBar from './TopBar';
 import {useHttpClient} from '../../transport/HttpClient';
 import {NoteSummary, QuizSummary} from './Types';
 import DropdownButton from './DropdownButton';
-import CreateNoteModal from "./modals/CreateNoteModal";
+import CreateNoteModal, {NoteCreateDetails} from "./modals/CreateNoteModal";
 import CreateQuizModal, {QuizCreateDetails} from "./modals/CreateQuizModal";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RootStackParamList} from "../../../App";
@@ -48,6 +48,16 @@ const MainPage = () => {
         navigation.navigate('QuizEditor', {quizId: details.id, workspaceId: details.workspaceId});
     };
 
+    const navigateToNotePage = (parse: NoteSummary) => {
+        navigation.navigate('CardPage', {noteId: parse.id, workspaceId: parse.workspace.id});
+    }
+
+    const createNewNote = (note: NoteCreateDetails) => {
+        httpClient.createNewNote(note)
+            .then(navigateToNotePage)
+            .catch(console.error);
+    };
+
     return (
         <TouchableWithoutFeedback
             onPress={() => setIsDropdownVisible(false)}
@@ -77,7 +87,7 @@ const MainPage = () => {
                 </View>
 
                 <CreateNoteModal isVisible={isNoteModalVisible} onClose={() => setIsNoteModalVisible(false)}
-                                 onSubmit={() => {}}
+                                 onSubmit={createNewNote}
                 />
                 <CreateQuizModal
                     isVisible={isQuizModalVisible}
