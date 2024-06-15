@@ -13,7 +13,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
     const navigation = useNavigation();
 
     const handlePress = () => {
-        navigation.navigate('CardPage', { noteId: note.id, workspaceId: note.workspaceId});
+        navigation.navigate('CardPage', { noteId: note.id, workspaceId: note.workspace.id});
     };
 
     return (
@@ -22,15 +22,15 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                 <Card.Content style={{height: 280}}>
                     <Title style={styles.cardHeader}>{note.title}</Title>
                     <View style={styles.line} />
-                    <Paragraph style={{marginBottom: 30}}>{note.summary}</Paragraph>
+                    <Paragraph style={{marginBottom: 30}}>{note.description}</Paragraph>
                     <Paragraph style={styles.details}>
-                        <Text>Przeglądano: {note.date}</Text>
+                        <Text>Przeglądano: {note.updatedAt?.substring(0, 10)}</Text>
                     </Paragraph>
                     <Paragraph style={styles.details}>
-                        <Text>Autor: {note.author}</Text>
+                        <Text>Autor: {note.author?.displayName}</Text>
                     </Paragraph>
                     <Paragraph style={styles.details}>
-                        <Text>Z przestrzeni: {note.workspaceId}</Text>
+                        <Text>Z przestrzeni: {note.workspace.displayName}</Text>
                     </Paragraph>
                     <View style={styles.iconContainer}>
                         <Icon

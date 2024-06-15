@@ -1,10 +1,10 @@
 export interface NoteSummary {
     id: string;
-    workspaceId: string;
+    workspace: Workspace;
     title: string;
-    summary: string;
-    author?: string | undefined;
-    date?: string | undefined;
+    description: string;
+    author?: User | undefined;
+    updatedAt?: string | undefined;
 }
 
 export interface QuizSummary {
@@ -18,5 +18,11 @@ export interface QuizSummary {
 
 export interface Workspace {
     id: string;
-    name: string;
+    displayName: string;
+}
+
+export interface User {
+    id: string;
+    displayName: string;
+    email: string;
 }
