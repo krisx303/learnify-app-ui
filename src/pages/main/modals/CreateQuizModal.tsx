@@ -8,7 +8,6 @@ import GenericModal from "./GenericModal";
 import {WorkspaceDropdownSelector} from "./WorkspaceDropdownSelector";
 
 export interface QuizCreateDetails {
-    id: string;
     name: string;
     description: string;
     workspaceId: string;
@@ -21,16 +20,12 @@ interface CreateQuizModalProps {
 }
 
 const CreateQuizModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, onSubmit}) => {
-    const [quizId, setQuizId] = useState('');
     const [quizName, setQuizName] = useState('');
     const [description, setDescription] = useState('');
     const [workspace, setWorkspace] = useState('');
     const [errorQuizName, setErrorQuizName] = useState('');
-    const [errorQuizId, setErrorQuizId] = useState('');
-    const [isOverride, setIsOverride] = useState(false);
     const [workspaceOptions, setWorkspaceOptions] = useState<Workspace[]>([]);
     const httpClient = useHttpClient();
-    const [isQuizIdUnique, setIsQuizIdUnique] = useState(true);
 
     useEffect(() => {
         httpClient.getWorkspaces()
@@ -39,41 +34,21 @@ const CreateQuizModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, on
     }, [httpClient]);
 
     useEffect(() => {
-        if (!isOverride) {
-            setQuizId(generateID(quizName));
-        }
         if (quizName) {
             setErrorQuizName('');
         }
-    }, [isOverride, quizName]);
-
-    useEffect(() => {
-        if (!quizId) return;
-        setErrorQuizId('');
-        httpClient.verifyQuizIdIdentity(quizId)
-            .then(setIsQuizIdUnique)
-            .catch(console.error);
-    }, [httpClient, quizId])
+    }, [quizName]);
 
     const handleQuizSubmit = () => {
-        let isError = false;
         if (quizName.trim() === '') {
             setErrorQuizName('* Quiz Name is required');
-            isError = true;
-        }
-        if (quizId.trim() === '') {
-            setErrorQuizId('* Quiz ID is required');
-            isError = true;
-        }
-        if (isError || !isQuizIdUnique)
             return;
-        onSubmit({id: quizId, name: quizName, description, workspaceId: workspace});
+        }
+        onSubmit({name: quizName, description, workspaceId: workspace});
         setQuizName('');
-        setQuizId('');
         setDescription('');
         setWorkspace('');
         setErrorQuizName('');
-        setErrorQuizId('');
         onClose();
     };
 
@@ -91,30 +66,6 @@ const CreateQuizModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, on
                     onChangeText={setQuizName}
                 />
                 {errorQuizName ? <Text style={styles.errorText}>{errorQuizName}</Text> : null}
-                <View style={styles.row}>
-                    <TextInput
-                        style={[styles.input, {flex: 1}]}
-                        mode="outlined"
-                        label="Quiz ID"
-                        value={quizId}
-                        onChangeText={setQuizId}
-                        disabled={!isOverride}
-                    />
-                    <View style={styles.switchContainer}>
-                        <Text>Override</Text>
-                        <Switch
-                            value={isOverride}
-                            onValueChange={(value) => {
-                                setIsOverride(value);
-                                if (value) {
-                                    setQuizId('');
-                                }
-                            }}
-                        />
-                    </View>
-                </View>
-                {errorQuizId ? <Text style={styles.errorText}>{errorQuizId}</Text> : null}
-                {!isQuizIdUnique && <Text style={styles.errorText}>* Quiz ID is already used!</Text>}
                 <TextInput
                     style={[styles.input, {height: 80}]}
                     label="Description (optional)"
@@ -157,17 +108,6 @@ const styles = StyleSheet.create({
         height: 40,
         marginBottom: 5,
         paddingLeft: 8,
-    },
-    row: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 10,
-        marginTop: 10
-    },
-    switchContainer: {
-        flexDirection: 'column',
-        alignItems: 'center',
-        marginLeft: 10,
     },
     errorText: {
         color: 'red',
