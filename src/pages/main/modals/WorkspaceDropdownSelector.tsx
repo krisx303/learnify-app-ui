@@ -16,7 +16,7 @@ export const WorkspaceDropdownSelector = (props: WorkspaceDropdownSelectorProps)
         onValueChange={props.onValueChange}
     >
         {props.workspaceOptions.map(workspace =>
-            <Picker.Item key={workspace} label={workspace.name} value={workspace.id}/>
+            <Picker.Item key={workspace.id} label={workspace.displayName} value={workspace.id}/>
         )}
     </Picker>
 </View>;

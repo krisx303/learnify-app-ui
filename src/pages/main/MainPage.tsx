@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, TouchableWithoutFeedback, useWindowDimensions} from 'react-native';
+import {View, TouchableWithoutFeedback, useWindowDimensions, ImageBackground, Image} from 'react-native';
 import {Title} from 'react-native-paper';
 import styles from './MainPage.scss';
 import NoteCard from './NoteCard';
@@ -8,7 +8,7 @@ import TopBar from './TopBar';
 import {useHttpClient} from '../../transport/HttpClient';
 import {NoteSummary, QuizSummary} from './Types';
 import DropdownButton from './DropdownButton';
-import CreateNoteModal from "./modals/CreateNoteModal";
+import CreateNoteModal, {NoteCreateDetails} from "./modals/CreateNoteModal";
 import CreateQuizModal, {QuizCreateDetails} from "./modals/CreateQuizModal";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RootStackParamList} from "../../../App";
@@ -48,12 +48,22 @@ const MainPage = () => {
         navigation.navigate('QuizEditor', {quizId: details.id, workspaceId: details.workspaceId});
     };
 
+    const navigateToNotePage = (parse: NoteSummary) => {
+        navigation.navigate('CardPage', {noteId: parse.id, workspaceId: parse.workspace.id});
+    }
+
+    const createNewNote = (note: NoteCreateDetails) => {
+        httpClient.createNewNote(note)
+            .then(navigateToNotePage)
+            .catch(console.error);
+    };
+
     return (
         <TouchableWithoutFeedback
             onPress={() => setIsDropdownVisible(false)}
             style={{flex: 1}}
         >
-            <View style={styles.container}>
+            <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../assets/purple_background.png")} imageStyle={{resizeMode: "cover"}}>
                 <TopBar>
                     <DropdownButton setDropdownVisible={setIsDropdownVisible} dropdownVisible={isDropdownVisible} onItemSelected={onCreateDropdownSelected}/>
                 </TopBar>
@@ -77,14 +87,14 @@ const MainPage = () => {
                 </View>
 
                 <CreateNoteModal isVisible={isNoteModalVisible} onClose={() => setIsNoteModalVisible(false)}
-                                 onSubmit={() => {}}
+                                 onSubmit={createNewNote}
                 />
                 <CreateQuizModal
                     isVisible={isQuizModalVisible}
                     onClose={() => setIsQuizModalVisible(false)}
                     onSubmit={navigateToQuizEditor}
                 />
-            </View>
+            </ImageBackground>
         </TouchableWithoutFeedback>
     );
 };

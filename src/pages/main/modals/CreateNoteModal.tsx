@@ -7,10 +7,15 @@ import {WorkspaceDropdownSelector} from "./WorkspaceDropdownSelector";
 import {Workspace} from "../Types";
 import {generateID} from "./Utils";
 
+export type NoteCreateDetails = {
+    title: string;
+    description: string;
+    workspaceId: string;
+}
 interface CreateNoteModalProps {
     isVisible: boolean;
     onClose: () => void;
-    onSubmit: (note: {name: string; description: string; workspaceId: string }) => void;
+    onSubmit: (note: NoteCreateDetails) => void;
 }
 
 const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, onSubmit}) => {
@@ -38,7 +43,7 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
             setErrorNoteName('* Note Name is required');
             return;
         }
-        onSubmit({name: noteName, description, workspaceId: workspace});
+        onSubmit({title: noteName, description, workspaceId: workspace});
         setNoteName('');
         setDescription('');
         setWorkspace('');

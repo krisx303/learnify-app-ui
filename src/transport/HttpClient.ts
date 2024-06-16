@@ -2,6 +2,12 @@ import {useMemo} from "react";
 import {NoteSummary, QuizSummary, Workspace} from "../pages/main/Types";
 import {QuizDetails} from "../pages/quiz/summmary/QuizDetails";
 import {Question} from "../pages/quiz/solving/Question";
+import {Position} from "../pages/notes/types";
+import {NoteCreateDetails} from "../pages/main/modals/CreateNoteModal";
+
+type Path = { strokeWidth: number; path: string; color: string; blendMode: string };
+type Element = { width: number; id: string; position: Position; content: string; height: number };
+type NotePageContent = { elements: Element[]; paths: Path[] };
 
 /** Interface representing base HTTP client */
 interface HttpClientBase {
@@ -14,16 +20,32 @@ interface HttpClientBase {
     getQuizQuestions(quizId: string): Promise<Question[]>;
 
     getWorkspaces(): Promise<Workspace[]>;
+
+    postNoteUpdate(workspaceId: string, noteId: string, content: NotePageContent): Promise<void>;
+
+    createNewNote(note: NoteCreateDetails): Promise<NoteSummary>;
+
+    getNoteDetails(workspaceId: string, noteId: string): Promise<NoteSummary>;
+
+    getPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<NotePageContent>;
 }
 
 class StubHttpClient implements HttpClientBase {
     getRecentNotes(): Promise<NoteSummary[]> {
+        const workspace1 = {id: 'semestr1', displayName: 'Semestr 1'};
         return new Promise((resolve) => {
             resolve([
-                {id: 'agh_sieci_komputerowe_lab_1', title: 'Sieci komputerowe - lab 1', summary: 'Warstwy modelu OSI/ISO', workspaceId: 'semestr5', author: 'Krzysztof Usnarski', date: '2024-04-28'},
-                {id: 'dyskretna', title: 'Note 2', summary: 'Summary of Note 2', workspaceId: 'semestr1'},
-                {id: 'analiza', title: 'Note 3', summary: 'Summary of Note 3', workspaceId: 'semestr1'},
-                {id: 'wdi', title: 'Note 4', summary: 'Summary of Note 4', workspaceId: 'semestr1'},
+                {
+                    id: 'agh_sieci_komputerowe_lab_1',
+                    title: 'Sieci komputerowe - lab 1',
+                    description: 'Warstwy modelu OSI/ISO',
+                    workspace: workspace1,
+                    author: 'Krzysztof Usnarski',
+                    updatedAt: '2024-04-28'
+                },
+                {id: 'dyskretna', title: 'Note 2', description: 'Summary of Note 2', workspace: workspace1},
+                {id: 'analiza', title: 'Note 3', description: 'Summary of Note 3', workspace: workspace1},
+                {id: 'wdi', title: 'Note 4', description: 'Summary of Note 4', workspace: workspace1},
             ]);
         });
     }
@@ -123,14 +145,103 @@ class StubHttpClient implements HttpClientBase {
 
     getWorkspaces(): Promise<Workspace[]> {
         return Promise.resolve([
-            {id: 'semestr1', name: 'Semestr 1'},
-            {id: 'semestr2', name: 'Semestr 2'},
-            {id: 'semestr3', name: 'Semestr 3'},
-            {id: 'semestr4', name: 'Semestr 4'},
-            {id: 'semestr5', name: 'Semestr 5'},
+            {id: 'semestr1', displayName: 'Semestr 1'},
+            {id: 'semestr2', displayName: 'Semestr 2'},
+            {id: 'semestr3', displayName: 'Semestr 3'},
+            {id: 'semestr4', displayName: 'Semestr 4'},
+            {id: 'semestr5', displayName: 'Semestr 5'},
         ]);
+    }
+
+    postNoteUpdate(workspaceId: string, noteId: string, content: NotePageContent) {
+        return Promise.resolve();
+    }
+
+    createNewNote(note: NoteCreateDetails): Promise<NoteSummary> {
+        return Promise.resolve({} as NoteSummary);
+    }
+
+    getNoteDetails(workspaceId: string, noteId: string): Promise<NoteSummary> {
+        return Promise.resolve({} as NoteSummary);
+    }
+
+    getPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<NotePageContent> {
+        return Promise.resolve({} as NotePageContent);
+    }
+}
+
+class RealHttpClient implements HttpClientBase {
+    private baseUrl: string;
+    private delegate: HttpClientBase;
+
+    constructor(baseUrl: string) {
+        this.baseUrl = baseUrl;
+        this.delegate = new StubHttpClient();
+    }
+
+    getQuizDetails(workspaceId: string, quizId: number): Promise<QuizDetails> {
+        return this.delegate.getQuizDetails(workspaceId, quizId);
+    }
+
+    getQuizQuestions(quizId: string): Promise<Question[]> {
+        return this.delegate.getQuizQuestions(quizId);
+    }
+
+    getRecentNotes(): Promise<NoteSummary[]> {
+        return this.get('/notes/recent');
+    }
+
+    getRecentQuizzes(): Promise<QuizSummary[]> {
+        return this.delegate.getRecentQuizzes();
+    }
+
+    getWorkspaces(): Promise<Workspace[]> {
+        return this.get('/workspaces');
+    }
+
+    postNoteUpdate(workspaceId: string, noteId: string, content: NotePageContent): Promise<void> {
+        return this.put(`/notes/${noteId}/content/1`, content);
+    }
+
+    createNewNote(note: NoteCreateDetails): Promise<NoteSummary> {
+        return this.post('/notes', note);
+    }
+
+    getNoteDetails(workspaceId: string, noteId: string): Promise<NoteSummary> {
+        return this.get(`/notes/${noteId}`);
+    }
+
+    getPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<NotePageContent> {
+        return this.get(`/notes/${noteId}/content/${pageNumber}`);
+    }
+
+    private get(path: string): Promise<any> {
+        return fetch(`${this.baseUrl}${path}`)
+            .then(response => response.json());
+    }
+
+    private post(path: string, body: any) {
+        return fetch(`${this.baseUrl}${path}`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+        }).then(response => response.json());
+    }
+
+    private put(path: string, body: any) {
+        return fetch(`${this.baseUrl}${path}`, {
+            method: 'PUT',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+        }).then(response => response.json());
     }
 }
 
 /** Hook to provide an instance of the HTTP client */
-export const useHttpClient = () => useMemo(() => new StubHttpClient(), []);
+export const useHttpClient = () => useMemo(() => new RealHttpClient("http://localhost:8080"), []);
