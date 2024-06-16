@@ -28,6 +28,8 @@ interface HttpClientBase {
     getNoteDetails(workspaceId: string, noteId: string): Promise<NoteSummary>;
 
     getPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<NotePageContent>;
+
+    createNewWorkspace(title: string): Promise<Workspace>;
 }
 
 class StubHttpClient implements HttpClientBase {
@@ -221,6 +223,13 @@ class StubHttpClient implements HttpClientBase {
     getPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<NotePageContent> {
         return Promise.resolve({} as NotePageContent);
     }
+
+    createNewWorkspace(title: string): Promise<Workspace> {
+        return Promise.resolve({
+            id: '123',
+            displayName: title,
+        });
+    }
 }
 
 class RealHttpClient implements HttpClientBase {
@@ -266,6 +275,10 @@ class RealHttpClient implements HttpClientBase {
 
     getPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<NotePageContent> {
         return this.get(`/notes/${noteId}/content/${pageNumber}`);
+    }
+
+    createNewWorkspace(title: string) {
+        return this.post('/workspaces', {displayName: title});
     }
 
     private get(path: string): Promise<any> {

@@ -13,6 +13,9 @@ import CreateQuizModal, {QuizCreateDetails} from "./modals/CreateQuizModal";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RootStackParamList} from "../../../App";
 import {useNavigation} from "@react-navigation/native";
+import CreateWorkspaceModal, {WorkspaceCreateProps} from "./modals/CreateWorkspaceModal";
+
+type Modal = 'Note' | 'Quiz' | 'Workspace' | null;
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
 
@@ -22,8 +25,7 @@ const MainPage = () => {
     const [recentViewedNotes, setRecentViewedNotes] = useState<NoteSummary[]>([]);
     const [recentAttemptedQuizzes, setRecentAttemptedQuizzes] = useState<QuizSummary[]>([]);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const [isNoteModalVisible, setIsNoteModalVisible] = useState(false);
-    const [isQuizModalVisible, setIsQuizModalVisible] = useState(false);
+    const [openedModal, setOpenedModal] = useState<Modal>(null);
     const navigation = useNavigation<NavigationProps>();
 
     useEffect(() => {
@@ -33,13 +35,21 @@ const MainPage = () => {
         httpClient.getRecentQuizzes()
             .then(setRecentAttemptedQuizzes)
             .catch(console.error);
-    }, [httpClient]);
+    }, [httpClient, openedModal]);
 
     const onCreateDropdownSelected = (item: string) => {
-        if(item === "HandWrittenNote") {
-            setIsNoteModalVisible(true);
-        }else if(item === "Quiz") {
-            setIsQuizModalVisible(true);
+        switch (item) {
+            case "Workspace":
+                setOpenedModal('Workspace');
+                break;
+            case "HandWrittenNote":
+                setOpenedModal('Note');
+                break;
+            case "Quiz":
+                setOpenedModal('Quiz');
+                break;
+            default:
+                console.error("Unknown dropdown item selected");
         }
     };
 
@@ -58,6 +68,11 @@ const MainPage = () => {
             .catch(console.error);
     };
 
+    const createWorkspace = (workspace: WorkspaceCreateProps) => {
+        httpClient.createNewWorkspace(workspace.title)
+            .then(console.log)
+            .catch(console.error);
+    };
     return (
         <TouchableWithoutFeedback
             onPress={() => setIsDropdownVisible(false)}
@@ -86,13 +101,18 @@ const MainPage = () => {
                     </View>
                 </View>
 
-                <CreateNoteModal isVisible={isNoteModalVisible} onClose={() => setIsNoteModalVisible(false)}
+                <CreateNoteModal isVisible={openedModal === 'Note'} onClose={() => setOpenedModal(null)}
                                  onSubmit={createNewNote}
                 />
                 <CreateQuizModal
-                    isVisible={isQuizModalVisible}
-                    onClose={() => setIsQuizModalVisible(false)}
+                    isVisible={openedModal === 'Quiz'}
+                    onClose={() => setOpenedModal(null)}
                     onSubmit={navigateToQuizEditor}
+                />
+                <CreateWorkspaceModal
+                    isVisible={openedModal === 'Workspace'}
+                    onClose={() => setOpenedModal(null)}
+                    onSubmit={createWorkspace}
                 />
             </ImageBackground>
         </TouchableWithoutFeedback>
