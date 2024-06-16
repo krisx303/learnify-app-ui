@@ -3,8 +3,8 @@ export interface NoteSummary {
     workspace: Workspace;
     title: string;
     description: string;
-    author?: User | undefined;
-    updatedAt?: string | undefined;
+    author: User;
+    updatedAt: string;
 }
 
 export interface QuizSummary {
@@ -12,8 +12,7 @@ export interface QuizSummary {
     workspaceId: string;
     title: string;
     score: string;
-    author?: string | undefined;
-    date?: string | undefined;
+    author: User;
 }
 
 export interface Workspace {
