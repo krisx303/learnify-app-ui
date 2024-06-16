@@ -29,10 +29,10 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz }) => {
                     <View style={styles.line} />
                     <Paragraph style={styles.details}>Score: {quiz.score}</Paragraph>
                     <Paragraph style={styles.details}>
-                        <Text>Rozwiązywano: {quiz.date}</Text>
+                        <Text>Rozwiązywano: dziś</Text>
                     </Paragraph>
                     <Paragraph style={styles.details}>
-                        <Text>Autor: {quiz.author}</Text>
+                        <Text>Autor: {quiz.author.displayName}</Text>
                     </Paragraph>
                     <Paragraph style={styles.details}>
                         <Text>Z przestrzeni: {quiz.workspaceId}</Text>

@@ -1,14 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
-import {useRoute, RouteProp} from '@react-navigation/native';
+import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {RouteProp, useRoute} from '@react-navigation/native';
 import TopBar from '../../main/TopBar';
 import {RootStackParamList} from "../../../../App";
 import {QuestionCard} from "./QuestionCard";
 import {EditableQuestionCard} from "./EditableQuestionCard";
 import {useHttpClient} from "../../../transport/HttpClient";
 import {QuizDetails} from "../summmary/QuizDetails";
-import {Question, MultipleChoiceQuestion, SingleChoiceQuestion} from "../solving/Question";
-import {IconButton, Menu, Button, PaperProvider} from "react-native-paper";
+import {Question} from "../solving/Question";
+import {Button, IconButton, Menu, PaperProvider} from "react-native-paper";
 
 type QuizEditorRouteProp = RouteProp<RootStackParamList, 'QuizEditor'>;
 
@@ -54,7 +54,7 @@ const QuizEditor: React.FC = () => {
                 answer: [false, false, false, false],
                 feedback: ["", "", "", ""],
             };
-        }else if(type === "single-choice"){
+        } else if (type === "single-choice") {
             newQuestion = {
                 question: "",
                 type: "single-choice",
@@ -95,10 +95,10 @@ const QuizEditor: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            <TopBar text={quizDetails.name}/>
+            <TopBar text={quizDetails.title}/>
             <View style={styles.innerContainer}>
                 <View style={styles.quizInfoContainer}>
-                    <Text style={styles.quizTitle}>{quizDetails.name}</Text>
+                    <Text style={styles.quizTitle}>{quizDetails.title}</Text>
                     <Text style={styles.quizDescription}>{quizDetails.description}</Text>
                 </View>
                 <View style={styles.scrollContainer}>
@@ -118,8 +118,10 @@ const QuizEditor: React.FC = () => {
                                         <QuestionCard
                                             question={question}
                                             isExpanded={expanded[index]}
-                                            onEdit={() => {}}
-                                            onDelete={() => {}}
+                                            onEdit={() => {
+                                            }}
+                                            onDelete={() => {
+                                            }}
                                         />
                                     </TouchableOpacity>
                                 )}

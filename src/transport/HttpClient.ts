@@ -15,7 +15,7 @@ interface HttpClientBase {
 
     getRecentQuizzes(): Promise<QuizSummary[]>;
 
-    getQuizDetails(workspaceId: string, quizId: number): Promise<QuizDetails>;
+    getQuizDetails(workspaceId: string, quizId: string): Promise<QuizDetails>;
 
     getQuizQuestions(quizId: string): Promise<Question[]>;
 
@@ -40,35 +40,88 @@ class StubHttpClient implements HttpClientBase {
                     title: 'Sieci komputerowe - lab 1',
                     description: 'Warstwy modelu OSI/ISO',
                     workspace: workspace1,
-                    author: 'Krzysztof Usnarski',
+                    author: {
+                        id: '1',
+                        displayName: 'Krzysztof Usnarski',
+                        email: "abc@gmail.com"
+                    },
                     updatedAt: '2024-04-28'
                 },
-                {id: 'dyskretna', title: 'Note 2', description: 'Summary of Note 2', workspace: workspace1},
-                {id: 'analiza', title: 'Note 3', description: 'Summary of Note 3', workspace: workspace1},
-                {id: 'wdi', title: 'Note 4', description: 'Summary of Note 4', workspace: workspace1},
+                {
+                    id: 'dyskretna', title: 'Note 2', description: 'Summary of Note 2', workspace: workspace1, author: {
+                        id: '1',
+                        displayName: 'Krzysztof Usnarski',
+                        email: "abc@gmail.com"
+                    },
+                    updatedAt: '2024-04-28'
+                },
+                {
+                    id: 'analiza', title: 'Note 3', description: 'Summary of Note 3', workspace: workspace1, author: {
+                        id: '1',
+                        displayName: 'Krzysztof Usnarski',
+                        email: "abc@gmail.com"
+                    },
+                    updatedAt: '2024-04-28'
+                },
+                {
+                    id: 'wdi', title: 'Note 4', description: 'Summary of Note 4', workspace: workspace1, author: {
+                        id: '1',
+                        displayName: 'Krzysztof Usnarski',
+                        email: "abc@gmail.com"
+                    },
+                    updatedAt: '2024-04-28'
+                },
             ]);
         });
     }
 
     getRecentQuizzes(): Promise<QuizSummary[]> {
         return Promise.resolve([
-            {id: '1', title: 'Test 1', score: '15%', workspaceId: 'semestr1'},
-            {id: '2', title: 'Test 2', score: '75%', workspaceId: 'semestr1'},
-            {id: '3', title: 'Test 3', score: '90%', workspaceId: 'semestr1'},
+            {
+                id: '1', title: 'Test 1', score: '15%', workspaceId: 'semestr1', author: {
+                    id: '1',
+                    displayName: 'Krzysztof Usnarski',
+                    email: "abc@gmail.com"
+                }
+            },
+            {
+                id: '2', title: 'Test 2', score: '75%', workspaceId: 'semestr1', author: {
+                    id: '1',
+                    displayName: 'Krzysztof Usnarski',
+                    email: "abc@gmail.com"
+                }
+            },
+            {
+                id: '3', title: 'Test 3', score: '90%', workspaceId: 'semestr1', author: {
+                    id: '1',
+                    displayName: 'Krzysztof Usnarski',
+                    email: "abc@gmail.com"
+                }
+            },
         ]);
     }
 
     getQuizDetails(workspaceId: any, quizId: any): Promise<QuizDetails> {
         return Promise.resolve({
             id: 'agh_sieci_komputerowe_lab_1',
-            name: 'Sieci komputerowe - lab 1',
+            title: 'Sieci komputerowe - lab 1',
+            workspaceId: '123',
             description: 'Warstwy modelu OSI/ISO',
-            numberOfExercises: 20,
+            numberOfQuestions: 18,
             lastScore: {
                 incorrect: 6,
                 correct: 12,
-                unanswered: 2,
-            }
+            },
+            bestScore: {
+                incorrect: 6,
+                correct: 12,
+            },
+            author: {
+                id: '1',
+                displayName: 'Krzysztof Usnarski',
+                email: "abc@gmail.com"
+            },
+            lastTryDate: '2024-04-28'
         });
     }
 
@@ -179,7 +232,7 @@ class RealHttpClient implements HttpClientBase {
         this.delegate = new StubHttpClient();
     }
 
-    getQuizDetails(workspaceId: string, quizId: number): Promise<QuizDetails> {
+    getQuizDetails(workspaceId: string, quizId: string): Promise<QuizDetails> {
         return this.delegate.getQuizDetails(workspaceId, quizId);
     }
 

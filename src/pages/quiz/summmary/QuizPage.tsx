@@ -48,7 +48,7 @@ const QuizPage: React.FC = () => {
     }
 
     const asPercentage = (num: number) => {
-        const percentage = (num / (quiz!!.numberOfExercises)) * 100;
+        const percentage = (num / (quiz!!.numberOfQuestions)) * 100;
         return parseFloat(percentage.toFixed(2));
     };
 
@@ -67,25 +67,23 @@ const QuizPage: React.FC = () => {
         return (
             <View style={styles.container2}>
                 <View style={styles.row}>
-                    <Text style={styles.title}>{quiz.name}</Text>
+                    <Text style={styles.title}>{quiz.title}</Text>
                     <IconButton icon={"pencil"} size={30} iconColor="white" onPress={navigateToEditor}/>
                 </View>
                 <Text style={styles.description}>{quiz.description}</Text>
-                <Text style={styles.info}>Number of questions: {quiz.numberOfExercises} </Text>
+                <Text style={styles.info}>Number of questions: {quiz.numberOfQuestions} </Text>
                 <Text style={styles.subtitle}>Subtitle</Text>
                 <View style={styles.chartContainer}>
                     <PieChart
                         widthAndHeight={250}
-                        series={[quiz.lastScore.correct, quiz.lastScore.unanswered, quiz.lastScore.incorrect]}
-                        sliceColor={["#109e16", "#1857b5", "#ff3c00"]}
+                        series={[quiz.lastScore.correct, quiz.lastScore.incorrect]}
+                        sliceColor={["#109e16", "#ff3c00"]}
                         coverRadius={0.5}
                         coverFill={"#FFF"}
                     />
                     <View style={styles.percentageContainer}>
                         <Text
                             style={[styles.percentageText, {color: "#109e16"}]}>Correct: {asPercentage(quiz.lastScore.correct)}%</Text>
-                        <Text
-                            style={[styles.percentageText, {color: "#1857b5"}]}>Unanswered: {asPercentage(quiz.lastScore.unanswered)}%</Text>
                         <Text
                             style={[styles.percentageText, {color: "#ff3c00"}]}>Incorrect: {asPercentage(quiz.lastScore.incorrect)}%</Text>
                     </View>
