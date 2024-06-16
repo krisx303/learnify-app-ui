@@ -1,12 +1,12 @@
 import React from 'react';
-import {View} from 'react-native';
+import {ImageBackground, View} from 'react-native';
 import styles from './CardPage.scss';
 import {version} from "canvaskit-wasm/package.json";
 import {WithSkiaWeb} from "@shopify/react-native-skia/lib/module/web";
 
 const CardPage: React.FC = () => {
     return (
-        <View style={styles.container}>
+        <ImageBackground source={require('../../assets/purple_background.png')} style={styles.container}>
             <WithSkiaWeb
                 opts={{
                     locateFile: (file) =>
@@ -15,7 +15,7 @@ const CardPage: React.FC = () => {
                 // @ts-ignore
                 getComponent={() => import("./notes/Drawing")}
             />
-        </View>
+        </ImageBackground>
     );
 };
 

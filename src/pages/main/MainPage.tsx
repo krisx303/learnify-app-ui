@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, TouchableWithoutFeedback, useWindowDimensions} from 'react-native';
+import {View, TouchableWithoutFeedback, useWindowDimensions, ImageBackground, Image} from 'react-native';
 import {Title} from 'react-native-paper';
 import styles from './MainPage.scss';
 import NoteCard from './NoteCard';
@@ -63,7 +63,7 @@ const MainPage = () => {
             onPress={() => setIsDropdownVisible(false)}
             style={{flex: 1}}
         >
-            <View style={styles.container}>
+            <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../assets/purple_background.png")} imageStyle={{resizeMode: "cover"}}>
                 <TopBar>
                     <DropdownButton setDropdownVisible={setIsDropdownVisible} dropdownVisible={isDropdownVisible} onItemSelected={onCreateDropdownSelected}/>
                 </TopBar>
@@ -94,7 +94,7 @@ const MainPage = () => {
                     onClose={() => setIsQuizModalVisible(false)}
                     onSubmit={navigateToQuizEditor}
                 />
-            </View>
+            </ImageBackground>
         </TouchableWithoutFeedback>
     );
 };
