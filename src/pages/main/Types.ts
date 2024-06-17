@@ -9,7 +9,7 @@ export interface NoteSummary {
 
 export interface QuizSummary {
     id: string;
-    workspaceId: string;
+    workspace: Workspace;
     title: string;
     score: string;
     author: User;

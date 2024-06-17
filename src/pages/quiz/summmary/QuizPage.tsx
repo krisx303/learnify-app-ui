@@ -1,6 +1,6 @@
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import React, {useEffect, useState} from "react";
-import {ActivityIndicator, Text, View} from "react-native";
+import {ActivityIndicator, ImageBackground, Text, View} from "react-native";
 import PieChart from "react-native-pie-chart";
 import {Button, IconButton} from "react-native-paper";
 import styles from './QuizPage.scss';
@@ -29,16 +29,13 @@ const QuizPage: React.FC = () => {
         httpClient.getQuizDetails(workspaceId, quizId)
             .then(onLoadedDetails)
             .catch(console.error);
-    }, [httpClient, workspaceId, quizId]);
-
-    useEffect(() => {
         httpClient.getQuizQuestions(quizId)
             .then(setQuestions)
             .catch(console.error);
-    }, [httpClient, quiz]);
+    }, [httpClient, workspaceId, quizId]);
 
     useEffect(() => {
-        if (quiz != undefined && questions.length > 0) {
+        if (quiz != undefined) {
             setLoading(false);
         }
     }, [quiz, questions]);
@@ -73,21 +70,23 @@ const QuizPage: React.FC = () => {
                 <Text style={styles.description}>{quiz.description}</Text>
                 <Text style={styles.info}>Number of questions: {quiz.numberOfQuestions} </Text>
                 <Text style={styles.subtitle}>Subtitle</Text>
-                <View style={styles.chartContainer}>
-                    <PieChart
-                        widthAndHeight={250}
-                        series={[quiz.lastScore.correct, quiz.lastScore.incorrect]}
-                        sliceColor={["#109e16", "#ff3c00"]}
-                        coverRadius={0.5}
-                        coverFill={"#FFF"}
-                    />
-                    <View style={styles.percentageContainer}>
-                        <Text
-                            style={[styles.percentageText, {color: "#109e16"}]}>Correct: {asPercentage(quiz.lastScore.correct)}%</Text>
-                        <Text
-                            style={[styles.percentageText, {color: "#ff3c00"}]}>Incorrect: {asPercentage(quiz.lastScore.incorrect)}%</Text>
+                {quiz.lastScore ? (
+                    <View style={styles.chartContainer}>
+                        <PieChart
+                            widthAndHeight={250}
+                            series={[quiz.lastScore.correct, quiz.lastScore.incorrect]}
+                            sliceColor={["#109e16", "#ff3c00"]}
+                            coverRadius={0.5}
+                            coverFill={"#FFF"}
+                        />
+                        <View style={styles.percentageContainer}>
+                            <Text
+                                style={[styles.percentageText, {color: "#109e16"}]}>Correct: {asPercentage(quiz.lastScore.correct)}%</Text>
+                            <Text
+                                style={[styles.percentageText, {color: "#ff3c00"}]}>Incorrect: {asPercentage(quiz.lastScore.incorrect)}%</Text>
+                        </View>
                     </View>
-                </View>
+                ) : <Text style={styles.info}>No data available</Text>}
                 <Button style={styles.button} onPress={navigateToQuestionScreen}>
                     <Text style={styles.buttonText}>Start quiz</Text>
                 </Button>
@@ -96,16 +95,16 @@ const QuizPage: React.FC = () => {
     }
 
     return (
-        <View style={styles.container}>
+        <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../../assets/purple_background.png")} imageStyle={{resizeMode: "cover"}}>
             <TopBar/>
             {loading ? (
-                <ActivityIndicator size="small" color="#fff" style={styles.spinner}/>
+                <ActivityIndicator size="large" color="#fff" style={styles.spinner}/>
             ) : quiz && quiz.id === undefined ? (
                 <Text style={styles.error}>Error loading quiz details</Text>
             ) : (
                 <QuizDetailsContent quiz={quiz!!}/>
             )}
-        </View>
+        </ImageBackground>
     );
 
 };

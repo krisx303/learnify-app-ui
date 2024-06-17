@@ -4,6 +4,7 @@ import {QuizDetails} from "../pages/quiz/summmary/QuizDetails";
 import {Question} from "../pages/quiz/solving/Question";
 import {Position} from "../pages/notes/types";
 import {NoteCreateDetails} from "../pages/main/modals/CreateNoteModal";
+import {QuizCreateDetails} from "../pages/main/modals/CreateQuizModal";
 
 type Path = { strokeWidth: number; path: string; color: string; blendMode: string };
 type Element = { width: number; id: string; position: Position; content: string; height: number };
@@ -30,6 +31,8 @@ interface HttpClientBase {
     getPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<NotePageContent>;
 
     createNewWorkspace(title: string): Promise<Workspace>;
+
+    createNewQuiz(quiz: QuizCreateDetails): Promise<QuizSummary>;
 }
 
 class StubHttpClient implements HttpClientBase {
@@ -78,36 +81,28 @@ class StubHttpClient implements HttpClientBase {
     }
 
     getRecentQuizzes(): Promise<QuizSummary[]> {
+        const workspace1 = {id: 'semestr1', displayName: 'Semestr 1'};
+        const author1 = {id: '1', displayName: 'Krzysztof Usnarski', email: "abc@gmail.com"}
         return Promise.resolve([
             {
-                id: '1', title: 'Test 1', score: '15%', workspaceId: 'semestr1', author: {
-                    id: '1',
-                    displayName: 'Krzysztof Usnarski',
-                    email: "abc@gmail.com"
-                }
+                id: '1', title: 'Test 1', score: '15%', workspace: workspace1, author: author1
             },
             {
-                id: '2', title: 'Test 2', score: '75%', workspaceId: 'semestr1', author: {
-                    id: '1',
-                    displayName: 'Krzysztof Usnarski',
-                    email: "abc@gmail.com"
-                }
+                id: '2', title: 'Test 2', score: '75%', workspace: workspace1, author: author1
             },
             {
-                id: '3', title: 'Test 3', score: '90%', workspaceId: 'semestr1', author: {
-                    id: '1',
-                    displayName: 'Krzysztof Usnarski',
-                    email: "abc@gmail.com"
-                }
+                id: '3', title: 'Test 3', score: '90%', workspace: workspace1, author: author1
             },
         ]);
     }
 
     getQuizDetails(workspaceId: any, quizId: any): Promise<QuizDetails> {
+        const workspace1 = {id: 'semestr1', displayName: 'Semestr 1'};
+        const author1 = {id: '1', displayName: 'Krzysztof Usnarski', email: "abc@gmail.com"}
         return Promise.resolve({
             id: 'agh_sieci_komputerowe_lab_1',
             title: 'Sieci komputerowe - lab 1',
-            workspaceId: '123',
+            workspace: workspace1,
             description: 'Warstwy modelu OSI/ISO',
             numberOfQuestions: 18,
             lastScore: {
@@ -118,11 +113,7 @@ class StubHttpClient implements HttpClientBase {
                 incorrect: 6,
                 correct: 12,
             },
-            author: {
-                id: '1',
-                displayName: 'Krzysztof Usnarski',
-                email: "abc@gmail.com"
-            },
+            author: author1,
             lastTryDate: '2024-04-28'
         });
     }
@@ -230,23 +221,28 @@ class StubHttpClient implements HttpClientBase {
             displayName: title,
         });
     }
+
+    createNewQuiz(quiz: QuizCreateDetails): Promise<QuizSummary> {
+        return Promise.resolve({} as QuizSummary);
+    }
 }
 
 class RealHttpClient implements HttpClientBase {
     private baseUrl: string;
-    private delegate: HttpClientBase;
 
     constructor(baseUrl: string) {
         this.baseUrl = baseUrl;
-        this.delegate = new StubHttpClient();
     }
 
     getQuizDetails(workspaceId: string, quizId: string): Promise<QuizDetails> {
-        return this.delegate.getQuizDetails(workspaceId, quizId);
+        return this.get(`/quizzes/${quizId}/details`)
     }
 
     getQuizQuestions(quizId: string): Promise<Question[]> {
-        return this.delegate.getQuizQuestions(quizId);
+        return this.get(`/quizzes/${quizId}/questions`)
+            .then((questions: any[]) => {
+                return questions.map(this.fromGenericQuestion);
+            })
     }
 
     getRecentNotes(): Promise<NoteSummary[]> {
@@ -254,7 +250,7 @@ class RealHttpClient implements HttpClientBase {
     }
 
     getRecentQuizzes(): Promise<QuizSummary[]> {
-        return this.delegate.getRecentQuizzes();
+        return this.get('/quizzes/recent');
     }
 
     getWorkspaces(): Promise<Workspace[]> {
@@ -279,6 +275,55 @@ class RealHttpClient implements HttpClientBase {
 
     createNewWorkspace(title: string) {
         return this.post('/workspaces', {displayName: title});
+    }
+
+    createNewQuiz(quiz: QuizCreateDetails): Promise<QuizSummary> {
+        return this.post('/quizzes', quiz);
+    }
+
+    updateQuestion(quizId: string, editableQuestion: Question) {
+        return this.put(`/quizzes/${quizId}/questions/${editableQuestion.questionId}`, this.asGenericQuestion(editableQuestion));
+    }
+
+    saveQuestion(quizId: string, editableQuestion: Question) {
+        return this.post(`/quizzes/${quizId}/questions`, [
+            this.asGenericQuestion(editableQuestion)
+        ]).then((response: any) => {
+            return this.fromGenericQuestion(response[0])
+        });
+    }
+
+    private asGenericQuestion(question: Question): any {
+        const answer = question.type === 'single-choice' ?
+            question.answer.toString() :
+            question.answer.map((val: boolean) => val.toString()).join("\u001f");
+        return {
+            question: question.question,
+            type: question.type,
+            weight: question.weight,
+            choices: question.choices.join("\u001f"),
+            otherProperties: answer,
+            feedback: question.feedback.join('\u001f'),
+        };
+    }
+
+    private fromGenericQuestion(question: any) {
+        let answer = null;
+        if (question.type === 'single-choice') {
+            // how to convert string to number
+            answer = parseInt(question.otherProperties);
+        } else if (question.type === 'multiple-choice') {
+            answer = question.otherProperties.split('\u001f').map((val: string) => val === 'true');
+        }
+        return {
+            questionId: question.questionId,
+            question: question.question,
+            type: question.type,
+            weight: question.weight,
+            choices: question.choices.split('\u001f'),
+            answer: answer,
+            feedback: question.feedback.split('\u001f'),
+        };
     }
 
     private get(path: string): Promise<any> {

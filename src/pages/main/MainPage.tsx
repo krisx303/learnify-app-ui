@@ -28,13 +28,18 @@ const MainPage = () => {
     const [openedModal, setOpenedModal] = useState<Modal>(null);
     const navigation = useNavigation<NavigationProps>();
 
-    useEffect(() => {
+    const fetchRecent = () => {
         httpClient.getRecentNotes()
             .then(setRecentViewedNotes)
             .catch(console.error);
         httpClient.getRecentQuizzes()
             .then(setRecentAttemptedQuizzes)
             .catch(console.error);
+
+    }
+
+    useEffect(() => {
+        fetchRecent();
     }, [httpClient, openedModal]);
 
     const onCreateDropdownSelected = (item: string) => {
@@ -53,12 +58,14 @@ const MainPage = () => {
         }
     };
 
-    const navigateToQuizEditor = (details: QuizCreateDetails) => {
+    const navigateToQuizEditor = (quiz: QuizSummary) => {
+        fetchRecent();
         //TODO save base quiz details to backend
-        navigation.navigate('QuizEditor', {quizId: details.id, workspaceId: details.workspaceId});
+        navigation.navigate('QuizEditor', {quizId: quiz.id, workspaceId: quiz.workspace.id});
     };
 
     const navigateToNotePage = (parse: NoteSummary) => {
+        fetchRecent();
         navigation.navigate('CardPage', {noteId: parse.id, workspaceId: parse.workspace.id});
     }
 
@@ -71,6 +78,11 @@ const MainPage = () => {
     const createWorkspace = (workspace: WorkspaceCreateProps) => {
         httpClient.createNewWorkspace(workspace.title)
             .then(console.log)
+            .catch(console.error);
+    };
+    const createNewQuiz = (details: QuizCreateDetails) => {
+        httpClient.createNewQuiz(details)
+            .then(navigateToQuizEditor)
             .catch(console.error);
     };
     return (
@@ -107,7 +119,7 @@ const MainPage = () => {
                 <CreateQuizModal
                     isVisible={openedModal === 'Quiz'}
                     onClose={() => setOpenedModal(null)}
-                    onSubmit={navigateToQuizEditor}
+                    onSubmit={createNewQuiz}
                 />
                 <CreateWorkspaceModal
                     isVisible={openedModal === 'Workspace'}

@@ -18,7 +18,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz }) => {
     const navigation = useNavigation<NavigationProps>();
 
     const handlePress = () => {
-        navigation.navigate('QuizPage', { quizId: quiz.id, workspaceId: quiz.workspaceId });
+        navigation.navigate('QuizPage', { quizId: quiz.id, workspaceId: quiz.workspace.id });
     };
 
     return (
@@ -29,13 +29,13 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz }) => {
                     <View style={styles.line} />
                     <Paragraph style={styles.details}>Score: {quiz.score}</Paragraph>
                     <Paragraph style={styles.details}>
-                        <Text>Rozwiązywano: dziś</Text>
+                        <Text>{quiz.score === "-1" ? "Jeszcze nie rozwiązywano" : "Rozwiązywano: dziś"}</Text>
                     </Paragraph>
                     <Paragraph style={styles.details}>
                         <Text>Autor: {quiz.author.displayName}</Text>
                     </Paragraph>
                     <Paragraph style={styles.details}>
-                        <Text>Z przestrzeni: {quiz.workspaceId}</Text>
+                        <Text>Z przestrzeni: {quiz.workspace.displayName}</Text>
                     </Paragraph>
                     <ProgressBar progress={parseInt(quiz.score)} />
                 </Card.Content>

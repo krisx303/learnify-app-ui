@@ -8,7 +8,7 @@ import GenericModal from "./GenericModal";
 import {WorkspaceDropdownSelector} from "./WorkspaceDropdownSelector";
 
 export interface QuizCreateDetails {
-    name: string;
+    title: string;
     description: string;
     workspaceId: string;
 }
@@ -47,7 +47,7 @@ const CreateQuizModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, on
             setErrorQuizName('* Quiz Name is required');
             return;
         }
-        onSubmit({name: quizName, description, workspaceId: workspace});
+        onSubmit({title: quizName, description, workspaceId: workspace});
         setQuizName('');
         setDescription('');
         setWorkspace('');
