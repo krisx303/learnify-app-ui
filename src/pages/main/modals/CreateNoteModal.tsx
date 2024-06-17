@@ -28,9 +28,12 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
 
     useEffect(() => {
         httpClient.getWorkspaces()
-            .then(setWorkspaceOptions)
+            .then((workspaces) => {
+                setWorkspaceOptions(workspaces);
+                setWorkspace(workspaces[0].id);
+            })
             .catch(console.error);
-    }, [httpClient]);
+    }, [httpClient, isVisible]);
 
     useEffect(() => {
         if (noteName) {
