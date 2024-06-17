@@ -6,6 +6,7 @@ import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import TopBar from "../../main/TopBar";
 import {RootStackParamList} from "../../../../App";
 import {StackNavigationProp} from "@react-navigation/stack";
+import {useHttpClient} from "../../../transport/HttpClient";
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'QuestionsScreen'>;
 type RouteProps = RouteProp<RootStackParamList, 'QuestionsScreen'>;
@@ -22,6 +23,7 @@ const getBaseUserAnswer = (q: Question): any => {
 };
 
 const QuestionsScreen: React.FC = () => {
+    const httpClient = useHttpClient();
     const route = useRoute<RouteProps>();
     const {questions, quiz} = route.params;
     const [index, setIndex] = useState<number>(0);
@@ -29,17 +31,36 @@ const QuestionsScreen: React.FC = () => {
     const [userAnswer, setUserAnswer] = useState<any>(getBaseUserAnswer(question));
     const [isEditable, setEditable] = useState<boolean>(true);
     const navigation = useNavigation<NavigationProps>();
+    const [correctness, setCorrectness] = useState<boolean[]>([]);
 
     const handleNext = () => {
         if (!isEditable) {
             if (index < questions.length - 1) {
                 setIndex(index + 1);
             } else {
-                navigation.navigate('QuizPage', {quizId: quiz.id, workspaceId: 'semestr1'});
+                updateResultsAndNavigate();
             }
+        }else{
+            addNewResult();
         }
         setEditable(!isEditable)
     };
+
+    const addNewResult = () => {
+        if (JSON.stringify(userAnswer)==JSON.stringify(question.answer)) {
+            setCorrectness([...correctness, true])
+        } else {
+            setCorrectness([...correctness, false])
+        }
+    }
+
+    const updateResultsAndNavigate = () => {
+        httpClient.updateQuizResult(quiz.id,
+            correctness.filter((answer) => answer).length,
+            correctness.filter((answer) => !answer).length)
+            .then(() => navigation.navigate('QuizPage', {quizId: quiz.id, workspaceId: 'semestr1'}))
+            .catch(console.error);
+    }
 
     useEffect(() => {
         const q = questions[index];

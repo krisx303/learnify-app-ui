@@ -285,6 +285,10 @@ class RealHttpClient implements HttpClientBase {
         return this.put(`/quizzes/${quizId}/questions/${editableQuestion.questionId}`, this.asGenericQuestion(editableQuestion));
     }
 
+    updateQuizResult(quizId: string, correct: number, incorrect: number) {
+        return this.put(`/quizzes/${quizId}/results`, this.asEditableQuestion(correct, incorrect));
+    }
+
     saveQuestion(quizId: string, editableQuestion: Question) {
         return this.post(`/quizzes/${quizId}/questions`, [
             this.asGenericQuestion(editableQuestion)
@@ -324,6 +328,13 @@ class RealHttpClient implements HttpClientBase {
             answer: answer,
             feedback: question.feedback.split('\u001f'),
         };
+    }
+
+    private asEditableQuestion(correct: number, incorrect: number) {
+        return {
+            correct: correct,
+            incorrect: incorrect
+        }
     }
 
     private get(path: string): Promise<any> {

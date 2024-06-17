@@ -1,4 +1,4 @@
-import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
+import {RouteProp, useFocusEffect, useNavigation, useRoute} from "@react-navigation/native";
 import React, {useEffect, useState} from "react";
 import {ActivityIndicator, ImageBackground, Text, View} from "react-native";
 import PieChart from "react-native-pie-chart";
@@ -26,9 +26,9 @@ const QuizPage: React.FC = () => {
     const {workspaceId, quizId} = route.params;
 
     useEffect(() => {
-        httpClient.getQuizDetails(workspaceId, quizId)
-            .then(onLoadedDetails)
-            .catch(console.error);
+        // httpClient.getQuizDetails(workspaceId, quizId)
+        //     .then(onLoadedDetails)
+        //     .catch(console.error);
         httpClient.getQuizQuestions(quizId)
             .then(setQuestions)
             .catch(console.error);
@@ -43,6 +43,14 @@ const QuizPage: React.FC = () => {
     const onLoadedDetails = (quizDetails: QuizDetails) => {
         setQuizDetails(quizDetails);
     }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            httpClient.getQuizDetails(workspaceId, quizId)
+                .then(onLoadedDetails)
+                .catch(console.error);
+        }, [httpClient.getQuizDetails])
+    );
 
     const asPercentage = (num: number) => {
         const percentage = (num / (quiz!!.numberOfQuestions)) * 100;
@@ -95,7 +103,8 @@ const QuizPage: React.FC = () => {
     }
 
     return (
-        <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../../assets/purple_background.png")} imageStyle={{resizeMode: "cover"}}>
+        <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../../assets/purple_background.png")}
+                         imageStyle={{resizeMode: "cover"}}>
             <TopBar/>
             {loading ? (
                 <ActivityIndicator size="large" color="#fff" style={styles.spinner}/>

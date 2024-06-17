@@ -70,6 +70,10 @@ const SingleChoiceQuestionView: React.FC<SingleChoiceQuestionViewProps> = ({
                         <Text style={styles.feedbackText}>
                             {question.feedback[index]}
                         </Text>
+                    ) || (
+                        <Text style={styles.invisibleFeedbackText}>
+                            {question.feedback[index]}
+                        </Text>
                     )}
                 </View>
             ))}
@@ -100,9 +104,13 @@ const styles = StyleSheet.create({
     },
     feedbackText: {
         marginTop: 5,
-        marginBottom: 20,
         marginLeft: 60,
         color: "gray",
+    },
+    invisibleFeedbackText: {
+        marginTop: 5,
+        marginLeft: 60,
+        visibility: 'hidden'
     },
     highlightedStyle: {
         marginRight: 20,
@@ -117,8 +125,7 @@ const styles = StyleSheet.create({
         width: 0,
         height: 0,
         visibility: 'hidden'
-    }
-    ,
+    },
     invisible: {
         marginRight: 20,
         marginLeft: 20,
