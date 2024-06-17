@@ -66,7 +66,7 @@ const MainPage = () => {
 
     const navigateToNotePage = (parse: NoteSummary) => {
         fetchRecent();
-        navigation.navigate('CardPage', {noteId: parse.id, workspaceId: parse.workspace.id});
+        navigation.navigate('HandWrittenNotePage', {noteId: parse.id, workspaceId: parse.workspace.id});
     }
 
     const createNewNote = (note: NoteCreateDetails) => {

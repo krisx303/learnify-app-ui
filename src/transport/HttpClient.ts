@@ -297,6 +297,10 @@ class RealHttpClient implements HttpClientBase {
         });
     }
 
+    getBoundedQuizzes(noteId: string) {
+        return this.get(`/bindings/notes/${noteId}`);
+    }
+
     private asGenericQuestion(question: Question): any {
         const answer = question.type === 'single-choice' ?
             question.answer.toString() :
@@ -362,6 +366,13 @@ class RealHttpClient implements HttpClientBase {
             },
             body: JSON.stringify(body),
         }).then(response => response.json());
+    }
+
+    createNewBinding(quizId: string, noteId: string): Promise<any> {
+        return this.post(`/bindings`, {
+            quizId,
+            noteId
+        });
     }
 }
 

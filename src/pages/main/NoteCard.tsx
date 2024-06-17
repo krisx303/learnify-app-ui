@@ -4,16 +4,20 @@ import { useNavigation } from '@react-navigation/native';
 import { View } from 'react-native';
 import styles from './Card.scss';
 import { NoteSummary } from './Types';
+import {StackNavigationProp} from "@react-navigation/stack";
+import {RootStackParamList} from "../../../App";
 
 interface NoteCardProps {
     note: NoteSummary;
 }
 
+type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
+
 const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProps>();
 
     const handlePress = () => {
-        navigation.navigate('CardPage', { noteId: note.id, workspaceId: note.workspace.id});
+        navigation.navigate('HandWrittenNotePage', { noteId: note.id, workspaceId: note.workspace.id});
     };
 
     return (
