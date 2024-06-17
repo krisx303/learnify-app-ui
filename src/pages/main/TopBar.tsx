@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Text, TouchableHighlight} from 'react-native';
-import {Avatar} from 'react-native-paper';
+import {Avatar, Button} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import styles from './TopBar.scss';
 import LearnifyAppIconInner from "../../icons/learnify-app-icon-inner";
@@ -10,11 +10,13 @@ import {StackNavigationProp} from "@react-navigation/stack";
 interface TopBarProps {
     text?: string;
     children?: React.ReactElement;
+    withAdvancedMenu?: boolean;
+    onAdvancedMenuPress?: () => void;
 }
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
 
-const TopBar: React.FC<TopBarProps> = ({text, children}) => {
+const TopBar: React.FC<TopBarProps> = ({text, withAdvancedMenu, onAdvancedMenuPress, children}) => {
     const navigation = useNavigation<NavigationProps>();
     const user = {
         username: 'JohnDoe',
@@ -37,10 +39,20 @@ const TopBar: React.FC<TopBarProps> = ({text, children}) => {
                 </TouchableHighlight>
                 {children}
             </View>
-            <View style={styles.userInfo}>
+            {withAdvancedMenu && (
+                <View>
+                    <Text style={{color: "white", fontSize: 25}}>{'< 1/1 >'}</Text>
+                </View>
+            )}
+            {withAdvancedMenu === true ? (
+                <Button icon="abacus" mode="contained" onPress={onAdvancedMenuPress}>
+                    View Quizzes
+                </Button>
+            ) : (<View style={styles.userInfo}>
                 <Text style={styles.username}>{user.username}</Text>
                 <Avatar.Image size={40} source={{uri: user.avatarUrl}}/>
-            </View>
+            </View>)}
+
         </View>
     );
 };

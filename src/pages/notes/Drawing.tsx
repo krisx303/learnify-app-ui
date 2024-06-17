@@ -6,7 +6,7 @@ import {
     useTouchHandler,
 } from "@shopify/react-native-skia";
 import React, {useEffect, useRef, useState} from "react";
-import {ImageBackground, StyleSheet, View} from "react-native";
+import {ImageBackground, Pressable, StyleSheet, Text, View} from "react-native";
 import styles from "../CardPage.scss";
 import MovableImage from "./MoveableImage";
 import {Action, Color, Colors, PathWithColorAndWidth, Position, strokes, Tool} from "./types";
@@ -16,6 +16,7 @@ import {useHttpClient} from "../../transport/HttpClient";
 import {RouteProp, useRoute} from "@react-navigation/native";
 import {RootStackParamList} from "../../../App";
 import TopBar from "../main/TopBar";
+import {Button} from "react-native-paper";
 
 type GenericElement = {
     id: string;
@@ -29,9 +30,9 @@ type GenericElement = {
     width: number;
     height: number;
 }
-type CardPageRouteProp = RouteProp<RootStackParamList, 'CardPage'>;
+type NotePageRouteProp = RouteProp<RootStackParamList, 'HandWrittenNotePage'>;
 
-const Drawing = () => {
+const Drawing = ({onMenuOpen}: {onMenuOpen: () => void}) => {
     const [backgroundImage, setBackgroundImage] = useState('');
     const [elements, setElements] = useState<GenericElement[]>([]);
     const movingElement = useRef<GenericElement>(null);
@@ -43,7 +44,7 @@ const Drawing = () => {
     const [shouldSendState, setShouldSendState] = useState(false);
     const httpClient = useHttpClient();
     const [noteName, setNoteName] = useState<string>('');
-    const route = useRoute<CardPageRouteProp>();
+    const route = useRoute<NotePageRouteProp>();
     const {noteId, workspaceId} = route.params;
 
     const createGenericElement = (id: string, startPosition: Position, content: string, width: number, height: number) => {
@@ -87,6 +88,8 @@ const Drawing = () => {
 
     useEffect(() => {
         const gridImage = createGrid(30);
+        setPaths([]);
+        setElements([]);
         setBackgroundImage(gridImage);
         httpClient.getNoteDetails(workspaceId, noteId)
             .then(note => {
@@ -283,8 +286,8 @@ const Drawing = () => {
 
 
     return (
-        <View style={{width: "100%", height: "100%"}}>
-            <TopBar text={noteName}/>
+        <View style={{width: "100%", height: "100%", maxHeight: "100%"}}>
+            <TopBar text={noteName} withAdvancedMenu onAdvancedMenuPress={onMenuOpen}/>
             <View style={styles.content}>
                 <View style={style.container}>
                     <ImageBackground
