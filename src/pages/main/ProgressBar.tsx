@@ -23,6 +23,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({progress}) => {
         }
     };
 
+    if(progress === -1) {
+        return null;
+    }
+
     return (
         <View style={styles.container}>
             <View style={[styles.progressBar, {width: `${progress}%`}]}>

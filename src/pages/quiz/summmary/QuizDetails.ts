@@ -1,11 +1,11 @@
-import {User} from "../../main/Types";
+import {User, Workspace} from "../../main/Types";
 
 /** Interface representing the structure of a quiz */
 export interface QuizDetails {
     /** The unique ID of quiz */
     id: string;
     /** The unique ID of workspace */
-    workspaceId: string;
+    workspace: Workspace;
     /** The name of quiz */
     title: string;
     /** Description of the quiz */

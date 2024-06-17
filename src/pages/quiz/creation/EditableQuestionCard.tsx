@@ -1,22 +1,23 @@
 import {View, StyleSheet, TextInput} from "react-native";
 import {IconButton} from "react-native-paper";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Question, MultipleChoiceQuestion, SingleChoiceQuestion} from "../solving/Question";
 import {EditableMultipleChoiceContent} from "./EditableMultipleChoiceContent";
 import {EditableSingleChoiceContent} from "./EditableSingleChoiceContent";
 
 interface EditableQuestionCardProps {
-    question: Question;
+    editableQuestion: Question;
     isExpanded: boolean;
     toggleExpand: () => void;
+    setEditableQuestion: (question: Question) => void;
 }
 
 export const EditableQuestionCard = ({
-                                         question,
+                                         editableQuestion,
                                          isExpanded,
-                                         toggleExpand
+                                         toggleExpand,
+                                         setEditableQuestion
                                      }: EditableQuestionCardProps) => {
-    const [editableQuestion, setEditableQuestion] = useState<Question>(question);
 
     const renderEditableQuestionContent = () => {
         if (editableQuestion.type === "multiple-choice") {

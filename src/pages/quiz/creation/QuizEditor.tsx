@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import TopBar from '../../main/TopBar';
 import {RootStackParamList} from "../../../../App";
@@ -20,7 +20,8 @@ const QuizEditor: React.FC = () => {
     const [questions, setQuestions] = useState([] as Question[]);
     const [expanded, setExpanded] = useState<boolean[]>([]);
     const [menuVisible, setMenuVisible] = useState(false);
-    const [editableQuestion, setEditableQuestion] = useState<number>(-1);
+    const [editableQuestionIndex, setEditableQuestionIndex] = useState<number>(-1);
+    const [editableQuestion, setEditableQuestion] = useState<Question | null>(null);
 
     useEffect(() => {
         httpClient.getQuizDetails(workspaceId, quizId)
@@ -66,11 +67,13 @@ const QuizEditor: React.FC = () => {
         }
         setQuestions([...questions, newQuestion]);
         setExpanded([...expanded, true]);
-        setEditableQuestion(questions.length);
+        setEditableQuestionIndex(questions.length);
+        setEditableQuestion(newQuestion)
     };
 
     const startEditQuestion = (index: number) => {
-        setEditableQuestion(index);
+        setEditableQuestion(questions[index]);
+        setEditableQuestionIndex(index);
     };
 
     const cancelEditQuestion = (index: number) => {
@@ -78,13 +81,28 @@ const QuizEditor: React.FC = () => {
             setQuestions(questions.slice(0, -1));
             setExpanded(expanded.slice(0, -1));
         }
-        setEditableQuestion(-1);
+        setEditableQuestionIndex(-1);
+        setEditableQuestion(null);
     };
 
-    const saveQuestion = (index: number) => {
-        setEditableQuestion(-1);
+    const saveQuestion = () => {
+        const index = editableQuestionIndex;
+        setQuestions(questions.map((q, i) => i === editableQuestionIndex ? editableQuestion!! : q));
+        if(editableQuestion?.questionId) {
+            httpClient.updateQuestion(quizId, editableQuestion!!)
+                .then(console.log)
+                .catch(console.error)
+        }else {
+            httpClient.saveQuestion(quizId, editableQuestion!!)
+                .then((question) => {
+                    console.log(question)
+                    setQuestions(questions.map((q, i) => i === index ? question : q));
+                })
+                .catch(console.error)
+        }
+        setEditableQuestionIndex(-1);
+        setEditableQuestion(null);
         //TODO add validation of question before saving
-        //TODO save question to backend
     };
 
     const deleteQuestion = (index: number) => {
@@ -94,7 +112,7 @@ const QuizEditor: React.FC = () => {
     };
 
     return (
-        <View style={styles.container}>
+        <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../../assets/purple_background.png")} imageStyle={{resizeMode: "cover"}}>
             <TopBar text={quizDetails.title}/>
             <View style={styles.innerContainer}>
                 <View style={styles.quizInfoContainer}>
@@ -105,12 +123,13 @@ const QuizEditor: React.FC = () => {
                     <ScrollView contentContainerStyle={styles.scrollContent}>
                         {questions.map((question, index) => (
                             <View style={styles.cardContainer} key={index}>
-                                {editableQuestion == index ? (
+                                {editableQuestionIndex == index ? (
                                     <View style={{flex: 1}}>
                                         <EditableQuestionCard
-                                            question={question}
                                             isExpanded={expanded[index]}
                                             toggleExpand={() => toggleExpand(index)}
+                                            editableQuestion={editableQuestion!!}
+                                            setEditableQuestion={setEditableQuestion}
                                         />
                                     </View>
                                 ) : (
@@ -125,7 +144,7 @@ const QuizEditor: React.FC = () => {
                                         />
                                     </TouchableOpacity>
                                 )}
-                                {editableQuestion !== index ? (
+                                {editableQuestionIndex !== index ? (
                                     <View style={styles.actionsContainer}>
                                         <View style={styles.actionIcon}>
                                             <IconButton
@@ -159,7 +178,7 @@ const QuizEditor: React.FC = () => {
                                                 icon={'check'}
                                                 size={26}
                                                 iconColor={'#ffffff'}
-                                                onPress={() => saveQuestion(index)}
+                                                onPress={() => saveQuestion()}
                                             />
                                         </View>
                                     </View>
@@ -177,8 +196,8 @@ const QuizEditor: React.FC = () => {
                                 visible={menuVisible}
                                 onDismiss={() => setMenuVisible(false)}
                                 anchor={
-                                    (editableQuestion === -1 &&
-                                        <Button mode="contained" onPress={() => setMenuVisible(true)}>
+                                    (editableQuestionIndex === -1 &&
+                                        <Button style={{marginTop: 20}} mode="contained" onPress={() => setMenuVisible(true)}>
                                             Add New
                                         </Button>)
                                 }>
@@ -191,15 +210,11 @@ const QuizEditor: React.FC = () => {
                     </ScrollView>
                 </View>
             </View>
-        </View>
+        </ImageBackground>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundImage: 'url(../../assets/purple_background.png), linear-gradient(to bottom right, #390854, #590d82)'
-    },
     innerContainer: {
         flex: 1,
         padding: 16,

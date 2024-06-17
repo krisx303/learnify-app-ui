@@ -1,5 +1,7 @@
 /** Represents a multiple-choice question. */
 export type MultipleChoiceQuestion = {
+    /** The unique identifier of the question. */
+    questionId?: string | undefined;
     /** The textual content of the question. */
     question: string;
     /** The type of the question, indicating it's a "multiple-choice" type. */
@@ -15,6 +17,8 @@ export type MultipleChoiceQuestion = {
 };
 
 export type SingleChoiceQuestion = {
+    /** The unique identifier of the question. */
+    questionId?: string | undefined;
     /** The textual content of the question. */
     question: string;
     /** The type of the question, indicating it's a "single-choice" type. */

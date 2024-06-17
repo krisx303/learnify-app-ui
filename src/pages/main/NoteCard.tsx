@@ -22,7 +22,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                 <Card.Content style={{height: 280}}>
                     <Title style={styles.cardHeader}>{note.title}</Title>
                     <View style={styles.line} />
-                    <Paragraph style={{marginBottom: 30}}>{note.description}</Paragraph>
+                    <Paragraph style={styles.details}>{note.description}</Paragraph>
                     <Paragraph style={styles.details}>
                         <Text>Przeglądano: {note.updatedAt?.substring(0, 10)}</Text>
                     </Paragraph>
