@@ -77,7 +77,9 @@ const QuizPage: React.FC = () => {
                 </View>
                 <Text style={styles.description}>{quiz.description}</Text>
                 <Text style={styles.info}>Number of questions: {quiz.numberOfQuestions} </Text>
-                <Text style={styles.subtitle}>Subtitle</Text>
+                <Text style={styles.info}>Best
+                    result: {quiz.bestScore == null ? "0" : asPercentage(quiz.bestScore.correct)}% </Text>
+                <Text style={styles.subtitle}>Last score</Text>
                 {quiz.lastScore ? (
                     <View style={styles.chartContainer}>
                         <PieChart
