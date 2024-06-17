@@ -85,7 +85,7 @@ class StubHttpClient implements HttpClientBase {
         const author1 = {id: '1', displayName: 'Krzysztof Usnarski', email: "abc@gmail.com"}
         return Promise.resolve([
             {
-                id: '1', title: 'Test 1', score: '15%', workspace: workspace1 , author: author1
+                id: '1', title: 'Test 1', score: '15%', workspace: workspace1, author: author1
             },
             {
                 id: '2', title: 'Test 2', score: '75%', workspace: workspace1, author: author1
@@ -294,13 +294,16 @@ class RealHttpClient implements HttpClientBase {
     }
 
     private asGenericQuestion(question: Question): any {
+        const answer = question.type === 'single-choice' ?
+            question.answer.toString() :
+            question.answer.map((val: boolean) => val.toString()).join("\u001f");
         return {
             question: question.question,
             type: question.type,
             weight: question.weight,
-            choices: question.choices.toString(),
-            otherProperties: question.answer.toString(),
-            feedback: question.feedback.toString(),
+            choices: question.choices.join("\u001f"),
+            otherProperties: answer,
+            feedback: question.feedback.join('\u001f'),
         };
     }
 
@@ -310,16 +313,16 @@ class RealHttpClient implements HttpClientBase {
             // how to convert string to number
             answer = parseInt(question.otherProperties);
         } else if (question.type === 'multiple-choice') {
-            answer = question.otherProperties.split(',').map((val: string) => val === 'true');
+            answer = question.otherProperties.split('\u001f').map((val: string) => val === 'true');
         }
         return {
             questionId: question.questionId,
             question: question.question,
             type: question.type,
             weight: question.weight,
-            choices: question.choices.split(','),
+            choices: question.choices.split('\u001f'),
             answer: answer,
-            feedback: question.feedback.split(','),
+            feedback: question.feedback.split('\u001f'),
         };
     }
 
