@@ -49,10 +49,10 @@ const MultipleChoiceQuestionView: React.FC<MultipleChoiceQuestionViewProps> = ({
                         <img
                             style={
                                 {
-                                    marginRight: !isEditable && !question.answer[index] && question.answer[index] != userAnswer[index] ? 20 : 0,
-                                    marginLeft: !isEditable && !question.answer[index] && question.answer[index] != userAnswer[index] ? 20 : 0,
-                                    width: !isEditable && !question.answer[index] && question.answer[index] != userAnswer[index] ? 20 : 0,
-                                    height: !isEditable && !question.answer[index] && question.answer[index] != userAnswer[index] ? 20 : 0,
+                                    marginRight: (isEditable) || (!isEditable && !question.answer[index] && question.answer[index] != userAnswer[index]) ? 20 : 0,
+                                    marginLeft: (isEditable) || (!isEditable && !question.answer[index] && question.answer[index] != userAnswer[index]) ? 20 : 0,
+                                    width: (isEditable) || (!isEditable && !question.answer[index] && question.answer[index] != userAnswer[index]) ? 20 : 0,
+                                    height: (isEditable) || (!isEditable && !question.answer[index] && question.answer[index] != userAnswer[index]) ? 20 : 0,
                                     visibility: !isEditable && question.answer[index] != userAnswer[index] ? 'visible' : 'hidden'
                                 }
                             }
@@ -95,7 +95,9 @@ const MultipleChoiceQuestionView: React.FC<MultipleChoiceQuestionViewProps> = ({
                         <Text style={styles.feedbackText}>
                             {question.feedback[index]}
                         </Text>
-                    )}
+                    ) || (<Text style={styles.invisibleFeedbackText}>
+                        {question.feedback[index]}
+                    </Text>)}
                 </View>
             ))}
         </View>
@@ -125,10 +127,14 @@ const styles = StyleSheet.create({
     },
     feedbackText: {
         marginTop: 5,
-        marginBottom: 20,
         marginLeft: 60,
         color: "gray",
-    }
+    },
+    invisibleFeedbackText: {
+        marginTop: 5,
+        marginLeft: 60,
+        visibility: 'hidden'
+    },
 });
 
 export default MultipleChoiceQuestionView;

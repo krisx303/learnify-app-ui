@@ -1,9 +1,9 @@
 import React from 'react';
-import { Card, Title, Paragraph, Text, TouchableRipple } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { View } from 'react-native';
+import {Card, Title, Paragraph, Text, TouchableRipple} from 'react-native-paper';
+import {useNavigation} from '@react-navigation/native';
+import {View} from 'react-native';
 import styles from './Card.scss';
-import { QuizSummary } from './Types';
+import {QuizSummary} from './Types';
 import ProgressBar from './ProgressBar';
 import {RootStackParamList} from "../../../App";
 import {StackNavigationProp} from "@react-navigation/stack";
@@ -14,20 +14,20 @@ interface QuizCardProps {
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
 
-const QuizCard: React.FC<QuizCardProps> = ({ quiz }) => {
+const QuizCard: React.FC<QuizCardProps> = ({quiz}) => {
     const navigation = useNavigation<NavigationProps>();
 
     const handlePress = () => {
-        navigation.navigate('QuizPage', { quizId: quiz.id, workspaceId: quiz.workspace.id });
+        navigation.navigate('QuizPage', {quizId: quiz.id, workspaceId: quiz.workspace.id});
     };
 
     return (
         <TouchableRipple onPress={handlePress} style={styles.cardContainer}>
             <Card key={quiz.id} style={styles.card}>
-                <Card.Content style={{ flex: 1 }}>
+                <Card.Content style={{flex: 1}}>
                     <Title style={styles.cardHeader}>{quiz.title}</Title>
-                    <View style={styles.line} />
-                    <Paragraph style={styles.details}>Score: {quiz.score}</Paragraph>
+                    <View style={styles.line}/>
+                    <Paragraph style={styles.details}>Score: {quiz.score === "-1" ? "0" : quiz.score}</Paragraph>
                     <Paragraph style={styles.details}>
                         <Text>{quiz.score === "-1" ? "Jeszcze nie rozwiązywano" : "Rozwiązywano: dziś"}</Text>
                     </Paragraph>
@@ -37,7 +37,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz }) => {
                     <Paragraph style={styles.details}>
                         <Text>Z przestrzeni: {quiz.workspace.displayName}</Text>
                     </Paragraph>
-                    <ProgressBar progress={parseInt(quiz.score)} />
+                    <ProgressBar progress={parseInt(quiz.score)}/>
                 </Card.Content>
             </Card>
         </TouchableRipple>
