@@ -1,5 +1,5 @@
 import {Canvas, Group, Path, Skia, TouchInfo, useTouchHandler,} from "@shopify/react-native-skia";
-import React, {useEffect, useRef, useState} from "react";
+import React, {MutableRefObject, useEffect, useRef, useState} from "react";
 import {ImageBackground, StyleSheet, View,} from "react-native";
 import styles from "../../CardPage.scss";
 import MovableImage from "./MoveableImage";

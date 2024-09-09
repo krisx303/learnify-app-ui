@@ -10,7 +10,7 @@ import QuestionsScreen from "./src/pages/quiz/solving/QuestionsScreen";
 import {Question} from "./src/pages/quiz/solving/Question";
 import {QuizDetails} from "./src/pages/quiz/summmary/QuizDetails";
 import QuizEditor from "./src/pages/quiz/creation/QuizEditor";
-import BoardNotePage from "./src/pages/BoardNotePage";
+import BoardNotePage from "./src/pages/notes/board/BoardNotePage";
 
 const Stack = createStackNavigator();
 

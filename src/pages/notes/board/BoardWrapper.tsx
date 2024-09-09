@@ -9,7 +9,7 @@ import {QuizSummary} from "../../main/Types";
 
 type NotePageRouteProp = RouteProp<RootStackParamList, 'BoardNotePage'>;
 
-const BoardNoteWrapper: React.FC = () => {
+const BoardWrapper: React.FC = () => {
     const route = useRoute<NotePageRouteProp>();
     const {noteId, workspaceId} = route.params;
     const [drawerVisible, setDrawerVisible] = useState(false);
@@ -59,7 +59,7 @@ const BoardNoteWrapper: React.FC = () => {
 };
 
 
-export default BoardNoteWrapper;
+export default BoardWrapper;
 
 const styles = StyleSheet.create({
     container: {
