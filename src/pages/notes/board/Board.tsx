@@ -1,34 +1,23 @@
 import {Canvas, Group, Path, Skia, TouchInfo, useTouchHandler,} from "@shopify/react-native-skia";
 import React, {useEffect, useRef, useState} from "react";
 import {ImageBackground, StyleSheet, View,} from "react-native";
-import styles from "../CardPage.scss";
+import styles from "../../CardPage.scss";
 import MovableImage from "./MoveableImage";
 import {Action, Color, Colors, PathWithColorAndWidth, Position, strokes, Tool,} from "./types";
 import {Toolbar} from "./Toolbar";
-import {createGrid} from "./utils";
-import {useHttpClient} from "../../transport/HttpClient";
+import {createGrid} from "./Grid";
+import {useHttpClient} from "../../../transport/HttpClient";
 import {RouteProp, useRoute} from "@react-navigation/native";
-import {RootStackParamList} from "../../../App";
-import TopBar from "../main/TopBar";
+import {RootStackParamList} from "../../../../App";
+import TopBar from "../../main/TopBar";
+import {createGenericMovableElement, GenericMovableElement} from "./GenericMovableElement";
 
-type GenericElement = {
-    id: string;
-    position: Position;
-    isMoving: boolean;
-    isEditingMode: boolean;
-    setPosition: (position: Position) => void;
-    setIsMoving: (isMoving: boolean) => void;
-    setIsEditingMode: (isEditingMode: boolean) => void;
-    content: string;
-    width: number;
-    height: number;
-};
-type NotePageRouteProp = RouteProp<RootStackParamList, "HandWrittenNotePage">;
+type NotePageRouteProp = RouteProp<RootStackParamList, "BoardNotePage">;
 
-const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
+const Board = ({onMenuOpen}: { onMenuOpen: () => void }) => {
     const [backgroundImage, setBackgroundImage] = useState("");
-    const [elements, setElements] = useState<GenericElement[]>([]);
-    const movingElement = useRef<GenericElement>(null);
+    const [elements, setElements] = useState<GenericMovableElement[]>([]);
+    const movingElement = useRef<GenericMovableElement>(null);
     const [selectedTool, setSelectedTool] = useState<Tool>("pen");
     const [paths, setPaths] = useState<PathWithColorAndWidth[]>([]);
     const [color, setColor] = useState<Color>(Colors[0]);
@@ -39,6 +28,8 @@ const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
     const [noteName, setNoteName] = useState<string>("");
     const route = useRoute<NotePageRouteProp>();
     const {noteId, workspaceId} = route.params;
+    const [canvasWidth, setCanvasWidth] = useState(0); // Current width of the canvas container
+    const canvasFixedWidth= 1800; // Original canvas width (set only once)
 
     const createGenericElement = (
         id: string,
@@ -47,46 +38,11 @@ const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
         width: number,
         height: number
     ) => {
-        const element = {
-            id,
-            position: startPosition,
-            isMoving: false,
-            isEditingMode: false,
-            content: content,
-            width,
-            height,
-            setPosition: (position: Position) => {
-                element.position = position;
-                setElements((prevElements) =>
-                    prevElements.map((el) =>
-                        el.id === id
-                            ? {
-                                ...el,
-                                position: position,
-                            }
-                            : el
-                    )
-                );
-            },
-            setIsMoving: (isMoving: boolean) => {
-                element.isMoving = isMoving;
-                setElements((prevElements) =>
-                    prevElements.map((el) => (el.id === id ? {...el, isMoving} : el))
-                );
-            },
-            setIsEditingMode: (isEditingMode: boolean) => {
-                element.isEditingMode = isEditingMode;
-                setElements((prevElements) =>
-                    prevElements.map((el) =>
-                        el.id === id ? {...el, isEditingMode} : el
-                    )
-                );
-            },
-        } as GenericElement;
+        const element = createGenericMovableElement(id, startPosition, content, width, height, setElements);
         setElements((prevElements) => [...prevElements, element]);
     };
 
-    const createMoveableImage = () => {
+    const createMovableImage = () => {
         const id = Math.random().toString(36).substr(2, 9); // unique ID for each element
         createGenericElement(
             id,
@@ -138,7 +94,6 @@ const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
     }, [workspaceId, noteId, httpClient]);
 
     const onDrawingStart = (touchInfo: TouchInfo) => {
-        console.log(touchInfo);
         setActive(true);
         setPaths((currentPaths) => {
             const {x: xx, y: yy} = touchInfo;
@@ -180,7 +135,7 @@ const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
         });
     };
 
-    const moveElement = (element: GenericElement, position: Position) => {
+    const moveElement = (element: GenericMovableElement, position: Position) => {
         element.setPosition({
             x: position.x - element.width / 2,
             y: position.y - element.height / 2,
@@ -271,7 +226,7 @@ const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
     const performAction = (action: Action) => {
         switch (action) {
             case "add":
-                createMoveableImage();
+                createMovableImage();
                 break;
             case "undo":
                 setPaths((currentPaths) =>
@@ -336,17 +291,9 @@ const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
         }
     }, [shouldSendState]);
 
-    const [canvasWidth, setCanvasWidth] = useState(0); // Current width of the canvas container
-    const [canvasFixedWidth, setCanvasFixedWidth] = useState(0); // Original canvas width (set only once)
-
     const handleLayout = (event) => {
         const {width} = event.nativeEvent.layout;
         setCanvasWidth(width);
-
-        // Set canvasFixedWidth only the first time (when it renders initially)
-        if (!canvasFixedWidth) {
-            setCanvasFixedWidth(width);
-        }
     };
 
     const scale = canvasWidth ? canvasWidth / canvasFixedWidth : 1;
@@ -408,7 +355,7 @@ const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
     );
 };
 
-export default Drawing;
+export default Board;
 
 const style = StyleSheet.create({
     container: {

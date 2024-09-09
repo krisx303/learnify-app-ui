@@ -1,5 +1,5 @@
 import React from 'react';
-import {Card, Title, Paragraph, TouchableRipple, Text, IconButton, Icon} from 'react-native-paper';
+import {Card, Title, Paragraph, TouchableRipple, Text, Icon} from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { View } from 'react-native';
 import styles from './Card.scss';
@@ -17,7 +17,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
     const navigation = useNavigation<NavigationProps>();
 
     const handlePress = () => {
-        navigation.navigate('HandWrittenNotePage', { noteId: note.id, workspaceId: note.workspace.id});
+        navigation.navigate('BoardNotePage', { noteId: note.id, workspaceId: note.workspace.id});
     };
 
     return (

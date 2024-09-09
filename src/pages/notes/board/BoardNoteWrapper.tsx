@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, TouchableOpacity} from 'react-native';
 import {RouteProp, useFocusEffect, useRoute} from "@react-navigation/native";
-import {RootStackParamList} from "../../../App";
-import Drawing from "./Drawing";
-import Drawer from "./Drawer";
-import {useHttpClient} from "../../transport/HttpClient";
-import {QuizSummary} from "../main/Types";
+import {RootStackParamList} from "../../../../App";
+import Board from "./Board";
+import Drawer from "../Drawer";
+import {useHttpClient} from "../../../transport/HttpClient";
+import {QuizSummary} from "../../main/Types";
 
-type NotePageRouteProp = RouteProp<RootStackParamList, 'HandWrittenNotePage'>;
+type NotePageRouteProp = RouteProp<RootStackParamList, 'BoardNotePage'>;
 
-const HandWrittenNotePage: React.FC = () => {
+const BoardNoteWrapper: React.FC = () => {
     const route = useRoute<NotePageRouteProp>();
     const {noteId, workspaceId} = route.params;
     const [drawerVisible, setDrawerVisible] = useState(false);
@@ -37,7 +37,7 @@ const HandWrittenNotePage: React.FC = () => {
     };
     return (
         <View style={styles.container}>
-            <Drawing onMenuOpen={toggleDrawer}/>
+            <Board onMenuOpen={toggleDrawer}/>
 
             {drawerVisible && (
                 <>
@@ -59,7 +59,7 @@ const HandWrittenNotePage: React.FC = () => {
 };
 
 
-export default HandWrittenNotePage;
+export default BoardNoteWrapper;
 
 const styles = StyleSheet.create({
     container: {

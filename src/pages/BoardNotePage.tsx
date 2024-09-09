@@ -4,7 +4,7 @@ import styles from './CardPage.scss';
 import {version} from "canvaskit-wasm/package.json";
 import {WithSkiaWeb} from "@shopify/react-native-skia/lib/module/web";
 
-const CardPage: React.FC = () => {
+const BoardNotePage: React.FC = () => {
     return (
         <ImageBackground source={require('../../assets/purple_background.png')} style={styles.container}>
             <WithSkiaWeb
@@ -13,11 +13,11 @@ const CardPage: React.FC = () => {
                         `https://cdn.jsdelivr.net/npm/canvaskit-wasm@${version}/bin/full/${file}`,
                 }}
                 // @ts-ignore
-                getComponent={() => import("./notes/DrawingWrapper")}
+                getComponent={() => import("./notes/board/BoardNoteWrapper")}
             />
         </ImageBackground>
     );
 };
 
 
-export default CardPage;
+export default BoardNotePage;
