@@ -52,8 +52,7 @@ const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
             position: startPosition,
             isMoving: false,
             isEditingMode: false,
-            content:
-                "https://miro.medium.com/v2/resize:fit:700/1*TtczOh1ZzrAsPLBaA5SxHg.png",
+            content: content,
             width,
             height,
             setPosition: (position: Position) => {
@@ -95,7 +94,7 @@ const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
                 x: Math.floor(Math.random() * 100),
                 y: Math.floor(Math.random() * 100),
             },
-            "https://picsum.photos/200/300",
+            "https://miro.medium.com/v2/resize:fit:700/1*TtczOh1ZzrAsPLBaA5SxHg.png",
             560,
             480
         );
@@ -142,7 +141,9 @@ const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
         console.log(touchInfo);
         setActive(true);
         setPaths((currentPaths) => {
-            const {x, y} = touchInfo;
+            const {x: xx, y: yy} = touchInfo;
+            const x = xx * (1 / scale);
+            const y = yy * (1 / scale);
             const newPath = Skia.Path.Make();
             newPath.moveTo(x, y);
             return [
@@ -166,7 +167,9 @@ const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
         }
         setPaths((currentPaths) => {
             if (!active || currentPaths.length === 0) return currentPaths;
-            const {x, y} = touchInfo;
+            const {x: xx, y: yy} = touchInfo;
+            const x = xx * (1 / scale);
+            const y = yy * (1 / scale);
             const currentPath = currentPaths[currentPaths.length - 1];
             const lastPoint = currentPath.path.getLastPt();
             const xMid = (lastPoint.x + x) / 2;
@@ -198,7 +201,9 @@ const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
                 movingElement.current = null;
                 switch (selectedTool) {
                     case "pointer":
-                        const {x: touchX, y: touchY} = touchInfo;
+                        const {x: xx, y: yy} = touchInfo;
+                        const touchX = xx * (1 / scale);
+                        const touchY = yy * (1 / scale);
                         const element = elements.find(
                             (el) =>
                                 touchX >= el.position.x &&
@@ -232,7 +237,10 @@ const Drawing = ({onMenuOpen}: { onMenuOpen: () => void }) => {
             onActive: (touchInfo) => {
                 switch (selectedTool) {
                     case "pointer":
-                        const {x: touchX, y: touchY, force} = touchInfo;
+                        const {x: xx, y: yy} = touchInfo;
+                        const touchX = xx * (1 / scale);
+                        const touchY = yy * (1 / scale);
+                        const {force} = touchInfo;
                         if (movingElement.current && force > 0) {
                             moveElement(movingElement.current, {x: touchX, y: touchY});
                         }
