@@ -1,3 +1,5 @@
+export type NoteType = 'document' | 'board';
+
 export interface NoteSummary {
     id: string;
     workspace: Workspace;
@@ -5,6 +7,7 @@ export interface NoteSummary {
     description: string;
     author: User;
     updatedAt: string;
+    type: NoteType;
 }
 
 export interface QuizSummary {
