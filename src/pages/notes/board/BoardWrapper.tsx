@@ -37,6 +37,12 @@ const BoardWrapper: React.FC = () => {
     };
     return (
         <View style={styles.container}>
+            <link
+                rel="preload"
+                href="/assets/Roboto-Medium.ttf"
+                as="font"
+                crossOrigin=""
+            />
             <Board onMenuOpen={toggleDrawer}/>
 
             {drawerVisible && (
