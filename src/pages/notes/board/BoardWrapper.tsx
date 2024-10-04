@@ -6,6 +6,12 @@ const BoardWrapper: React.FC = () => {
 
     return (
         <DrawerProvider>
+            <link
+                rel="preload"
+                href="/assets/Roboto-Medium.ttf"
+                as="font"
+                crossOrigin=""
+            />
             <Board/>
         </DrawerProvider>
     );

@@ -11,6 +11,7 @@ export type GenericMovableElement = {
     content: string;
     width: number;
     height: number;
+    type: 'text' | 'image';
 };
 
 export const createGenericMovableElement = (
@@ -19,6 +20,7 @@ export const createGenericMovableElement = (
     content: string,
     width: number,
     height: number,
+    type: 'text' | 'image',
     updateElements: (value: (((prevState: GenericMovableElement[]) => GenericMovableElement[]) | GenericMovableElement[])) => void
 ) => {
     const element = {
@@ -29,6 +31,7 @@ export const createGenericMovableElement = (
         content: content,
         width,
         height,
+        type,
         setPosition: (position: Position) => {
             element.position = position;
             updateElements((prevElements) =>

@@ -1,4 +1,4 @@
-import {Canvas, Group, Path, Skia, TouchInfo, useTouchHandler,} from "@shopify/react-native-skia";
+import {Canvas, Group, Path, Skia, TouchInfo, useFont, useTouchHandler, Text} from "@shopify/react-native-skia";
 import React, {MutableRefObject, useContext, useEffect, useRef, useState} from "react";
 import {ImageBackground, StyleSheet, View,} from "react-native";
 import styles from "../../CardPage.scss";
@@ -14,6 +14,7 @@ import {createGenericMovableElement, GenericMovableElement} from "./GenericMovab
 import {DrawerContext} from "../DrawerProvider";
 import Drawer from "../Drawer";
 import {StackNavigationProp} from "@react-navigation/stack";
+import MoveableText from "./MoveableText";
 
 type NotePageRouteProp = RouteProp<RootStackParamList, "BoardNotePage">;
 type NavigationProps = StackNavigationProp<RootStackParamList, 'BoardNotePage'>;
@@ -36,6 +37,9 @@ const Board = () => {
     const canvasFixedWidth= 1800; // Original canvas width (set only once)
     const navigation = useNavigation<NavigationProps>();
     const { toggleDrawer, setDrawerContent, drawerVisible } = useContext(DrawerContext);
+    const font = useFont("http://localhost:19000/assets/Roboto-Medium.ttf", 20, (err) => {
+        console.error(err)
+    })
 
     useEffect(() => {
         setDrawerContent(
@@ -46,14 +50,16 @@ const Board = () => {
             />);
     }, [drawerVisible]);
 
+
     const createGenericElement = (
         id: string,
         startPosition: Position,
         content: string,
         width: number,
-        height: number
+        height: number,
+        type: 'text' | 'image' = 'image'
     ) => {
-        const element = createGenericMovableElement(id, startPosition, content, width, height, setElements);
+        const element = createGenericMovableElement(id, startPosition, content, width, height, type, setElements);
         setElements((prevElements) => [...prevElements, element]);
     };
 
@@ -104,6 +110,7 @@ const Board = () => {
                         element.height
                     );
                 });
+                createGenericElement('asdf', {x: 100, y: 100}, 'Hello World', 'Hello World'.length*10, 30, 'text');
             })
             .catch(console.error);
     }, [workspaceId, noteId, httpClient]);
@@ -340,15 +347,26 @@ const Board = () => {
                                     />
                                 ))}
                                 {elements.map((element, index) => (
-                                    <MovableImage
-                                        key={element.id}
-                                        src={element.content}
-                                        imageWidth={element.width}
-                                        imageHeight={element.height}
-                                        imagePosition={element.position}
-                                        isMoving={element.isMoving}
-                                        isEditingMode={element.isEditingMode}
-                                    />
+                                    element.type === "image" ? (
+                                        <MovableImage
+                                            key={element.id}
+                                            src={element.content}
+                                            imageWidth={element.width}
+                                            imageHeight={element.height}
+                                            imagePosition={element.position}
+                                            isMoving={element.isMoving}
+                                            isEditingMode={element.isEditingMode}
+                                        />
+                                    ) : (
+                                        <MoveableText
+                                            key={element.id}
+                                            font={font}
+                                            text={element.content}
+                                            position={element.position}
+                                            isMoving={element.isMoving}
+                                            isEditingMode={element.isEditingMode}
+                                        />
+                                    )
                                 ))}
                             </Group>
                         </Canvas>
