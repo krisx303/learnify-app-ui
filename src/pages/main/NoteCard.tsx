@@ -17,7 +17,11 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
     const navigation = useNavigation<NavigationProps>();
 
     const handlePress = () => {
-        navigation.navigate('BoardNotePage', { noteId: note.id, workspaceId: note.workspace.id});
+        if(note.type === 'document') {
+            navigation.navigate('DocumentNotePage', { noteId: note.id, workspaceId: note.workspace.id});
+        }else {
+            navigation.navigate('BoardNotePage', { noteId: note.id, workspaceId: note.workspace.id});
+        }
     };
 
     return (
@@ -37,11 +41,19 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                         <Text>Z przestrzeni: {note.workspace.displayName}</Text>
                     </Paragraph>
                     <View style={styles.iconContainer}>
-                        <Icon
-                            source="fountain-pen"
-                            color="#000"
-                            size={26}
-                        />
+                        {note.type === 'document' ? (
+                            <Icon
+                                source="text"
+                                color="#000"
+                                size={26}
+                            />
+                            ) : (
+                            <Icon
+                                source="fountain-pen"
+                                color="#000"
+                                size={26}
+                            />
+                        )}
                     </View>
                 </Card.Content>
             </Card>

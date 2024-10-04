@@ -2,13 +2,13 @@ import {useMemo} from "react";
 import {NoteSummary, QuizSummary, Workspace} from "../pages/main/Types";
 import {QuizDetails} from "../pages/quiz/summmary/QuizDetails";
 import {Question} from "../pages/quiz/solving/Question";
-import {Position} from "../pages/notes/types";
 import {NoteCreateDetails} from "../pages/main/modals/CreateNoteModal";
 import {QuizCreateDetails} from "../pages/main/modals/CreateQuizModal";
+import { Position } from "../pages/notes/board/types";
 
 type Path = { strokeWidth: number; path: string; color: string; blendMode: string };
 type Element = { width: number; id: string; position: Position; content: string; height: number };
-type NotePageContent = { elements: Element[]; paths: Path[] };
+type BoardNotePageContent = { elements: Element[]; paths: Path[] };
 
 /** Interface representing base HTTP client */
 interface HttpClientBase {
@@ -22,13 +22,17 @@ interface HttpClientBase {
 
     getWorkspaces(): Promise<Workspace[]>;
 
-    postNoteUpdate(workspaceId: string, noteId: string, content: NotePageContent): Promise<void>;
+    putBoardNotePageUpdate(workspaceId: string, noteId: string, content: BoardNotePageContent): Promise<void>;
+
+    putDocumentNotePageUpdate(workspaceId: string, noteId: string, content: string): Promise<void>;
 
     createNewNote(note: NoteCreateDetails): Promise<NoteSummary>;
 
     getNoteDetails(workspaceId: string, noteId: string): Promise<NoteSummary>;
 
-    getPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<NotePageContent>;
+    getBoardPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<BoardNotePageContent>;
+
+    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<string>;
 
     createNewWorkspace(title: string): Promise<Workspace>;
 
@@ -199,7 +203,7 @@ class StubHttpClient implements HttpClientBase {
         ]);
     }
 
-    postNoteUpdate(workspaceId: string, noteId: string, content: NotePageContent) {
+    putBoardNotePageUpdate(workspaceId: string, noteId: string, content: BoardNotePageContent) {
         return Promise.resolve();
     }
 
@@ -211,8 +215,8 @@ class StubHttpClient implements HttpClientBase {
         return Promise.resolve({} as NoteSummary);
     }
 
-    getPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<NotePageContent> {
-        return Promise.resolve({} as NotePageContent);
+    getBoardPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<BoardNotePageContent> {
+        return Promise.resolve({} as BoardNotePageContent);
     }
 
     createNewWorkspace(title: string): Promise<Workspace> {
@@ -224,6 +228,14 @@ class StubHttpClient implements HttpClientBase {
 
     createNewQuiz(quiz: QuizCreateDetails): Promise<QuizSummary> {
         return Promise.resolve({} as QuizSummary);
+    }
+
+    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<string> {
+        return Promise.resolve("");
+    }
+
+    putDocumentNotePageUpdate(workspaceId: string, noteId: string, content: string): Promise<void> {
+        return Promise.resolve(undefined);
     }
 }
 
@@ -257,8 +269,12 @@ class RealHttpClient implements HttpClientBase {
         return this.get('/workspaces');
     }
 
-    postNoteUpdate(workspaceId: string, noteId: string, content: NotePageContent): Promise<void> {
-        return this.put(`/notes/${noteId}/content/1`, content);
+    putBoardNotePageUpdate(workspaceId: string, noteId: string, content: BoardNotePageContent): Promise<void> {
+        return this.put(`/notes/${noteId}/board/pages/1`, {content: JSON.stringify(content)});
+    }
+
+    putDocumentNotePageUpdate(workspaceId: string, noteId: string, content: string): Promise<void> {
+        return this.put(`/notes/${noteId}/document/pages/1`, {content: JSON.stringify(content)});
     }
 
     createNewNote(note: NoteCreateDetails): Promise<NoteSummary> {
@@ -269,8 +285,12 @@ class RealHttpClient implements HttpClientBase {
         return this.get(`/notes/${noteId}`);
     }
 
-    getPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<NotePageContent> {
-        return this.get(`/notes/${noteId}/content/${pageNumber}`);
+    getBoardPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<BoardNotePageContent> {
+        return this.get(`/notes/${noteId}/board/pages/${pageNumber}`).then(res => JSON.parse(res.content));
+    }
+
+    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<string> {
+        return this.get(`/notes/${noteId}/document/pages/${pageNumber}`).then(res => JSON.parse(res.content));
     }
 
     createNewWorkspace(title: string) {

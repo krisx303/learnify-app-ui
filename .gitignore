@@ -33,3 +33,5 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+/learnify-helper/node_modules/
