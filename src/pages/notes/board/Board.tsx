@@ -68,7 +68,7 @@ const Board = ({onMenuOpen}: { onMenuOpen: () => void }) => {
             })
             .catch(console.error);
         httpClient
-            .getPageContent(workspaceId, noteId, 1)
+            .getBoardPageContent(workspaceId, noteId, 1)
             .then((content) => {
                 setPaths(
                     content.paths.map((path) => {
@@ -266,7 +266,7 @@ const Board = ({onMenuOpen}: { onMenuOpen: () => void }) => {
     useEffect(() => {
         if (shouldSendState) {
             httpClient
-                .postNoteUpdate(workspaceId, noteId, {
+                .putBoardNotePageUpdate(workspaceId, noteId, {
                     elements: elements.map((element) => ({
                         id: element.id,
                         position: element.position,
