@@ -11,7 +11,9 @@ export type NoteCreateDetails = {
     title: string;
     description: string;
     workspaceId: string;
+    type: string;
 }
+
 interface CreateNoteModalProps {
     isVisible: boolean;
     onClose: () => void;

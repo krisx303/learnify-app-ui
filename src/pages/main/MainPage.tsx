@@ -20,7 +20,7 @@ type Modal = 'Note' | 'Quiz' | 'Workspace' | null;
 type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
 
 const MainPage = () => {
-    const { width: windowWidth } = useWindowDimensions();
+    const {width: windowWidth} = useWindowDimensions();
     const httpClient = useHttpClient();
     const [recentViewedNotes, setRecentViewedNotes] = useState<NoteSummary[]>([]);
     const [recentAttemptedQuizzes, setRecentAttemptedQuizzes] = useState<QuizSummary[]>([]);
@@ -70,6 +70,7 @@ const MainPage = () => {
     }
 
     const createNewNote = (note: NoteCreateDetails) => {
+        note.type = "board";
         httpClient.createNewNote(note)
             .then(navigateToNotePage)
             .catch(console.error);
@@ -90,9 +91,11 @@ const MainPage = () => {
             onPress={() => setIsDropdownVisible(false)}
             style={{flex: 1}}
         >
-            <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../assets/purple_background.png")} imageStyle={{resizeMode: "cover"}}>
+            <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../assets/purple_background.png")}
+                             imageStyle={{resizeMode: "cover"}}>
                 <TopBar>
-                    <DropdownButton setDropdownVisible={setIsDropdownVisible} dropdownVisible={isDropdownVisible} onItemSelected={onCreateDropdownSelected}/>
+                    <DropdownButton setDropdownVisible={setIsDropdownVisible} dropdownVisible={isDropdownVisible}
+                                    onItemSelected={onCreateDropdownSelected}/>
                 </TopBar>
                 <View style={windowWidth < 700 ? styles.contentVertical : styles.contentHorizontal}>
                     <View style={windowWidth < 700 ? styles.sectionVertical : styles.sectionHorizontal}>
