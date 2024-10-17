@@ -1,33 +1,30 @@
 import React from 'react';
-import {BlurMask, Box, rect, rrect, Text} from '@shopify/react-native-skia';
-import {Position} from "./types";
+import {Path, Skia, Text} from '@shopify/react-native-skia';
+import {GenericMovableElement} from "./GenericMovableElement";
+import {svgRectangleBorder} from "./Utils";
 
 interface MovableTextProps {
     font: any;
-    text: string;
-    position: Position;
-    isEditingMode: boolean;
-    isMoving: boolean;
+    element: GenericMovableElement;
 }
 
 const MovableText = ({
-      font, text,
-      position,
-      isEditingMode,
-      isMoving
+      font, element
 }: MovableTextProps) => {
 
     return (
         <>
-            {(isEditingMode || isMoving) && <Box
-                box={rrect(rect(position.x - 4, position.y - 2, text.length*10, 30), 0, 0)}
-                color={isEditingMode ? "#14188f" : "#13d27a"}>
-                <BlurMask blur={5} style="outer" />
-            </Box>}
+            {(element.isEditingMode || element.isMoving) && <Path
+                path={Skia.Path.MakeFromSVGString(svgRectangleBorder(element.position.x - 5, element.position.y, element.content.length*10, element.height))!}
+                color={"black"}
+                style={"stroke"}
+                strokeWidth={3}
+                blendMode={"src"}
+            />}
             <Text
-                x={position.x}
-                y={position.y + 20}
-                text={text}
+                x={element.position.x}
+                y={element.position.y + 20}
+                text={element.content}
                 font={font!!}/>
         </>
     );

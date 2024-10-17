@@ -1,20 +1,34 @@
 import {Canvas, Group, Path, Skia, TouchInfo, useFont, useTouchHandler, Text} from "@shopify/react-native-skia";
 import React, {MutableRefObject, useContext, useEffect, useRef, useState} from "react";
-import {ImageBackground, StyleSheet, View,} from "react-native";
+import {ImageBackground, StyleSheet, TextInput, View,} from "react-native";
 import styles from "../../CardPage.scss";
-import MovableImage from "./MoveableImage";
+import MovableImage from "./MovableImage";
 import {Action, Color, Colors, PathWithColorAndWidth, Position, strokes, Tool,} from "./types";
 import {Toolbar} from "./Toolbar";
 import {createGrid} from "./Grid";
-import {useHttpClient} from "../../../transport/HttpClient";
+import {useHttpClient, ElementDto} from "../../../transport/HttpClient";
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import {RootStackParamList} from "../../../../App";
 import TopBar from "../../main/TopBar";
-import {createGenericMovableElement, GenericMovableElement} from "./GenericMovableElement";
+import {
+    createGenericMovableElement,
+    createGenericMovableElementFromDto,
+    GenericMovableElement
+} from "./GenericMovableElement";
+import MovableText from "./MoveableText";
+import {
+    asElementDto,
+    asPathDto,
+    asPathWithColorAndWidth, movedPosition,
+    positionWithinElement,
+    randomId,
+    randomPosition,
+    scaledPosition
+} from "./Utils";
+import {TextInputComponent} from "./TextInputComponent";
 import {DrawerContext} from "../DrawerProvider";
 import Drawer from "../Drawer";
 import {StackNavigationProp} from "@react-navigation/stack";
-import MoveableText from "./MoveableText";
 
 type NotePageRouteProp = RouteProp<RootStackParamList, "BoardNotePage">;
 type NavigationProps = StackNavigationProp<RootStackParamList, 'BoardNotePage'>;
@@ -41,6 +55,11 @@ const Board = () => {
         console.error(err)
     })
 
+   const asGenericMovableElements = (elements: ElementDto[]) => {
+        return elements.map((element) => {
+            return createGenericMovableElementFromDto(element, setElements);
+        });
+
     useEffect(() => {
         setDrawerContent(
             <Drawer
@@ -50,32 +69,31 @@ const Board = () => {
             />);
     }, [drawerVisible]);
 
-
-    const createGenericElement = (
-        id: string,
-        startPosition: Position,
-        content: string,
-        width: number,
-        height: number,
-        type: 'text' | 'image' = 'image'
-    ) => {
-        const element = createGenericMovableElement(id, startPosition, content, width, height, type, setElements);
+    const createMovableImage = () => {
+        const element = createGenericMovableElement(
+            randomId(),
+            randomPosition(),
+            "https://miro.medium.com/v2/resize:fit:700/1*TtczOh1ZzrAsPLBaA5SxHg.png",
+            560,
+            480,
+            'image',
+            setElements
+        );
         setElements((prevElements) => [...prevElements, element]);
     };
 
-    const createMovableImage = () => {
-        const id = Math.random().toString(36).substr(2, 9); // unique ID for each element
-        createGenericElement(
-            id,
-            {
-                x: Math.floor(Math.random() * 100),
-                y: Math.floor(Math.random() * 100),
-            },
-            "https://miro.medium.com/v2/resize:fit:700/1*TtczOh1ZzrAsPLBaA5SxHg.png",
-            560,
-            480
+    const createMovableText = () => {
+        const element = createGenericMovableElement(
+            randomId(),
+            randomPosition(),
+            "Hello World",
+            100,
+            30,
+            'text',
+            setElements
         );
-    };
+        setElements((prevElements) => [...prevElements, element]);
+    }
 
     useEffect(() => {
         const gridImage = createGrid(30);
@@ -84,33 +102,13 @@ const Board = () => {
         setBackgroundImage(gridImage);
         httpClient
             .getNoteDetails(workspaceId, noteId)
-            .then((note) => {
-                setNoteName(note.title);
-            })
+            .then((note) => setNoteName(note.title))
             .catch(console.error);
         httpClient
             .getBoardPageContent(workspaceId, noteId, 1)
             .then((content) => {
-                setPaths(
-                    content.paths.map((path) => {
-                        return {
-                            path: Skia.Path.MakeFromSVGString(path.path),
-                            color: path.color,
-                            strokeWidth: path.strokeWidth,
-                            blendMode: path.blendMode,
-                        } as PathWithColorAndWidth;
-                    })
-                );
-                content.elements.forEach((element) => {
-                    createGenericElement(
-                        element.id,
-                        element.position,
-                        element.content,
-                        element.width,
-                        element.height
-                    );
-                });
-                createGenericElement('asdf', {x: 100, y: 100}, 'Hello World', 'Hello World'.length*10, 30, 'text');
+                setPaths(content.paths.map(asPathWithColorAndWidth));
+                setElements(asGenericMovableElements(content.elements));
             })
             .catch(console.error);
     }, [workspaceId, noteId, httpClient]);
@@ -118,9 +116,7 @@ const Board = () => {
     const onDrawingStart = (touchInfo: TouchInfo) => {
         setActive(true);
         setPaths((currentPaths) => {
-            const {x: xx, y: yy} = touchInfo;
-            const x = xx * (1 / scale);
-            const y = yy * (1 / scale);
+            const {x, y, force} = scaledPosition(touchInfo, scale);
             const newPath = Skia.Path.Make();
             newPath.moveTo(x, y);
             return [
@@ -144,9 +140,7 @@ const Board = () => {
         }
         setPaths((currentPaths) => {
             if (!active || currentPaths.length === 0) return currentPaths;
-            const {x: xx, y: yy} = touchInfo;
-            const x = xx * (1 / scale);
-            const y = yy * (1 / scale);
+            const {x, y, force} = scaledPosition(touchInfo, scale);
             const currentPath = currentPaths[currentPaths.length - 1];
             const lastPoint = currentPath.path.getLastPt();
             const xMid = (lastPoint.x + x) / 2;
@@ -157,50 +151,27 @@ const Board = () => {
         });
     };
 
-    const moveElement = (element: GenericMovableElement, position: Position) => {
-        element.setPosition({
-            x: position.x - element.width / 2,
-            y: position.y - element.height / 2,
-        });
-    };
-
     const touchHandler = useTouchHandler(
         {
             onStart: (touchInfo) => {
-                elements.forEach((element) => {
-                    if (element.isMoving) {
-                        element.setIsMoving(false);
-                    } else if (element.isEditingMode) {
-                        element.setIsEditingMode(false);
-                    }
-                });
                 setActive(false);
                 movingElement.current = null;
                 switch (selectedTool) {
                     case "pointer":
-                        const {x: xx, y: yy} = touchInfo;
-                        const touchX = xx * (1 / scale);
-                        const touchY = yy * (1 / scale);
-                        const element = elements.find(
-                            (el) =>
-                                touchX >= el.position.x &&
-                                touchX <= el.position.x + el.width &&
-                                touchY >= el.position.y &&
-                                touchY <= el.position.y + el.height
-                        );
-                        if (element) {
-                            movingElement.current = element;
+                        const {x, y} = scaledPosition(touchInfo, scale);
+                        const touchedElement = elements.find((el) => positionWithinElement({x, y}, el));
+                        if (touchedElement !== undefined) {
+                            movingElement.current = touchedElement;
 
-                            elements
-                                .filter((el) => el.id !== element.id)
-                                .forEach((el) => {
-                                    el.setIsEditingMode(false);
-                                    el.setIsMoving(false);
-                                });
-                            moveElement(movingElement.current, {x: touchX, y: touchY});
-
-                            movingElement.current.setIsMoving(true);
-                            movingElement.current.setIsEditingMode(true);
+                            setElements(elements.map((el) => {
+                                const isTouchedElement = el.id === touchedElement.id;
+                                el.isMoving = isTouchedElement;
+                                el.isEditingMode = isTouchedElement;
+                                if(isTouchedElement) {
+                                    el.position = movedPosition(el, {x, y});
+                                }
+                                return el;
+                            }))
                         }
                         break;
                     case "pen":
@@ -214,12 +185,9 @@ const Board = () => {
             onActive: (touchInfo) => {
                 switch (selectedTool) {
                     case "pointer":
-                        const {x: xx, y: yy} = touchInfo;
-                        const touchX = xx * (1 / scale);
-                        const touchY = yy * (1 / scale);
-                        const {force} = touchInfo;
+                        const {x, y, force} = scaledPosition(touchInfo, scale);
                         if (movingElement.current && force > 0) {
-                            moveElement(movingElement.current, {x: touchX, y: touchY});
+                            movingElement.current.setPosition(movedPosition(movingElement.current, {x, y}));
                         }
                         break;
                     case "pen":
@@ -231,13 +199,14 @@ const Board = () => {
                 }
             },
             onEnd: () => {
-                elements.forEach((element) => {
-                    if (element.isMoving) {
-                        element.setIsMoving(false);
-                    } else if (element.isEditingMode) {
-                        element.setIsEditingMode(false);
+                setElements(elements.map((el) => {
+                    if(el.isMoving) {
+                        el.isMoving = false;
+                    }else {
+                        el.isEditingMode = false;
                     }
-                });
+                    return el;
+                }))
                 setActive(false);
                 movingElement.current = null;
             },
@@ -260,13 +229,14 @@ const Board = () => {
             case "save":
                 setShouldSendState(true);
                 break;
+            case "add-text":
+                createMovableText();
+                break
         }
     };
 
     useEffect(() => {
-        const performPasteAction = (event) => {
-            performAction("paste");
-        };
+        const performPasteAction = (event) => performAction("paste");
         const handleEvent = (event) => {
             if (event.ctrlKey && event.key === "z") {
                 performAction("undo");
@@ -289,23 +259,10 @@ const Board = () => {
         if (shouldSendState) {
             httpClient
                 .putBoardNotePageUpdate(workspaceId, noteId, {
-                    elements: elements.map((element) => ({
-                        id: element.id,
-                        position: element.position,
-                        content: element.content,
-                        width: element.width,
-                        height: element.height,
-                    })),
-                    paths: paths.map((path) => ({
-                        path: path.path.toSVGString(),
-                        color: path.color,
-                        strokeWidth: path.strokeWidth,
-                        blendMode: path.blendMode,
-                    })),
+                    elements: elements.map(asElementDto),
+                    paths: paths.map(asPathDto),
                 })
-                .then(() => {
-                    setShouldSendState(false);
-                })
+                .then(() => setShouldSendState(false))
                 .catch((error) => {
                     console.error(error);
                     setShouldSendState(false);
@@ -348,28 +305,15 @@ const Board = () => {
                                 ))}
                                 {elements.map((element, index) => (
                                     element.type === "image" ? (
-                                        <MovableImage
-                                            key={element.id}
-                                            src={element.content}
-                                            imageWidth={element.width}
-                                            imageHeight={element.height}
-                                            imagePosition={element.position}
-                                            isMoving={element.isMoving}
-                                            isEditingMode={element.isEditingMode}
-                                        />
+                                        <MovableImage key={element.id} element={element}/>
                                     ) : (
-                                        <MoveableText
-                                            key={element.id}
-                                            font={font}
-                                            text={element.content}
-                                            position={element.position}
-                                            isMoving={element.isMoving}
-                                            isEditingMode={element.isEditingMode}
-                                        />
+                                        <MovableText key={element.id} font={font} element={element}/>
                                     )
                                 ))}
                             </Group>
                         </Canvas>
+
+                        <TextInputComponent genericMovableElements={elements} setElements={setElements}/>
                     </ImageBackground>
                 </View>
                 <View style={styles.toolPanel}>
