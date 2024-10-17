@@ -115,10 +115,16 @@ export const Toolbar = ({
                     onPress={() => {onAction('paste')}}
                 />
                 <IconButton
+                    icon={'format-text'}
+                    size={26}
+                    iconColor={'#000000'}
+                    onPress={() => {onAction('add-text')}}
+                />
+                <IconButton
                     icon={'plus'}
                     size={26}
                     iconColor={'#000000'}
-                    onPress={() => {onAction('add')}}
+                    onPress={() => {onAction('add-image')}}
                 />
                 <IconButton
                     icon={'undo'}
