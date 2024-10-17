@@ -1,4 +1,5 @@
-import {Position} from "./types";
+import {Position, ElementType} from "./types";
+import {ElementDto} from "../../../transport/HttpClient";
 
 export type GenericMovableElement = {
     id: string;
@@ -11,8 +12,21 @@ export type GenericMovableElement = {
     content: string;
     width: number;
     height: number;
-    type: 'text' | 'image';
+    type: ElementType;
 };
+
+export const createGenericMovableElementFromDto = (
+    element: ElementDto,
+    updateElements: (value: (((prevState: GenericMovableElement[]) => GenericMovableElement[]) | GenericMovableElement[])) => void
+): GenericMovableElement => createGenericMovableElement(
+    element.id,
+    element.position,
+    element.content,
+    element.width,
+    element.height,
+    element.type,
+    updateElements
+)
 
 export const createGenericMovableElement = (
     id: string,
@@ -20,7 +34,7 @@ export const createGenericMovableElement = (
     content: string,
     width: number,
     height: number,
-    type: 'text' | 'image',
+    type: ElementType,
     updateElements: (value: (((prevState: GenericMovableElement[]) => GenericMovableElement[]) | GenericMovableElement[])) => void
 ) => {
     const element = {
