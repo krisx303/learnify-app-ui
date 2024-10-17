@@ -7,7 +7,7 @@ export const Colors = ["black", "red", "blue", "green", "yellow", "purple"];
 
 export type Tool = "pointer" | "pen" | "eraser";
 
-export type Action = "paste" | "add" | "undo" | "save" | "clear" | "add-text";
+export type Action = "paste" | "add-image" | "undo" | "save" | "clear" | "add-text";
 
 export type PathWithColorAndWidth = {
     path: SkPath;

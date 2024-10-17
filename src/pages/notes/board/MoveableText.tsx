@@ -1,7 +1,7 @@
 import React from 'react';
 import {Path, Skia, Text} from '@shopify/react-native-skia';
 import {GenericMovableElement} from "./GenericMovableElement";
-import {svgRectangleBorder} from "./Utils";
+import {svgEditButton, svgRectangleBorder} from "./Utils";
 
 interface MovableTextProps {
     font: any;
@@ -15,7 +15,8 @@ const MovableText = ({
     return (
         <>
             {(element.isEditingMode || element.isMoving) && <Path
-                path={Skia.Path.MakeFromSVGString(svgRectangleBorder(element.position.x - 5, element.position.y, element.content.length*10, element.height))!}
+                path={Skia.Path.MakeFromSVGString(svgRectangleBorder(
+                    element.position.x - 5, element.position.y, element.content.length * 10, element.height))!}
                 color={"black"}
                 style={"stroke"}
                 strokeWidth={3}
@@ -25,9 +26,11 @@ const MovableText = ({
                 x={element.position.x}
                 y={element.position.y + 20}
                 text={element.content}
-                font={font!!}/>
+                font={font!!}
+            />
         </>
     );
 };
+
 
 export default MovableText;

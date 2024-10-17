@@ -7,6 +7,11 @@ export function svgRectangleBorder(x: number, y: number, width: number, height: 
     return `M ${x} ${y} H ${x + width} V ${y + height} H ${x} L ${x} ${y}`;
 }
 
+export const svgEditButton = (x: number, y: number, width: number, height: number) => {
+    return `M ${x} ${y} H ${x + width} V ${y + height} H ${x} Z`;
+};
+
+
 export function asPathWithColorAndWidth(path: PathDto): PathWithColorAndWidth {
     return {
         path: Skia.Path.MakeFromSVGString(path.path),
