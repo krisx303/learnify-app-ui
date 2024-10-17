@@ -37,6 +37,7 @@ const Board = () => {
     const [backgroundImage, setBackgroundImage] = useState("");
     const [elements, setElements] = useState<GenericMovableElement[]>([]);
     const movingElement = useRef<GenericMovableElement>(null);
+    const lastTouchedElement = useRef<GenericMovableElement>(null);
     const [selectedTool, setSelectedTool] = useState<Tool>("pen");
     const [paths, setPaths] = useState<PathWithColorAndWidth[]>([]);
     const [color, setColor] = useState<Color>(Colors[0]);
@@ -54,6 +55,7 @@ const Board = () => {
     const font = useFont("http://localhost:19000/assets/Roboto-Medium.ttf", 20, (err) => {
         console.error(err)
     })
+    const [lastClickTime, setLastClickTime] = useState(0);
 
    const asGenericMovableElements = (elements: ElementDto[]) => {
         return elements.map((element) => {
@@ -92,6 +94,7 @@ const Board = () => {
             'text',
             setElements
         );
+        element.isEditingMode = true;
         setElements((prevElements) => [...prevElements, element]);
     }
 
@@ -151,28 +154,42 @@ const Board = () => {
         });
     };
 
+    const onStartedTouchElement = (touchInfo: TouchInfo) => {
+        const {x, y} = scaledPosition(touchInfo, scale);
+        const touchedElement = elements.find((el) => positionWithinElement({x, y}, el));
+        let doubleClick = false;
+        const now = Date.now();
+        if (touchedElement !== undefined) {
+            if (now - lastClickTime < 300 && touchedElement.id === lastTouchedElement.current?.id) {
+                doubleClick = true;
+            }
+            lastTouchedElement.current = touchedElement;
+        }
+        if(doubleClick) {
+            movingElement.current = null;
+        }else{
+            movingElement.current = touchedElement;
+        }
+
+        setElements(elements.map((el) => {
+            const isTouchedElement = el.id === touchedElement?.id;
+            el.isMoving = isTouchedElement;
+            el.isEditingMode = isTouchedElement && doubleClick;
+            if(isTouchedElement) {
+                el.position = movedPosition(el, {x, y});
+            }
+            return el;
+        }))
+        setLastClickTime(now);
+    }
+
     const touchHandler = useTouchHandler(
         {
             onStart: (touchInfo) => {
                 setActive(false);
-                movingElement.current = null;
                 switch (selectedTool) {
                     case "pointer":
-                        const {x, y} = scaledPosition(touchInfo, scale);
-                        const touchedElement = elements.find((el) => positionWithinElement({x, y}, el));
-                        if (touchedElement !== undefined) {
-                            movingElement.current = touchedElement;
-
-                            setElements(elements.map((el) => {
-                                const isTouchedElement = el.id === touchedElement.id;
-                                el.isMoving = isTouchedElement;
-                                el.isEditingMode = isTouchedElement;
-                                if(isTouchedElement) {
-                                    el.position = movedPosition(el, {x, y});
-                                }
-                                return el;
-                            }))
-                        }
+                        onStartedTouchElement(touchInfo);
                         break;
                     case "pen":
                         onDrawingStart(touchInfo);
@@ -199,16 +216,7 @@ const Board = () => {
                 }
             },
             onEnd: () => {
-                setElements(elements.map((el) => {
-                    if(el.isMoving) {
-                        el.isMoving = false;
-                    }else {
-                        el.isEditingMode = false;
-                    }
-                    return el;
-                }))
                 setActive(false);
-                movingElement.current = null;
             },
         },
         [workspaceId, noteId, elements, onDrawingActive, onDrawingStart]
@@ -216,7 +224,7 @@ const Board = () => {
 
     const performAction = (action: Action) => {
         switch (action) {
-            case "add":
+            case "add-image":
                 createMovableImage();
                 break;
             case "undo":
@@ -277,6 +285,20 @@ const Board = () => {
 
     const scale = canvasWidth ? canvasWidth / canvasFixedWidth : 1;
 
+    const onToolSelected = (tool: Tool) => {
+        setSelectedTool(tool);
+        if(tool === "pen" || tool === "eraser") {
+            movingElement.current = null;
+            setElements(elements.map((el) => {
+                el.isMoving = false;
+                el.isEditingMode = false;
+                return el;
+            }))
+        }else if (tool === "pointer") {
+            setActive(false);
+        }
+    };
+
     return (
         <View style={{width: "100%", height: "100%", maxHeight: "100%"}}>
             <TopBar
@@ -323,7 +345,7 @@ const Board = () => {
                         setColor={setColor}
                         setStrokeWidth={setStrokeWidth}
                         selectedTool={selectedTool}
-                        setSelectedTool={setSelectedTool}
+                        setSelectedTool={onToolSelected}
                         onAction={performAction}
                     />
                 </View>
