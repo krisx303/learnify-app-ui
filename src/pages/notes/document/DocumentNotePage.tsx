@@ -1,12 +1,18 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {View} from 'react-native';
 import styles from '../../CardPage.scss';
 import TopBar from "../../main/TopBar";
 import {useHttpClient} from "../../../transport/HttpClient";
-import {RouteProp, useRoute} from "@react-navigation/native";
+import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import {RootStackParamList} from "../../../../App";
+import DrawerProvider, {DrawerContext} from "../DrawerProvider";
+import Board from "../board/Board";
+import Drawer from "../Drawer";
+import {StackNavigationProp} from "@react-navigation/stack";
 
 type NotePageRouteProp = RouteProp<RootStackParamList, "DocumentNotePage">;
+type NavigationProps = StackNavigationProp<RootStackParamList, 'DocumentNotePage'>;
+
 
 const DocumentNotePage: React.FC = () => {
     const iframeRef = useRef(null);
@@ -15,6 +21,17 @@ const DocumentNotePage: React.FC = () => {
     const [noteName, setNoteName] = useState<string>("");
     const httpClient = useHttpClient();
     const [confirmed, setConfirmed] = useState(false);
+    const navigation = useNavigation<NavigationProps>();
+    const { toggleDrawer, setDrawerContent, drawerVisible } = useContext(DrawerContext);
+
+    useEffect(() => {
+        setDrawerContent(
+            <Drawer
+                noteId={noteId}
+                onClose={toggleDrawer}
+                navigateToQuiz={(workspaceId, quizId) => navigation.navigate('QuizPage', {workspaceId, quizId})}
+            />);
+    }, [drawerVisible]);
 
     const sendMessageToIframe = (message: string) => {
         if (iframeRef.current) {
@@ -66,11 +83,22 @@ const DocumentNotePage: React.FC = () => {
         <View style={styles.container}>
             <TopBar
                 text={noteName}
+                withAdvancedMenu
+                onAdvancedMenuPress={toggleDrawer}
             />
             <iframe src="./../../../../assets/dist/index.html" height={'100%'} width={'100%'} ref={iframeRef} style={{border: 'none'}}/>
         </View>
     );
 };
 
+const DocumentNoteWrapper: React.FC = () => {
 
-export default DocumentNotePage;
+    return (
+        <DrawerProvider>
+            <DocumentNotePage/>
+        </DrawerProvider>
+    );
+};
+
+
+export default DocumentNoteWrapper;
