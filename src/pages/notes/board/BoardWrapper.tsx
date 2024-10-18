@@ -1,23 +1,24 @@
-import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {useContext, useEffect, useState} from 'react';
 import {RouteProp, useFocusEffect, useRoute} from "@react-navigation/native";
 import {RootStackParamList} from "../../../../App";
 import Board from "./Board";
 import Drawer from "../Drawer";
 import {useHttpClient} from "../../../transport/HttpClient";
 import {QuizSummary} from "../../main/Types";
+import DrawerProvider, {DrawerContext} from "../DrawerProvider";
 
 type NotePageRouteProp = RouteProp<RootStackParamList, 'BoardNotePage'>;
 
 const BoardWrapper: React.FC = () => {
     const route = useRoute<NotePageRouteProp>();
     const {noteId, workspaceId} = route.params;
-    const [drawerVisible, setDrawerVisible] = useState(false);
     const httpClient = useHttpClient();
     const [boundQuizzes, setBoundQuizzes] = useState<QuizSummary[]>([]);
     const [recentQuizzes, setRecentQuizzes] = useState<QuizSummary[]>([]);
     const [availableQuizzes, setAvailableQuizzes] = useState<QuizSummary[]>([]);
     const [shouldRefresh, setShouldRefresh] = useState(false);
+
+    const { toggleDrawer, setDrawerContent } = useContext(DrawerContext);
 
     useEffect(() => {
         const boundQuizIds = boundQuizzes.map(quiz => quiz.id);
@@ -30,70 +31,21 @@ const BoardWrapper: React.FC = () => {
         React.useCallback(() => {
             httpClient.getBoundedQuizzes(noteId).then(setBoundQuizzes);
             httpClient.getRecentQuizzes().then(setRecentQuizzes);
+            setDrawerContent(<Drawer
+                noteId={noteId}
+                setShouldRefresh={setShouldRefresh}
+                quizzes={boundQuizzes}
+                onClose={toggleDrawer}
+                availableQuizzes={availableQuizzes}
+            />);
         }, [workspaceId, noteId, httpClient, shouldRefresh])
     );
-    const toggleDrawer = () => {
-        setDrawerVisible(!drawerVisible);
-    };
     return (
-        <View style={styles.container}>
+        <DrawerProvider>
             <Board onMenuOpen={toggleDrawer}/>
-
-            {drawerVisible && (
-                <>
-                    <TouchableOpacity style={styles.overlay} onPress={toggleDrawer} />
-                    <View style={[styles.drawer, { width: 'max(25%, 400px)' }]}>
-                        <Drawer
-                            noteId={noteId}
-                            setShouldRefresh={setShouldRefresh}
-                            quizzes={boundQuizzes}
-                            onClose={toggleDrawer}
-                            availableQuizzes={availableQuizzes}
-                        />
-                    </View>
-                </>
-            )}
-
-        </View>
+        </DrawerProvider>
     );
 };
 
 
 export default BoardWrapper;
-
-const styles = StyleSheet.create({
-    container: {
-        width: '100%',
-        height: '100%',
-    },
-    menuButton: {
-        padding: 10,
-        backgroundColor: 'blue',
-        borderRadius: 5,
-    },
-    menuButtonText: {
-        color: 'white',
-    },
-    overlay: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        zIndex: 1,
-    },
-    drawer: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        right: 0,
-        backgroundColor: 'white',
-        shadowColor: '#000',
-        shadowOffset: { width: -2, height: 0 },
-        shadowOpacity: 0.5,
-        shadowRadius: 5,
-        elevation: 5,
-        zIndex: 2,
-    },
-});
