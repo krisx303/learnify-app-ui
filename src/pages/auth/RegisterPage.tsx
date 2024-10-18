@@ -8,6 +8,7 @@ import {RootStackParamList} from "../../../App";
 import styles from './RegisterPage.scss';
 import {createUserWithEmailAndPassword} from "firebase/auth";
 import {auth} from "../../../firebase";
+import {useAuth} from "./AuthProvider";
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'Register'>;
 
@@ -16,6 +17,7 @@ const RegisterPage = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const {width: windowWidth} = useWindowDimensions();
     const navigation = useNavigation<NavigationProps>();
+    const authentication = useAuth();
 
     const register = (email: string, password: string) => {
         setLoading(true)
@@ -28,6 +30,7 @@ const RegisterPage = () => {
     const onRegistered = (credentials: any) => {
         setLoading(false);
         setErrorMessage("");
+        authentication.setUser(credentials.user);
         navigation.navigate("Main");
     };
 

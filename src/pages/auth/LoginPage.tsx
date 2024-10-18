@@ -8,6 +8,7 @@ import {signInWithEmailAndPassword} from "firebase/auth";
 import {auth} from "../../../firebase";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RootStackParamList} from "../../../App";
+import {useAuth} from "./AuthProvider";
 //TODO add authentication state and redirect to the MainPage when user is already authenticated
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'Login'>;
@@ -16,7 +17,8 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const {width: windowWidth} = useWindowDimensions();
-    const navigation = useNavigation<any>();
+    const navigation = useNavigation<NavigationProps>();
+    const authentication = useAuth();
 
     const login = (email: string, password: string) => {
         setLoading(true);
@@ -29,6 +31,7 @@ const LoginPage = () => {
     const onLoggedIn = (credentials: any) => {
         setLoading(false);
         setErrorMessage("")
+        authentication.setUser(credentials.user);
         navigation.navigate("Main");
     }
 
