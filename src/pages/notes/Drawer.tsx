@@ -1,31 +1,42 @@
 import { View, Text, StyleSheet } from "react-native";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { QuizSummary } from "../main/Types";
 import {Button, IconButton, Menu, PaperProvider} from "react-native-paper";
-import {useNavigation} from "@react-navigation/native";
-import {StackNavigationProp} from "@react-navigation/stack";
-import {RootStackParamList} from "../../../App";
+import {useFocusEffect, useNavigation} from "@react-navigation/native";
 import {useHttpClient} from "../../transport/HttpClient";
 
 interface DrawerProps {
     noteId: string;
-    quizzes: QuizSummary[];
     onClose: () => void;
-    availableQuizzes: QuizSummary[];
-    setShouldRefresh: (shouldRefresh: boolean) => void;
+    navigateToQuiz: (workspaceId: string, quizId: string) => void;
 }
 
-type NavigationProps = StackNavigationProp<RootStackParamList, 'HandWrittenNotePage'>;
-
-const Drawer = ({ quizzes, onClose, availableQuizzes, setShouldRefresh, noteId }: DrawerProps) => {
-    const navigation = useNavigation<NavigationProps>();
+const Drawer = ({ onClose, noteId, navigateToQuiz }: DrawerProps) => {
     const [menuVisible, setMenuVisible] = useState(false);
     const httpClient = useHttpClient();
+    const [boundQuizzes, setBoundQuizzes] = useState<QuizSummary[]>([]);
+    const [recentQuizzes, setRecentQuizzes] = useState<QuizSummary[]>([]);
+    const [shouldRefresh, setShouldRefresh] = useState(false);
+    const [availableQuizzes, setAvailableQuizzes] = useState<QuizSummary[]>([]);
 
-    const navigateToQuiz = (workspaceId: string, quizId: string) => {
+    const navigateToQuizInternal = (workspaceId: string, quizId: string) => {
         onClose();
-        navigation.navigate('QuizPage', {workspaceId, quizId});
+        navigateToQuiz(workspaceId, quizId);
     };
+
+    useEffect(() => {
+        const boundQuizIds = boundQuizzes.map(quiz => quiz.id);
+        if(boundQuizzes && recentQuizzes) {
+            setAvailableQuizzes(recentQuizzes.filter(quiz => !boundQuizIds.includes(quiz.id)));
+        }
+    }, [boundQuizzes, recentQuizzes]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            httpClient.getBoundedQuizzes(noteId).then(setBoundQuizzes);
+            httpClient.getRecentQuizzes().then(setRecentQuizzes);
+        }, [noteId, httpClient, shouldRefresh])
+    );
 
     return (
         <View style={styles.container}>
@@ -35,7 +46,7 @@ const Drawer = ({ quizzes, onClose, availableQuizzes, setShouldRefresh, noteId }
                 </Button>
             </View>
             <View style={styles.content}>
-                {quizzes.map((quiz) => (
+                {boundQuizzes.map((quiz) => (
                     <View key={quiz.id} style={styles.card}>
                         <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                             <View>
@@ -45,7 +56,7 @@ const Drawer = ({ quizzes, onClose, availableQuizzes, setShouldRefresh, noteId }
                             </View>
                             <View>
                                 <IconButton size={35} iconColor="green" icon={'chevron-right-circle-outline'} onPress={() => {
-                                    navigateToQuiz(quiz.workspace.id, quiz.id);
+                                    navigateToQuizInternal(quiz.workspace.id, quiz.id);
                                 }}/>
                             </View>
                         </View>

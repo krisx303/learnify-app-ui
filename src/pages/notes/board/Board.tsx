@@ -1,5 +1,5 @@
 import {Canvas, Group, Path, Skia, TouchInfo, useTouchHandler,} from "@shopify/react-native-skia";
-import React, {MutableRefObject, useEffect, useRef, useState} from "react";
+import React, {MutableRefObject, useContext, useEffect, useRef, useState} from "react";
 import {ImageBackground, StyleSheet, View,} from "react-native";
 import styles from "../../CardPage.scss";
 import MovableImage from "./MoveableImage";
@@ -7,14 +7,18 @@ import {Action, Color, Colors, PathWithColorAndWidth, Position, strokes, Tool,} 
 import {Toolbar} from "./Toolbar";
 import {createGrid} from "./Grid";
 import {useHttpClient} from "../../../transport/HttpClient";
-import {RouteProp, useRoute} from "@react-navigation/native";
+import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import {RootStackParamList} from "../../../../App";
 import TopBar from "../../main/TopBar";
 import {createGenericMovableElement, GenericMovableElement} from "./GenericMovableElement";
+import {DrawerContext} from "../DrawerProvider";
+import Drawer from "../Drawer";
+import {StackNavigationProp} from "@react-navigation/stack";
 
 type NotePageRouteProp = RouteProp<RootStackParamList, "BoardNotePage">;
+type NavigationProps = StackNavigationProp<RootStackParamList, 'BoardNotePage'>;
 
-const Board = ({onMenuOpen}: { onMenuOpen: () => void }) => {
+const Board = () => {
     const [backgroundImage, setBackgroundImage] = useState("");
     const [elements, setElements] = useState<GenericMovableElement[]>([]);
     const movingElement = useRef<GenericMovableElement>(null);
@@ -30,6 +34,17 @@ const Board = ({onMenuOpen}: { onMenuOpen: () => void }) => {
     const {noteId, workspaceId} = route.params;
     const [canvasWidth, setCanvasWidth] = useState(0); // Current width of the canvas container
     const canvasFixedWidth= 1800; // Original canvas width (set only once)
+    const navigation = useNavigation<NavigationProps>();
+    const { toggleDrawer, setDrawerContent, drawerVisible } = useContext(DrawerContext);
+
+    useEffect(() => {
+        setDrawerContent(
+            <Drawer
+                noteId={noteId}
+                onClose={toggleDrawer}
+                navigateToQuiz={(workspaceId, quizId) => navigation.navigate('QuizPage', {workspaceId, quizId})}
+            />);
+    }, [drawerVisible]);
 
     const createGenericElement = (
         id: string,
@@ -303,7 +318,7 @@ const Board = ({onMenuOpen}: { onMenuOpen: () => void }) => {
             <TopBar
                 text={noteName}
                 withAdvancedMenu
-                onAdvancedMenuPress={onMenuOpen}
+                onAdvancedMenuPress={toggleDrawer}
             />
             <View style={styles.content}>
                 <View style={style.container} onLayout={handleLayout}>
