@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
-    "build-embedded-frontend": "cd document-note-module && npm run build && npm run build-single-file && cd .. && xcopy learnify-helper\\build\\dist\\ assets\\dist\\ /s /e /y",
+    "start": "generate-firebase.sh && expo start",
+    "build-embedded-frontend": "cd document-note-module && npm run build && npm run build-single-file && cd .. && xcopy document-note-module\\build\\dist\\ assets\\dist\\ /s /e /y",
     "start-embedded-frontend": "cd document-note-module && npm start",
     "android": "expo run:android",
     "ios": "expo run:ios",
