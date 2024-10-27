@@ -418,11 +418,11 @@ class RealHttpClient implements HttpClientBase {
 
 /** Hook to provide an instance of the HTTP client */
 export const useHttpClient = () => {
-    const { user } = useAuth();  // Get the authenticated user from context
+    const { user, getToken } = useAuth();  // Get the authenticated user from context
 
     // TokenSupplier function that retrieves the token each time
     const tokenSupplier: TokenSupplier = async () => {
-        return user ? await user.getIdToken() : null;  // Get ID token from Firebase user
+        return await getToken() // Get ID token from Firebase user
     };
 
     return useMemo(() => {
