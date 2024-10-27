@@ -4,11 +4,11 @@ import {QuizDetails} from "../pages/quiz/summmary/QuizDetails";
 import {Question} from "../pages/quiz/solving/Question";
 import {NoteCreateDetails} from "../pages/main/modals/CreateNoteModal";
 import {QuizCreateDetails} from "../pages/main/modals/CreateQuizModal";
-import { Position } from "../pages/notes/board/types";
+import {Position, ElementType} from "../pages/notes/board/types";
 
-type Path = { strokeWidth: number; path: string; color: string; blendMode: string };
-type Element = { width: number; id: string; position: Position; content: string; height: number };
-type BoardNotePageContent = { elements: Element[]; paths: Path[] };
+export type PathDto = { strokeWidth: number; path: string; color: string; blendMode: string };
+export type ElementDto = { width: number; id: string; position: Position; content: string; height: number; type: ElementType };
+type BoardNotePageContent = { elements: ElementDto[]; paths: PathDto[] };
 
 /** Interface representing base HTTP client */
 interface HttpClientBase {

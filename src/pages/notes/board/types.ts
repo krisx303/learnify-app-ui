@@ -7,7 +7,7 @@ export const Colors = ["black", "red", "blue", "green", "yellow", "purple"];
 
 export type Tool = "pointer" | "pen" | "eraser";
 
-export type Action = "paste" | "add" | "undo" | "save" | "clear";
+export type Action = "paste" | "add-image" | "undo" | "save" | "clear" | "add-text";
 
 export type PathWithColorAndWidth = {
     path: SkPath;
@@ -20,5 +20,7 @@ export type Position = {
     x: number;
     y: number;
 }
+
+export type ElementType = 'text' | 'image';
 
 export const strokes = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20];
