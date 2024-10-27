@@ -58,9 +58,10 @@ const Board = () => {
     const [lastClickTime, setLastClickTime] = useState(0);
 
    const asGenericMovableElements = (elements: ElementDto[]) => {
-        return elements.map((element) => {
-            return createGenericMovableElementFromDto(element, setElements);
-        });
+       return elements.map((element) => {
+           return createGenericMovableElementFromDto(element, setElements);
+       });
+   };
 
     useEffect(() => {
         setDrawerContent(
