@@ -36,3 +36,4 @@ yarn-error.*
 
 /document-note-module/node_modules/
 /document-note-module/build/
+/firebase.js

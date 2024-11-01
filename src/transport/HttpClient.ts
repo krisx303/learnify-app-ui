@@ -5,7 +5,7 @@ import {Question} from "../pages/quiz/solving/Question";
 import {NoteCreateDetails} from "../pages/main/modals/CreateNoteModal";
 import {QuizCreateDetails} from "../pages/main/modals/CreateQuizModal";
 import {Position, ElementType} from "../pages/notes/board/types";
-
+import {useAuth} from "../pages/auth/AuthProvider";
 export type PathDto = { strokeWidth: number; path: string; color: string; blendMode: string };
 export type ElementDto = { width: number; id: string; position: Position; content: string; height: number; type: ElementType };
 type BoardNotePageContent = { elements: ElementDto[]; paths: PathDto[] };
@@ -239,11 +239,15 @@ class StubHttpClient implements HttpClientBase {
     }
 }
 
+type TokenSupplier = () => Promise<string | null>;
+
 class RealHttpClient implements HttpClientBase {
     private baseUrl: string;
+    private tokenSupplier: TokenSupplier;
 
-    constructor(baseUrl: string) {
+    constructor(baseUrl: string, tokenSupplier: TokenSupplier) {
         this.baseUrl = baseUrl;
+        this.tokenSupplier = tokenSupplier;
     }
 
     getQuizDetails(workspaceId: string, quizId: string): Promise<QuizDetails> {
@@ -321,6 +325,13 @@ class RealHttpClient implements HttpClientBase {
         return this.get(`/bindings/notes/${noteId}`);
     }
 
+    createNewBinding(quizId: string, noteId: string): Promise<any> {
+        return this.post(`/bindings`, {
+            quizId,
+            noteId
+        });
+    }
+
     private asGenericQuestion(question: Question): any {
         const answer = question.type === 'single-choice' ?
             question.answer.toString() :
@@ -361,40 +372,60 @@ class RealHttpClient implements HttpClientBase {
         }
     }
 
-    private get(path: string): Promise<any> {
-        return fetch(`${this.baseUrl}${path}`)
+
+    private async get(path: string): Promise<any> {
+        const token = await this.tokenSupplier();  // Get the token from tokenSupplier
+
+        return fetch(`${this.baseUrl}/api/v1${path}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,  // Attach the token here
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        })
             .then(response => response.json());
     }
 
-    private post(path: string, body: any) {
-        return fetch(`${this.baseUrl}${path}`, {
+    private async post(path: string, body: any) {
+        const token = await this.tokenSupplier();  // Get the token from tokenSupplier
+
+        return fetch(`${this.baseUrl}/api/v1${path}`, {
             method: 'POST',
             headers: {
-                Accept: 'application/json',
+                'Authorization': `Bearer ${token}`,  // Attach the token here
+                'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(body),
         }).then(response => response.json());
     }
 
-    private put(path: string, body: any) {
-        return fetch(`${this.baseUrl}${path}`, {
+    private async put(path: string, body: any) {
+        const token = await this.tokenSupplier();  // Get the token from tokenSupplier
+
+        return fetch(`${this.baseUrl}/api/v1${path}`, {
             method: 'PUT',
             headers: {
-                Accept: 'application/json',
+                'Authorization': `Bearer ${token}`,  // Attach the token here
+                'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(body),
         }).then(response => response.json());
-    }
-
-    createNewBinding(quizId: string, noteId: string): Promise<any> {
-        return this.post(`/bindings`, {
-            quizId,
-            noteId
-        });
     }
 }
 
 /** Hook to provide an instance of the HTTP client */
-export const useHttpClient = () => useMemo(() => new RealHttpClient("http://localhost:8080"), []);
+export const useHttpClient = () => {
+    const { user, getToken } = useAuth();  // Get the authenticated user from context
+
+    // TokenSupplier function that retrieves the token each time
+    const tokenSupplier: TokenSupplier = async () => {
+        return await getToken() // Get ID token from Firebase user
+    };
+
+    return useMemo(() => {
+        return new RealHttpClient("http://localhost:8080", tokenSupplier);
+    }, [user]);
+};
