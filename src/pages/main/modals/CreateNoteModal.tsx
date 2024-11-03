@@ -1,16 +1,16 @@
 import React, {useState, useEffect} from 'react';
 import {View, StyleSheet, Text, Switch} from 'react-native';
-import {Title, TextInput, Button} from 'react-native-paper';
+import {Title, TextInput, Button, RadioButton, SegmentedButtons, PaperProvider} from 'react-native-paper';
 import {useHttpClient} from '../../../transport/HttpClient';
 import GenericModal from "./GenericModal";
 import {WorkspaceDropdownSelector} from "./WorkspaceDropdownSelector";
-import {Workspace} from "../Types";
-import {generateID} from "./Utils";
+import {NoteType, Workspace} from "../Types";
 
 export type NoteCreateDetails = {
     title: string;
     description: string;
     workspaceId: string;
+    type: NoteType;
 }
 interface CreateNoteModalProps {
     isVisible: boolean;
@@ -22,6 +22,7 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
     const [noteName, setNoteName] = useState('');
     const [description, setDescription] = useState('');
     const [workspace, setWorkspace] = useState('');
+    const [noteType, setNoteType] = useState<NoteType>('board');
     const [errorNoteName, setErrorNoteName] = useState('');
     const [workspaceOptions, setWorkspaceOptions] = useState<Workspace[]>([]);
     const httpClient = useHttpClient();
@@ -46,7 +47,7 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
             setErrorNoteName('* Note Name is required');
             return;
         }
-        onSubmit({title: noteName, description, workspaceId: workspace});
+        onSubmit({title: noteName, description, workspaceId: workspace, type: noteType });
         setNoteName('');
         setDescription('');
         setWorkspace('');
@@ -60,6 +61,16 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
                 <Title>Create New Note</Title>
             </GenericModal.Header>
             <GenericModal.Body>
+                <Text style={{marginBottom: 5}}>Type:</Text>
+                <SegmentedButtons
+                    value={noteType}
+                    onValueChange={(value) => setNoteType(value === 'board' ? 'board' : 'document')}
+                    buttons={[
+                        { value: 'board', label: 'Board' },
+                        { value: 'document', label: 'Document' },
+                    ]}
+                    style={{marginBottom: 10}}
+                />
                 <TextInput
                     style={styles.input}
                     mode="outlined"
