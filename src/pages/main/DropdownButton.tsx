@@ -22,8 +22,8 @@ const DropdownButton = ({setDropdownVisible, dropdownVisible, onItemSelected}: {
                     <TouchableOpacity onPress={() => handleDropdownItemPress('Workspace')}>
                         <Text style={styles.dropdownItem}>Workspace</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDropdownItemPress('HandWrittenNote')}>
-                        <Text style={styles.dropdownItem}>HandWritten Note</Text>
+                    <TouchableOpacity onPress={() => handleDropdownItemPress('Note')}>
+                        <Text style={styles.dropdownItem}>Note</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleDropdownItemPress('Quiz')}>
                         <Text style={styles.dropdownItem}>Quiz</Text>

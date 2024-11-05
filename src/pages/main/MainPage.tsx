@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {View, TouchableWithoutFeedback, useWindowDimensions, ImageBackground, Image} from 'react-native';
-import {Title} from 'react-native-paper';
+import {PaperProvider, Title} from 'react-native-paper';
 import styles from './MainPage.scss';
 import NoteCard from './NoteCard';
 import QuizCard from './QuizCard';
@@ -46,7 +46,7 @@ const MainPage = () => {
             case "Workspace":
                 setOpenedModal('Workspace');
                 break;
-            case "HandWrittenNote":
+            case "Note":
                 setOpenedModal('Note');
                 break;
             case "Quiz":
@@ -65,7 +65,11 @@ const MainPage = () => {
 
     const navigateToNotePage = (parse: NoteSummary) => {
         fetchRecent();
-        navigation.navigate('HandWrittenNotePage', {noteId: parse.id, workspaceId: parse.workspace.id});
+        if (parse.type === 'document') {
+            navigation.navigate('DocumentNotePage', {noteId: parse.id, workspaceId: parse.workspace.id});
+        }else if (parse.type === 'board') {
+            navigation.navigate('BoardNotePage', {noteId: parse.id, workspaceId: parse.workspace.id});
+        }
     }
 
     const createNewNote = (note: NoteCreateDetails) => {
@@ -112,8 +116,10 @@ const MainPage = () => {
                     </View>
                 </View>
 
-                <CreateNoteModal isVisible={openedModal === 'Note'} onClose={() => setOpenedModal(null)}
-                                 onSubmit={createNewNote}
+                <CreateNoteModal
+                    isVisible={openedModal === 'Note'}
+                    onClose={() => setOpenedModal(null)}
+                    onSubmit={createNewNote}
                 />
                 <CreateQuizModal
                     isVisible={openedModal === 'Quiz'}

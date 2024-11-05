@@ -47,6 +47,20 @@ const DocumentNotePage: React.FC = () => {
     };
 
     useEffect(() => {
+        const handleEvent = (event) => {
+            if (event.ctrlKey && event.key === "s") {
+                event.preventDefault();
+            }
+        };
+
+        window.addEventListener("keydown", handleEvent);
+
+        return () => {
+            window.removeEventListener("keydown", handleEvent);
+        };
+    }, []);
+
+    useEffect(() => {
         httpClient
             .getNoteDetails(workspaceId, noteId)
             .then((note) => {
@@ -65,9 +79,15 @@ const DocumentNotePage: React.FC = () => {
 
     useEffect(() => {
         const receiveMessage = (event: any) => {
-            console.log('Received message from iframe:', event.data);
             if (event.data === 'CONFIRMED') {
                 setConfirmed(true);
+            }
+            else if (event.data.startsWith('SAVE ')) {
+                const content = event.data.substring(5);
+                httpClient
+                    .putDocumentNotePageUpdate(workspaceId, noteId, content)
+                    .then(() => {console.log('Content saved');})
+                    .catch(console.error);
             }
             // Handle the message received from the iframe
         };

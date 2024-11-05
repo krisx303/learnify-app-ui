@@ -465,6 +465,21 @@ export default function ToolbarPlugin() {
   }, [editor]);
 
   useEffect(() => {
+    const handleEvent = (event) => {
+      if (event.ctrlKey && event.key === "s") {
+        event.preventDefault();
+        const editorState = JSON.stringify(editor.getEditorState().toJSON());
+        window.parent.postMessage('SAVE ' + editorState, '*');
+      }
+    };
+    window.addEventListener("keydown", handleEvent);
+
+    return () => {
+      window.removeEventListener("keydown", handleEvent);
+    };
+  }, []);
+
+  useEffect(() => {
     return window.addEventListener('message', (nativeEvent) => {
       console.log("Received message from parent window", nativeEvent.data);
       try {

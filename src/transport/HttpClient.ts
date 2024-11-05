@@ -278,7 +278,7 @@ class RealHttpClient implements HttpClientBase {
     }
 
     putDocumentNotePageUpdate(workspaceId: string, noteId: string, content: string): Promise<void> {
-        return this.put(`/notes/${noteId}/document/pages/1`, {content: JSON.stringify(content)});
+        return this.put(`/notes/${noteId}/document/pages/1`, {content: content});
     }
 
     createNewNote(note: NoteCreateDetails): Promise<NoteSummary> {
