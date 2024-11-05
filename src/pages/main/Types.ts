@@ -1,4 +1,14 @@
 export type NoteType = 'document' | 'board';
+export type AccessType = 'PUBLIC' | 'PRIVATE';
+export type ResourceType = 'NOTE' | ' QUIZ' | 'WORKSPACE';
+export type UserPermissionLevel = 'RO' | 'RW';
+export type UserPermission = { user: User; accessLevel: UserPermissionLevel };
+export type FullPermissionModel = {
+    resourceType: ResourceType;
+    resourceId: string;
+    accessType: AccessType;
+    permissions: UserPermission[]
+};
 
 export interface NoteSummary {
     id: string;

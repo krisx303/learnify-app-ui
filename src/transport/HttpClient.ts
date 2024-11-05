@@ -1,14 +1,24 @@
 import {useMemo} from "react";
-import {NoteSummary, QuizSummary, Workspace} from "../pages/main/Types";
+import {
+    FullPermissionModel,
+    NoteSummary,
+    QuizSummary,
+    ResourceType,
+    User,
+    UserPermissionLevel,
+    Workspace
+} from "../pages/main/Types";
 import {QuizDetails} from "../pages/quiz/summmary/QuizDetails";
 import {Question} from "../pages/quiz/solving/Question";
 import {NoteCreateDetails} from "../pages/main/modals/CreateNoteModal";
 import {QuizCreateDetails} from "../pages/main/modals/CreateQuizModal";
 import {Position, ElementType} from "../pages/notes/board/types";
 import {useAuth} from "../pages/auth/AuthProvider";
+
 export type PathDto = { strokeWidth: number; path: string; color: string; blendMode: string };
 export type ElementDto = { width: number; id: string; position: Position; content: string; height: number; type: ElementType };
 type BoardNotePageContent = { elements: ElementDto[]; paths: PathDto[] };
+export type PermissionDto = { user: User; access: string }
 
 /** Interface representing base HTTP client */
 interface HttpClientBase {
@@ -37,6 +47,18 @@ interface HttpClientBase {
     createNewWorkspace(title: string): Promise<Workspace>;
 
     createNewQuiz(quiz: QuizCreateDetails): Promise<QuizSummary>;
+
+    registerUser(email: string, displayName: string): Promise<void>;
+
+    searchUsers(email: string, displayName: string): Promise<User[]>;
+
+    getFullPermissionModel(resourceType: ResourceType, resourceId: string): Promise<FullPermissionModel>;
+
+    addUserPermission(resourceType: ResourceType, resourceId: string, userId: string, level: UserPermissionLevel): Promise<void>;
+
+    editUserPermission(resourceType: ResourceType, resourceId: string, userId: string, level: UserPermissionLevel): Promise<void>;
+
+    removeUserPermission(resourceType: ResourceType, resourceId: string, userId: string): Promise<void>;
 }
 
 class StubHttpClient implements HttpClientBase {
@@ -237,6 +259,30 @@ class StubHttpClient implements HttpClientBase {
     putDocumentNotePageUpdate(workspaceId: string, noteId: string, content: string): Promise<void> {
         return Promise.resolve(undefined);
     }
+
+    registerUser(email: string, displayName: string): Promise<void> {
+        return Promise.resolve(undefined);
+    }
+
+    addUserPermission(resourceType: ResourceType, resourceId: string, userId: string, level: UserPermissionLevel): Promise<void> {
+        return Promise.resolve(undefined);
+    }
+
+    editUserPermission(resourceType: ResourceType, resourceId: string, userId: string, level: UserPermissionLevel): Promise<void> {
+        return Promise.resolve(undefined);
+    }
+
+    getFullPermissionModel(resourceType: ResourceType, resourceId: string): Promise<PermissionDto[]> {
+        return Promise.resolve([]);
+    }
+
+    removeUserPermission(resourceType: ResourceType, resourceId: string, userId: string): Promise<void> {
+        return Promise.resolve(undefined);
+    }
+
+    searchUsers(email: string, displayName: string): Promise<User[]> {
+        return Promise.resolve([]);
+    }
 }
 
 type TokenSupplier = () => Promise<string | null>;
@@ -332,6 +378,35 @@ class RealHttpClient implements HttpClientBase {
         });
     }
 
+    registerUser(email: string, displayName: string): Promise<void> {
+        return this.post('/users', {email, displayName});
+    }
+
+    addUserPermission(resourceType: ResourceType, resourceId: string, userId: string, level: UserPermissionLevel): Promise<void> {
+        return this.post(`/permissions/resources/${resourceType}/${resourceId}/users`, {
+            "accessTypeDto": level,
+            "userId": userId
+        });
+    }
+
+    editUserPermission(resourceType: ResourceType, resourceId: string, userId: string, level: UserPermissionLevel): Promise<void> {
+        return this.put(`/permissions/resources/${resourceType}/${resourceId}/users/${userId}`, {
+            "accessTypeDto": level,
+        });
+    }
+
+    getFullPermissionModel(resourceType: ResourceType, resourceId: string): Promise<FullPermissionModel> {
+        return this.get(`/permissions/resources/${resourceType}/${resourceId}`);
+    }
+
+    removeUserPermission(resourceType: ResourceType, resourceId: string, userId: string): Promise<void> {
+        return this.delete(`/permissions/resources/${resourceType}/${resourceId}/users/${userId}`).then(() => {});
+    }
+
+    searchUsers(email: string, displayName: string): Promise<User[]> {
+        return this.get(`/users?email=${email}&displayName=${displayName}`);
+    }
+
     private asGenericQuestion(question: Question): any {
         const answer = question.type === 'single-choice' ?
             question.answer.toString() :
@@ -413,6 +488,19 @@ class RealHttpClient implements HttpClientBase {
             },
             body: JSON.stringify(body),
         }).then(response => response.json());
+    }
+
+    private async delete(path: string) {
+        const token = await this.tokenSupplier();  // Get the token from tokenSupplier
+
+        return fetch(`${this.baseUrl}/api/v1${path}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,  // Attach the token here
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        });
     }
 }
 
