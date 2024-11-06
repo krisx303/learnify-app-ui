@@ -1,11 +1,12 @@
-import React from 'react';
-import {View, Text, TouchableHighlight} from 'react-native';
-import {Avatar, Button} from 'react-native-paper';
+import React, {useState} from 'react';
+import {View, Text, TouchableHighlight, TouchableOpacity, Modal, StyleSheet} from 'react-native';
+import {Avatar, Button, Provider} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import styles from './TopBar.scss';
 import LearnifyAppIconInner from "../../icons/learnify-app-icon-inner";
 import {RootStackParamList} from "../../../App";
 import {StackNavigationProp} from "@react-navigation/stack";
+import {useAuth} from "../auth/AuthProvider";
 
 interface TopBarProps {
     text?: string;
@@ -16,45 +17,114 @@ interface TopBarProps {
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
 
-const TopBar: React.FC<TopBarProps> = ({text, withAdvancedMenu, onAdvancedMenuPress, children}) => {
+const TopBar: React.FC<TopBarProps> = ({ text, withAdvancedMenu, onAdvancedMenuPress, children }) => {
     const navigation = useNavigation<NavigationProps>();
-    const user = {
-        username: 'JohnDoe',
-        avatarUrl: 'https://cdn2.iconfinder.com/data/icons/people-round-icons/128/man_avatar-512.png',
-    };
+    const { user, username, userProfileUri, removeUser } = useAuth();
+    const [menuVisible, setMenuVisible] = useState(false);
 
-    const handleLearnifyPress = () => {
-        navigation.navigate('Main');
+    const toggleMenu = () => setMenuVisible(!menuVisible);
+
+    const logout = () => {
+        removeUser();
+        navigation.navigate('Login');
+        setMenuVisible(false);
     };
 
     return (
         <View style={styles.topBar}>
             <View style={styles.leftContent}>
-                <TouchableHighlight onPress={handleLearnifyPress} underlayColor="transparent">
-                    <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
-                        <LearnifyAppIconInner/>
-                        {text ? <Text style={styles.topBarText}>{text}</Text> :
-                            <Text style={styles.topBarText}>Learnify</Text>}
+                <TouchableHighlight onPress={() => navigation.navigate('Main')} underlayColor="transparent">
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <LearnifyAppIconInner />
+                        <Text style={styles.topBarText}>{text || 'Learnify'}</Text>
                     </View>
                 </TouchableHighlight>
                 {children}
             </View>
-            {withAdvancedMenu && (
-                <View>
-                    <Text style={{color: "white", fontSize: 25}}>{'< 1/1 >'}</Text>
-                </View>
-            )}
-            {withAdvancedMenu === true ? (
-                <Button icon="abacus" mode="contained" onPress={onAdvancedMenuPress}>
-                    View Quizzes
-                </Button>
-            ) : (<View style={styles.userInfo}>
-                <Text style={styles.username}>{user.username}</Text>
-                <Avatar.Image size={40} source={{uri: user.avatarUrl}}/>
-            </View>)}
 
+            <View style={{flexDirection: "row"}}>
+                {withAdvancedMenu && (
+                    <Button icon="abacus" mode="contained" onPress={onAdvancedMenuPress} style={{marginRight: 10}}>
+                        View Quizzes
+                    </Button>
+                )}
+                <TouchableOpacity onPress={toggleMenu} style={styles.userInfo}>
+                    {!withAdvancedMenu && <Text style={styles.username}>{username}</Text>}
+                    <Avatar.Image size={40} source={{ uri: userProfileUri || "../../../assets/default-avatar.png" }} />
+                </TouchableOpacity>
+            </View>
+
+            {menuVisible && (
+                <TouchableOpacity style={sad.dropdownOverlay} onPress={toggleMenu}>
+                    <View style={sad.dropdownMenu}>
+                        <Text style={sad.username}>{username}</Text>
+                        <TouchableOpacity style={sad.menuItem} onPress={logout}>
+                            <Text style={sad.menuText}>Log out</Text>
+                        </TouchableOpacity>
+                    </View>
+                </TouchableOpacity>
+            )}
         </View>
     );
 };
+
+
+const sad = StyleSheet.create({
+    topBar: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 16,
+        backgroundColor: '#333',
+    },
+    leftContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    topBarText: {
+        color: 'white',
+        fontSize: 18,
+        marginLeft: 8,
+    },
+    dropdownOverlay: {
+        position: 'absolute',
+        top: 70, // Adjust this value based on avatar position
+        right: 16,
+        width: 'auto',
+        height: 'auto',
+        backgroundColor: 'rgba(0, 0, 0, 0.2)', // Only a light overlay around the dropdown
+        borderRadius: 8,
+    },
+    dropdownMenu: {
+        width: 200,
+        paddingVertical: 16,
+        paddingHorizontal: 10,
+        backgroundColor: 'white',
+        borderRadius: 12,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    username: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+    menuItem: {
+        paddingVertical: 10,
+        width: '100%',
+        alignItems: 'center',
+    },
+    menuText: {
+        fontSize: 16,
+        color: '#333',
+    },
+});
+
+
+
 
 export default TopBar;

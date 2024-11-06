@@ -27,8 +27,10 @@ import {
 } from "./Utils";
 import {TextInputComponent} from "./TextInputComponent";
 import {DrawerContext} from "../DrawerProvider";
-import Drawer from "../Drawer";
+import NoteDrawer from "../NoteDrawer";
 import {StackNavigationProp} from "@react-navigation/stack";
+import {NoteSummary} from "../../main/Types";
+import {useAuth} from "../../auth/AuthProvider";
 
 type NotePageRouteProp = RouteProp<RootStackParamList, "BoardNotePage">;
 type NavigationProps = StackNavigationProp<RootStackParamList, 'BoardNotePage'>;
@@ -45,7 +47,7 @@ const Board = () => {
     const [strokeWidth, setStrokeWidth] = useState(strokes[0]);
     const [shouldSendState, setShouldSendState] = useState(false);
     const httpClient = useHttpClient();
-    const [noteName, setNoteName] = useState<string>("");
+    const [noteDetails, setNoteDetails] = useState<NoteSummary | undefined>(undefined);
     const route = useRoute<NotePageRouteProp>();
     const {noteId, workspaceId} = route.params;
     const [canvasWidth, setCanvasWidth] = useState(0); // Current width of the canvas container
@@ -55,6 +57,7 @@ const Board = () => {
     const font = useFont("http://localhost:19000/assets/Roboto-Medium.ttf", 20, (err) => {
         console.error(err)
     })
+    const { user } = useAuth();
     const [lastClickTime, setLastClickTime] = useState(0);
 
    const asGenericMovableElements = (elements: ElementDto[]) => {
@@ -65,10 +68,12 @@ const Board = () => {
 
     useEffect(() => {
         setDrawerContent(
-            <Drawer
+            <NoteDrawer
                 noteId={noteId}
                 onClose={toggleDrawer}
                 navigateToQuiz={(workspaceId, quizId) => navigation.navigate('QuizPage', {workspaceId, quizId})}
+                isOwner={noteDetails?.author.id === user?.uid}
+                ownerId={noteDetails?.author.id ?? ""}
             />);
     }, [drawerVisible]);
 
@@ -106,7 +111,7 @@ const Board = () => {
         setBackgroundImage(gridImage);
         httpClient
             .getNoteDetails(workspaceId, noteId)
-            .then((note) => setNoteName(note.title))
+            .then(setNoteDetails)
             .catch(console.error);
         httpClient
             .getBoardPageContent(workspaceId, noteId, 1)
@@ -303,7 +308,7 @@ const Board = () => {
     return (
         <View style={{width: "100%", height: "100%", maxHeight: "100%"}}>
             <TopBar
-                text={noteName}
+                text={noteDetails?.title}
                 withAdvancedMenu
                 onAdvancedMenuPress={toggleDrawer}
             />

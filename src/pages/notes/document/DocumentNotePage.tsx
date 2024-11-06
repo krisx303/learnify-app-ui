@@ -6,9 +6,10 @@ import {useHttpClient} from "../../../transport/HttpClient";
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import {RootStackParamList} from "../../../../App";
 import DrawerProvider, {DrawerContext} from "../DrawerProvider";
-import Board from "../board/Board";
-import Drawer from "../Drawer";
+import NoteDrawer from "../NoteDrawer";
 import {StackNavigationProp} from "@react-navigation/stack";
+import {NoteSummary} from "../../main/Types";
+import {useAuth} from "../../auth/AuthProvider";
 
 type NotePageRouteProp = RouteProp<RootStackParamList, "DocumentNotePage">;
 type NavigationProps = StackNavigationProp<RootStackParamList, 'DocumentNotePage'>;
@@ -18,18 +19,23 @@ const DocumentNotePage: React.FC = () => {
     const iframeRef = useRef(null);
     const route = useRoute<NotePageRouteProp>();
     const {noteId, workspaceId} = route.params;
-    const [noteName, setNoteName] = useState<string>("");
     const httpClient = useHttpClient();
     const [confirmed, setConfirmed] = useState(false);
     const navigation = useNavigation<NavigationProps>();
     const { toggleDrawer, setDrawerContent, drawerVisible } = useContext(DrawerContext);
+    const [noteDetails, setNoteDetails] = useState<NoteSummary | undefined>(undefined);
+    const { user } = useAuth();
+
+
 
     useEffect(() => {
         setDrawerContent(
-            <Drawer
+            <NoteDrawer
                 noteId={noteId}
                 onClose={toggleDrawer}
                 navigateToQuiz={(workspaceId, quizId) => navigation.navigate('QuizPage', {workspaceId, quizId})}
+                isOwner={noteDetails?.author.id === user?.uid}
+                ownerId={noteDetails?.author.id ?? ""}
             />);
     }, [drawerVisible]);
 
@@ -63,9 +69,7 @@ const DocumentNotePage: React.FC = () => {
     useEffect(() => {
         httpClient
             .getNoteDetails(workspaceId, noteId)
-            .then((note) => {
-                setNoteName(note.title);
-            })
+            .then(setNoteDetails)
             .catch(console.error);
         httpClient
             .getDocumentPageContent(workspaceId, noteId, 1)
@@ -102,7 +106,7 @@ const DocumentNotePage: React.FC = () => {
     return (
         <View style={styles.container}>
             <TopBar
-                text={noteName}
+                text={noteDetails?.title}
                 withAdvancedMenu
                 onAdvancedMenuPress={toggleDrawer}
             />
