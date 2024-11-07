@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, Text, Switch} from 'react-native';
-import {Title, TextInput, Button} from 'react-native-paper';
+import {StyleSheet, Text} from 'react-native';
+import {Button, SegmentedButtons, TextInput, Title} from 'react-native-paper';
 import {useHttpClient} from "../../../transport/HttpClient";
-import {Workspace} from "../Types";
-import {generateID} from "./Utils";
+import {AccessType, Workspace} from "../Types";
 import GenericModal from "./GenericModal";
 import {WorkspaceDropdownSelector} from "./WorkspaceDropdownSelector";
 
@@ -11,6 +10,7 @@ export interface QuizCreateDetails {
     title: string;
     description: string;
     workspaceId: string;
+    resourceAccessTypeDto: AccessType;
 }
 
 interface CreateQuizModalProps {
@@ -23,6 +23,7 @@ const CreateQuizModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, on
     const [quizName, setQuizName] = useState('');
     const [description, setDescription] = useState('');
     const [workspace, setWorkspace] = useState('');
+    const [accessType, setAccessType] = useState<AccessType>('PUBLIC');
     const [errorQuizName, setErrorQuizName] = useState('');
     const [workspaceOptions, setWorkspaceOptions] = useState<Workspace[]>([]);
     const httpClient = useHttpClient();
@@ -47,7 +48,7 @@ const CreateQuizModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, on
             setErrorQuizName('* Quiz Name is required');
             return;
         }
-        onSubmit({title: quizName, description, workspaceId: workspace});
+        onSubmit({title: quizName, description, workspaceId: workspace, resourceAccessTypeDto: accessType});
         setQuizName('');
         setDescription('');
         setWorkspace('');
@@ -81,6 +82,16 @@ const CreateQuizModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, on
                     selectedValue={workspace}
                     onValueChange={setWorkspace}
                     workspaceOptions={workspaceOptions}
+                />
+                <Text style={{marginBottom: 5, marginTop: 10}}>Permission level:</Text>
+                <SegmentedButtons
+                    value={accessType}
+                    onValueChange={(value) => setAccessType(value === 'PUBLIC' ? 'PUBLIC' : 'PRIVATE')}
+                    buttons={[
+                        {value: 'PUBLIC', label: 'PUBLIC'},
+                        {value: 'PRIVATE', label: 'PRIVATE'},
+                    ]}
+                    style={{marginBottom: 10}}
                 />
             </GenericModal.Body>
             <GenericModal.Footer>

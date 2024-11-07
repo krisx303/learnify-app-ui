@@ -12,7 +12,7 @@ import {QuizDetails} from "../pages/quiz/summmary/QuizDetails";
 import {Question} from "../pages/quiz/solving/Question";
 import {NoteCreateDetails} from "../pages/main/modals/CreateNoteModal";
 import {QuizCreateDetails} from "../pages/main/modals/CreateQuizModal";
-import {Position, ElementType} from "../pages/notes/board/types";
+import {ElementType, Position} from "../pages/notes/board/types";
 import {useAuth} from "../pages/auth/AuthProvider";
 
 export type PathDto = { strokeWidth: number; path: string; color: string; blendMode: string };
@@ -44,7 +44,7 @@ interface HttpClientBase {
 
     getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<string>;
 
-    createNewWorkspace(title: string): Promise<Workspace>;
+    createNewWorkspace(title: string, resourceAccessTypeDto: string): Promise<Workspace>;
 
     createNewQuiz(quiz: QuizCreateDetails): Promise<QuizSummary>;
 
@@ -343,8 +343,8 @@ class RealHttpClient implements HttpClientBase {
         return this.get(`/notes/${noteId}/document/pages/${pageNumber}`).then(res => JSON.parse(res.content));
     }
 
-    createNewWorkspace(title: string) {
-        return this.post('/workspaces', {displayName: title});
+    createNewWorkspace(title: string, resourceAccessTypeDto: string) {
+        return this.post('/workspaces', {displayName: title, resourceAccessTypeDto: resourceAccessTypeDto});
     }
 
     createNewQuiz(quiz: QuizCreateDetails): Promise<QuizSummary> {
@@ -400,7 +400,8 @@ class RealHttpClient implements HttpClientBase {
     }
 
     removeUserPermission(resourceType: ResourceType, resourceId: string, userId: string): Promise<void> {
-        return this.delete(`/permissions/resources/${resourceType}/${resourceId}/users/${userId}`).then(() => {});
+        return this.delete(`/permissions/resources/${resourceType}/${resourceId}/users/${userId}`).then(() => {
+        });
     }
 
     searchUsers(email: string, displayName: string): Promise<User[]> {
@@ -506,7 +507,7 @@ class RealHttpClient implements HttpClientBase {
 
 /** Hook to provide an instance of the HTTP client */
 export const useHttpClient = () => {
-    const { user, getToken } = useAuth();  // Get the authenticated user from context
+    const {user, getToken} = useAuth();  // Get the authenticated user from context
 
     // TokenSupplier function that retrieves the token each time
     const tokenSupplier: TokenSupplier = async () => {

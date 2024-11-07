@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {View, TouchableWithoutFeedback, useWindowDimensions, ImageBackground, Image} from 'react-native';
-import {PaperProvider, Title} from 'react-native-paper';
+import {ImageBackground, TouchableWithoutFeedback, useWindowDimensions, View} from 'react-native';
+import {Title} from 'react-native-paper';
 import styles from './MainPage.scss';
 import NoteCard from './NoteCard';
 import QuizCard from './QuizCard';
@@ -20,7 +20,7 @@ type Modal = 'Note' | 'Quiz' | 'Workspace' | null;
 type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
 
 const MainPage = () => {
-    const { width: windowWidth } = useWindowDimensions();
+    const {width: windowWidth} = useWindowDimensions();
     const httpClient = useHttpClient();
     const [recentViewedNotes, setRecentViewedNotes] = useState<NoteSummary[]>([]);
     const [recentAttemptedQuizzes, setRecentAttemptedQuizzes] = useState<QuizSummary[]>([]);
@@ -67,7 +67,7 @@ const MainPage = () => {
         fetchRecent();
         if (parse.type === 'document') {
             navigation.navigate('DocumentNotePage', {noteId: parse.id, workspaceId: parse.workspace.id});
-        }else if (parse.type === 'board') {
+        } else if (parse.type === 'board') {
             navigation.navigate('BoardNotePage', {noteId: parse.id, workspaceId: parse.workspace.id});
         }
     }
@@ -79,7 +79,7 @@ const MainPage = () => {
     };
 
     const createWorkspace = (workspace: WorkspaceCreateProps) => {
-        httpClient.createNewWorkspace(workspace.title)
+        httpClient.createNewWorkspace(workspace.title, workspace.resourceAccessTypeDto)
             .then(console.log)
             .catch(console.error);
     };
@@ -93,9 +93,11 @@ const MainPage = () => {
             onPress={() => setIsDropdownVisible(false)}
             style={{flex: 1}}
         >
-            <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../assets/purple_background.png")} imageStyle={{resizeMode: "cover"}}>
+            <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../assets/purple_background.png")}
+                             imageStyle={{resizeMode: "cover"}}>
                 <TopBar>
-                    <DropdownButton setDropdownVisible={setIsDropdownVisible} dropdownVisible={isDropdownVisible} onItemSelected={onCreateDropdownSelected}/>
+                    <DropdownButton setDropdownVisible={setIsDropdownVisible} dropdownVisible={isDropdownVisible}
+                                    onItemSelected={onCreateDropdownSelected}/>
                 </TopBar>
                 <View style={windowWidth < 700 ? styles.contentVertical : styles.contentHorizontal}>
                     <View style={windowWidth < 700 ? styles.sectionVertical : styles.sectionHorizontal}>
