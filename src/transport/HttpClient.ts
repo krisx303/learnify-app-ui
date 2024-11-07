@@ -61,6 +61,12 @@ interface HttpClientBase {
     editUserPermission(resourceType: ResourceType, resourceId: string, userId: string, level: UserPermissionLevel): Promise<void>;
 
     removeUserPermission(resourceType: ResourceType, resourceId: string, userId: string): Promise<void>;
+
+    getWorkspace(workspaceId: string): Promise<Workspace>;
+
+    getNotesWithinWorkspace(workspaceId: string): Promise<NoteSummary[]>;
+
+    getQuizzesWithinWorkspace(workspaceId: string): Promise<QuizSummary[]>;
 }
 
 class StubHttpClient implements HttpClientBase {
@@ -289,6 +295,18 @@ class StubHttpClient implements HttpClientBase {
     getUserPermission(resourceType: ResourceType, resourceId: string, userId: string): Promise<UserPermission> {
         return Promise.resolve({} as UserPermission);
     }
+
+    getNotesWithinWorkspace(workspaceId: string): Promise<NoteSummary[]> {
+        return Promise.resolve([]);
+    }
+
+    getQuizzesWithinWorkspace(workspaceId: string): Promise<QuizSummary[]> {
+        return Promise.resolve([]);
+    }
+
+    getWorkspace(workspaceId: string): Promise<Workspace> {
+        return Promise.resolve(undefined);
+    }
 }
 
 type TokenSupplier = () => Promise<string | null>;
@@ -416,6 +434,18 @@ class RealHttpClient implements HttpClientBase {
 
     getUserPermission(resourceType: ResourceType, resourceId: string, userId: string): Promise<UserPermission> {
         return this.get(`/permissions/resources/${resourceType}/${resourceId}/users/${userId}`);
+    }
+
+    getNotesWithinWorkspace(workspaceId: string): Promise<NoteSummary[]> {
+        return this.get(`/notes?workspaceId=${workspaceId}`);
+    }
+
+    getQuizzesWithinWorkspace(workspaceId: string): Promise<QuizSummary[]> {
+        return this.get(`/quizzes?workspaceId=${workspaceId}`);
+    }
+
+    getWorkspace(workspaceId: string): Promise<Workspace> {
+        return this.get(`/workspaces/${workspaceId}`);
     }
 
     private asGenericQuestion(question: Question): any {

@@ -13,6 +13,7 @@ import QuizEditor from "./src/pages/quiz/creation/QuizEditor";
 import BoardNotePage from "./src/pages/notes/board/BoardNotePage";
 import DocumentNotePage from "./src/pages/notes/document/DocumentNotePage";
 import {AuthProvider} from "./src/pages/auth/AuthProvider";
+import WorkspacePage from "./src/pages/main/WorkspacePage";
 
 const Stack = createStackNavigator();
 
@@ -26,6 +27,7 @@ export type RootStackParamList = {
     // TODO delete advanced objects from route
     QuestionsScreen: { questions: Question[]; quizId: string, quiz: QuizDetails };
     QuizEditor: { workspaceId: string, quizId: string };
+    WorkspacePage: { workspaceId: string };
 };
 
 const linking = {
@@ -39,7 +41,8 @@ const linking = {
             DocumentNotePage: 'workspaces/:workspaceId/notes/document/:noteId',
             QuizPage: 'workspaces/:workspaceId/quizzes/:quizId',
             QuestionsScreen: 'quizzes/:quizId/',
-            QuizEditor: 'workspaces/:workspaceId/quizzes/:quizId/edit'
+            QuizEditor: 'workspaces/:workspaceId/quizzes/:quizId/edit',
+            WorkspacePage: 'workspaces/:workspaceId'
         },
     },
 };
@@ -65,6 +68,7 @@ function App() {
                     <Stack.Screen name="QuizPage" component={QuizPage} options={navigationOptions}/>
                     <Stack.Screen name="QuestionsScreen" component={QuestionsScreen} options={navigationOptions}/>
                     <Stack.Screen name="QuizEditor" component={QuizEditor} options={navigationOptions}/>
+                    <Stack.Screen name="WorkspacePage" component={WorkspacePage} options={navigationOptions}/>
                 </Stack.Navigator>
             </NavigationContainer>
         </AuthProvider>

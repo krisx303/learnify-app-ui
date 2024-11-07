@@ -107,6 +107,8 @@ const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: s
         <View style={styles.container}>
             <TopBar
                 text={noteDetails?.title}
+                workspaceName={noteDetails?.workspace.displayName}
+                workspaceId={workspaceId}
                 withAdvancedMenu
                 onAdvancedMenuPress={toggleDrawer}
             />
