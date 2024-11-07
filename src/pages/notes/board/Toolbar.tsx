@@ -11,6 +11,7 @@ type ToolbarProps = {
     setSelectedTool: (tool: Tool) => void;
     selectedTool: Tool;
     onAction: (action: Action) => void;
+    editable: boolean;
 };
 
 type Extension = "color" | "stroke" | "none";
@@ -24,6 +25,7 @@ export const Toolbar = ({
                             setSelectedTool,
                             selectedTool,
                             onAction,
+                            editable,
                         }: ToolbarProps) => {
     const [extension, setExtension] = useState<Extension>("none");
 
@@ -73,7 +75,7 @@ export const Toolbar = ({
                     ))}
                 </View>
             )}
-            <View style={[style.toolbar]}>
+            <View style={[style.toolbar, !editable && style.disabled]}>
                 <IconButton
                     icon={'arrow-top-left'}
                     size={26}
@@ -166,9 +168,12 @@ const style = StyleSheet.create({
         borderColor: '#000000',
         borderRadius: 100,
     },
+    disabled: {
+        opacity: 0.5,
+        pointerEvents: "none",
+    },
     toolbar: {
         backgroundColor: "#ffffff",
-        height: "fit-content",
         width: 60,
         borderRadius: 100,
         borderColor: "#f0f0f0",

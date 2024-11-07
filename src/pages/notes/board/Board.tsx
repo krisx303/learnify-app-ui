@@ -1,13 +1,13 @@
-import {Canvas, Group, Path, Skia, TouchInfo, useFont, useTouchHandler, Text} from "@shopify/react-native-skia";
-import React, {MutableRefObject, useContext, useEffect, useRef, useState} from "react";
-import {ImageBackground, StyleSheet, TextInput, View,} from "react-native";
+import {Canvas, Group, Path, Skia, TouchInfo, useFont, useTouchHandler} from "@shopify/react-native-skia";
+import React, {useContext, useEffect, useRef, useState} from "react";
+import {ImageBackground, StyleSheet, View,} from "react-native";
 import styles from "../../CardPage.scss";
 import MovableImage from "./MovableImage";
-import {Action, Color, Colors, PathWithColorAndWidth, Position, strokes, Tool,} from "./types";
+import {Action, Color, Colors, PathWithColorAndWidth, strokes, Tool,} from "./types";
 import {Toolbar} from "./Toolbar";
 import {createGrid} from "./Grid";
 import {useHttpClient, ElementDto} from "../../../transport/HttpClient";
-import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
+import {useNavigation} from "@react-navigation/native";
 import {RootStackParamList} from "../../../../App";
 import TopBar from "../../main/TopBar";
 import {
@@ -31,11 +31,11 @@ import NoteDrawer from "../NoteDrawer";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {NoteSummary} from "../../main/Types";
 import {useAuth} from "../../auth/AuthProvider";
+import {useUserAccessToResource} from "../../AuthorizedResource";
 
-type NotePageRouteProp = RouteProp<RootStackParamList, "BoardNotePage">;
 type NavigationProps = StackNavigationProp<RootStackParamList, 'BoardNotePage'>;
 
-const Board = () => {
+const Board = ({noteId, workspaceId}: {noteId: string, workspaceId: string}) => {
     const [backgroundImage, setBackgroundImage] = useState("");
     const [elements, setElements] = useState<GenericMovableElement[]>([]);
     const movingElement = useRef<GenericMovableElement>(null);
@@ -48,8 +48,6 @@ const Board = () => {
     const [shouldSendState, setShouldSendState] = useState(false);
     const httpClient = useHttpClient();
     const [noteDetails, setNoteDetails] = useState<NoteSummary | undefined>(undefined);
-    const route = useRoute<NotePageRouteProp>();
-    const {noteId, workspaceId} = route.params;
     const [canvasWidth, setCanvasWidth] = useState(0); // Current width of the canvas container
     const canvasFixedWidth= 1800; // Original canvas width (set only once)
     const navigation = useNavigation<NavigationProps>();
@@ -59,6 +57,8 @@ const Board = () => {
     })
     const { user } = useAuth();
     const [lastClickTime, setLastClickTime] = useState(0);
+    const {userAccess } = useUserAccessToResource();
+    const editable = userAccess === "RW";
 
    const asGenericMovableElements = (elements: ElementDto[]) => {
        return elements.map((element) => {
@@ -229,6 +229,9 @@ const Board = () => {
     );
 
     const performAction = (action: Action) => {
+        if(!editable) {
+            return;
+        }
         switch (action) {
             case "add-image":
                 createMovableImage();
@@ -319,7 +322,7 @@ const Board = () => {
                         style={styles.imageBackground}
                         resizeMode="repeat"
                     >
-                        <Canvas style={style.canvas} onTouch={touchHandler}>
+                        <Canvas style={style.canvas} onTouch={editable ? touchHandler : undefined}>
                             <Group transform={[{scale: scale}]}>
                                 {paths.map((path, index) => (
                                     <Path
@@ -353,6 +356,7 @@ const Board = () => {
                         selectedTool={selectedTool}
                         setSelectedTool={onToolSelected}
                         onAction={performAction}
+                        editable={editable}
                     />
                 </View>
             </View>

@@ -4,7 +4,7 @@ import {
     NoteSummary,
     QuizSummary,
     ResourceType,
-    User,
+    User, UserPermission,
     UserPermissionLevel,
     Workspace
 } from "../pages/main/Types";
@@ -53,6 +53,8 @@ interface HttpClientBase {
     searchUsers(email: string, displayName: string): Promise<User[]>;
 
     getFullPermissionModel(resourceType: ResourceType, resourceId: string): Promise<FullPermissionModel>;
+
+    getUserPermission(resourceType: ResourceType, resourceId: string, userId: string): Promise<UserPermission>;
 
     addUserPermission(resourceType: ResourceType, resourceId: string, userId: string, level: UserPermissionLevel): Promise<void>;
 
@@ -272,7 +274,7 @@ class StubHttpClient implements HttpClientBase {
         return Promise.resolve(undefined);
     }
 
-    getFullPermissionModel(resourceType: ResourceType, resourceId: string): Promise<PermissionDto[]> {
+    getFullPermissionModel(resourceType: ResourceType, resourceId: string): Promise<FullPermissionModel> {
         return Promise.resolve([]);
     }
 
@@ -282,6 +284,10 @@ class StubHttpClient implements HttpClientBase {
 
     searchUsers(email: string, displayName: string): Promise<User[]> {
         return Promise.resolve([]);
+    }
+
+    getUserPermission(resourceType: ResourceType, resourceId: string, userId: string): Promise<UserPermission> {
+        return Promise.resolve({} as UserPermission);
     }
 }
 
@@ -406,6 +412,10 @@ class RealHttpClient implements HttpClientBase {
 
     searchUsers(email: string, displayName: string): Promise<User[]> {
         return this.get(`/users?email=${email}&displayName=${displayName}`);
+    }
+
+    getUserPermission(resourceType: ResourceType, resourceId: string, userId: string): Promise<UserPermission> {
+        return this.get(`/permissions/resources/${resourceType}/${resourceId}/users/${userId}`);
     }
 
     private asGenericQuestion(question: Question): any {

@@ -485,9 +485,11 @@ export default function ToolbarPlugin() {
       try {
         const message = nativeEvent.data;
 
-        if(message["root"] !== undefined) {
+        if(message["content"] !== undefined) {
+          const editable = message["editable"];
+          editor.setEditable(editable);
           console.log("Received message from parent window");
-          editor.setEditorState(  editor.parseEditorState(message))
+          editor.setEditorState(  editor.parseEditorState(message["content"]))
           window.parent.postMessage('CONFIRMED', '*');
         }
       }catch (e) {
