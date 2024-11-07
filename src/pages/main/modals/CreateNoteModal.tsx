@@ -1,17 +1,19 @@
-import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, Text, Switch} from 'react-native';
-import {Title, TextInput, Button, RadioButton, SegmentedButtons, PaperProvider} from 'react-native-paper';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text} from 'react-native';
+import {Button, SegmentedButtons, TextInput, Title} from 'react-native-paper';
 import {useHttpClient} from '../../../transport/HttpClient';
 import GenericModal from "./GenericModal";
 import {WorkspaceDropdownSelector} from "./WorkspaceDropdownSelector";
-import {NoteType, Workspace} from "../Types";
+import {AccessType, NoteType, Workspace} from "../Types";
 
 export type NoteCreateDetails = {
     title: string;
     description: string;
     workspaceId: string;
     type: NoteType;
+    resourceAccessTypeDto: AccessType;
 }
+
 interface CreateNoteModalProps {
     isVisible: boolean;
     onClose: () => void;
@@ -23,6 +25,7 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
     const [description, setDescription] = useState('');
     const [workspace, setWorkspace] = useState('');
     const [noteType, setNoteType] = useState<NoteType>('board');
+    const [accessType, setAccessType] = useState<AccessType>('PUBLIC');
     const [errorNoteName, setErrorNoteName] = useState('');
     const [workspaceOptions, setWorkspaceOptions] = useState<Workspace[]>([]);
     const httpClient = useHttpClient();
@@ -47,7 +50,13 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
             setErrorNoteName('* Note Name is required');
             return;
         }
-        onSubmit({title: noteName, description, workspaceId: workspace, type: noteType });
+        onSubmit({
+            title: noteName,
+            description,
+            workspaceId: workspace,
+            type: noteType,
+            resourceAccessTypeDto: accessType
+        });
         setNoteName('');
         setDescription('');
         setWorkspace('');
@@ -66,8 +75,8 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
                     value={noteType}
                     onValueChange={(value) => setNoteType(value === 'board' ? 'board' : 'document')}
                     buttons={[
-                        { value: 'board', label: 'Board' },
-                        { value: 'document', label: 'Document' },
+                        {value: 'board', label: 'Board'},
+                        {value: 'document', label: 'Document'},
                     ]}
                     style={{marginBottom: 10}}
                 />
@@ -91,6 +100,16 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
                     selectedValue={workspace}
                     onValueChange={setWorkspace}
                     workspaceOptions={workspaceOptions}
+                />
+                <Text style={{marginBottom: 5, marginTop: 10}}>Permission level:</Text>
+                <SegmentedButtons
+                    value={accessType}
+                    onValueChange={(value) => setAccessType(value === 'PUBLIC' ? 'PUBLIC' : 'PRIVATE')}
+                    buttons={[
+                        {value: 'PUBLIC', label: 'PUBLIC'},
+                        {value: 'PRIVATE', label: 'PRIVATE'},
+                    ]}
+                    style={{marginBottom: 10}}
                 />
             </GenericModal.Body>
             <GenericModal.Footer>

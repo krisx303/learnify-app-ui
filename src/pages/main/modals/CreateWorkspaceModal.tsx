@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text} from 'react-native';
-import {Button, TextInput, Title} from 'react-native-paper';
+import {Button, SegmentedButtons, TextInput, Title} from 'react-native-paper';
 import GenericModal from "./GenericModal";
+import {AccessType} from "../Types";
 
 export interface WorkspaceCreateProps {
     title: string;
+    resourceAccessTypeDto: AccessType;
 }
 
 interface CreateQuizModalProps {
@@ -16,6 +18,7 @@ interface CreateQuizModalProps {
 const CreateWorkspaceModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, onSubmit}) => {
     const [workspaceName, setWorkspaceName] = useState('');
     const [errorWorkspaceName, setErrorWorkspaceName] = useState('');
+    const [accessType, setAccessType] = useState<AccessType>('PUBLIC');
 
     useEffect(() => {
         if (workspaceName) {
@@ -28,7 +31,8 @@ const CreateWorkspaceModal: React.FC<CreateQuizModalProps> = ({isVisible, onClos
             setErrorWorkspaceName('* Workspace Name is required');
             return;
         }
-        onSubmit({title: workspaceName});
+        console.log(accessType)
+        onSubmit({title: workspaceName, resourceAccessTypeDto: accessType});
         setWorkspaceName('');
         setErrorWorkspaceName('');
         onClose();
@@ -46,6 +50,16 @@ const CreateWorkspaceModal: React.FC<CreateQuizModalProps> = ({isVisible, onClos
                     label="Workspace Name"
                     value={workspaceName}
                     onChangeText={setWorkspaceName}
+                />
+                <Text style={{marginBottom: 5, marginTop: 10}}>Permission level:</Text>
+                <SegmentedButtons
+                    value={accessType}
+                    onValueChange={(value) => setAccessType(value === 'PUBLIC' ? 'PUBLIC' : 'PRIVATE')}
+                    buttons={[
+                        {value: 'PUBLIC', label: 'PUBLIC'},
+                        {value: 'PRIVATE', label: 'PRIVATE'},
+                    ]}
+                    style={{marginBottom: 10}}
                 />
                 {errorWorkspaceName ? <Text style={styles.errorText}>{errorWorkspaceName}</Text> : null}
             </GenericModal.Body>
