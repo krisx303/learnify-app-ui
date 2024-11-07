@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {ImageBackground, useWindowDimensions, View} from 'react-native';
 import {Title} from 'react-native-paper';
 import styles from './MainPage.scss';
@@ -6,23 +6,35 @@ import NoteCard from './NoteCard';
 import QuizCard from './QuizCard';
 import TopBar from './TopBar';
 import {useHttpClient} from '../../transport/HttpClient';
-import {NoteSummary, QuizSummary} from './Types';
-import {StackNavigationProp} from "@react-navigation/stack";
+import {NoteSummary, QuizSummary, Workspace} from './Types';
 import {RootStackParamList} from "../../../App";
-import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
+import {RouteProp, useRoute} from "@react-navigation/native";
+import DrawerProvider, {DrawerContext} from "../notes/DrawerProvider";
+import AuthorizedResource from "../AuthorizedResource";
+import WorkspaceDrawer from "../notes/WorkspaceDrawer";
+import {useAuth} from "../auth/AuthProvider";
 
-type NavigationProps = StackNavigationProp<RootStackParamList, 'WorkspacePage'>;
 type RouteProps = RouteProp<RootStackParamList, 'WorkspacePage'>
 
-const WorkspacePage = () => {
-    const { width: windowWidth } = useWindowDimensions();
-    const route = useRoute<RouteProps>();
-    const {workspaceId} = route.params;
+const WorkspacePage = ({workspaceId}: {workspaceId: string}) => {
+    const {width: windowWidth} = useWindowDimensions();
     const httpClient = useHttpClient();
-    const [workspaceName, setWorkspaceName] = useState<string>('');
+    const [workspaceDetails, setWorkspaceDetails] = useState<Workspace | undefined>(undefined);
     const [notes, setNotes] = useState<NoteSummary[]>([]);
     const [quizzes, setQuizzes] = useState<QuizSummary[]>([]);
-    const navigation = useNavigation<NavigationProps>();
+    const { toggleDrawer, setDrawerContent, drawerVisible } = useContext(DrawerContext);
+    const { user } = useAuth();
+
+    useEffect(() => {
+        setDrawerContent(
+            <WorkspaceDrawer
+                workspaceId={workspaceId}
+                onClose={toggleDrawer}
+                isOwner={workspaceDetails?.author.id === user?.uid}
+                ownerId={workspaceDetails?.author.id ?? ""}
+            />);
+    }, [drawerVisible]);
+
     const fetchResources = () => {
         httpClient.getNotesWithinWorkspace(workspaceId)
             .then(setNotes)
@@ -35,28 +47,18 @@ const WorkspacePage = () => {
     useEffect(() => {
         fetchResources();
         httpClient.getWorkspace(workspaceId)
-            .then(workspace => setWorkspaceName(workspace.displayName))
+            .then(setWorkspaceDetails)
             .catch(console.error);
     }, [httpClient, workspaceId]);
 
-    const navigateToQuizEditor = (quiz: QuizSummary) => {
-        fetchResources();
-        //TODO save base quiz details to backend
-        navigation.navigate('QuizEditor', {quizId: quiz.id, workspaceId: quiz.workspace.id});
-    };
-
-    const navigateToNotePage = (parse: NoteSummary) => {
-        fetchResources();
-        if (parse.type === 'document') {
-            navigation.navigate('DocumentNotePage', {noteId: parse.id, workspaceId: parse.workspace.id});
-        }else if (parse.type === 'board') {
-            navigation.navigate('BoardNotePage', {noteId: parse.id, workspaceId: parse.workspace.id});
-        }
-    }
-
     return (
-        <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../assets/purple_background.png")} imageStyle={{resizeMode: "cover"}}>
-            <TopBar text={workspaceName}/>
+        <>
+            <TopBar
+                text={workspaceDetails?.displayName}
+                withAdvancedMenu={workspaceDetails?.author.id === user?.uid}
+                optionsButtonText="Options"
+                onAdvancedMenuPress={toggleDrawer}
+            />
             <View style={windowWidth < 700 ? styles.contentVertical : styles.contentHorizontal}>
                 <View style={windowWidth < 700 ? styles.sectionVertical : styles.sectionHorizontal}>
                     <Title style={styles.sectionTitle}>Notes</Title>
@@ -75,8 +77,22 @@ const WorkspacePage = () => {
                     </View>
                 </View>
             </View>
-        </ImageBackground>
+        </>
     );
 };
 
-export default WorkspacePage;
+const WorkspacePageWrapper: React.FC = () => {
+    const route = useRoute<RouteProps>();
+    const {workspaceId} = route.params;
+
+    return <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../assets/purple_background.png")}
+                            imageStyle={{resizeMode: "cover"}}>
+        <DrawerProvider>
+            <AuthorizedResource resourceId={workspaceId} resourceType="WORKSPACE">
+                <WorkspacePage workspaceId={workspaceId}/>
+            </AuthorizedResource>
+        </DrawerProvider>
+    </ImageBackground>
+}
+
+export default WorkspacePageWrapper;

@@ -15,11 +15,12 @@ interface TopBarProps {
     children?: React.ReactElement;
     withAdvancedMenu?: boolean;
     onAdvancedMenuPress?: () => void;
+    optionsButtonText?: string;
 }
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
 
-const TopBar: React.FC<TopBarProps> = ({workspaceName, workspaceId, text, withAdvancedMenu, onAdvancedMenuPress, children}) => {
+const TopBar: React.FC<TopBarProps> = ({optionsButtonText, workspaceName, workspaceId, text, withAdvancedMenu, onAdvancedMenuPress, children}) => {
     const navigation = useNavigation<NavigationProps>();
     const {user, username, userProfileUri, removeUser} = useAuth();
     const [menuVisible, setMenuVisible] = useState(false);
@@ -31,10 +32,6 @@ const TopBar: React.FC<TopBarProps> = ({workspaceName, workspaceId, text, withAd
         navigation.navigate('Login');
         setMenuVisible(false);
     };
-
-    useEffect(() => {
-        console.log(workspaceName)
-    }, [user, workspaceId, workspaceName, text]);
 
     return (
         <View style={styles.topBar}>
@@ -55,7 +52,7 @@ const TopBar: React.FC<TopBarProps> = ({workspaceName, workspaceId, text, withAd
             <View style={{flexDirection: "row"}}>
                 {withAdvancedMenu && (
                     <Button icon="abacus" mode="contained" onPress={onAdvancedMenuPress} style={{marginRight: 10}}>
-                        View Quizzes
+                        {optionsButtonText || "Options"}
                     </Button>
                 )}
                 <TouchableOpacity onPress={toggleMenu} style={styles.userInfo}>

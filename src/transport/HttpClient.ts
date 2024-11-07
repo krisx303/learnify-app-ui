@@ -67,6 +67,14 @@ interface HttpClientBase {
     getNotesWithinWorkspace(workspaceId: string): Promise<NoteSummary[]>;
 
     getQuizzesWithinWorkspace(workspaceId: string): Promise<QuizSummary[]>;
+
+    getAllNotes(): Promise<NoteSummary[]>;
+
+    getAllQuizzes(): Promise<QuizSummary[]>;
+
+    getBoundedQuizzes(noteId: string): Promise<any>;
+
+    getBoundNotes(quizId: string): Promise<NoteSummary[]>;
 }
 
 class StubHttpClient implements HttpClientBase {
@@ -307,6 +315,22 @@ class StubHttpClient implements HttpClientBase {
     getWorkspace(workspaceId: string): Promise<Workspace> {
         return Promise.resolve(undefined);
     }
+
+    getAllNotes(): Promise<NoteSummary[]> {
+        return Promise.resolve([]);
+    }
+
+    getAllQuizzes(): Promise<QuizSummary[]> {
+        return Promise.resolve([]);
+    }
+
+    getBoundNotes(quizId: string): Promise<NoteSummary[]> {
+        return Promise.resolve([]);
+    }
+
+    getBoundedQuizzes(noteId: string): Promise<any> {
+        return Promise.resolve(undefined);
+    }
 }
 
 type TokenSupplier = () => Promise<string | null>;
@@ -446,6 +470,17 @@ class RealHttpClient implements HttpClientBase {
 
     getWorkspace(workspaceId: string): Promise<Workspace> {
         return this.get(`/workspaces/${workspaceId}`);
+    }
+
+    getAllNotes(): Promise<NoteSummary[]> {
+        return this.get(`/notes`);
+    }
+    getAllQuizzes(): Promise<QuizSummary[]> {
+        return this.get(`/quizzes`);
+    }
+
+    getBoundNotes(quizId: string): Promise<NoteSummary[]> {
+        return this.get(`/bindings/quizzes/${quizId}`);
     }
 
     private asGenericQuestion(question: Question): any {

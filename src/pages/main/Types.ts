@@ -31,6 +31,7 @@ export interface QuizSummary {
 export interface Workspace {
     id: string;
     displayName: string;
+    author: User;
 }
 
 export interface User {
