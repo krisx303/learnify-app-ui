@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {View} from 'react-native';
+import {ImageBackground, View} from 'react-native';
 import styles from '../../CardPage.scss';
 import TopBar from "../../main/TopBar";
 import {useHttpClient} from "../../../transport/HttpClient";
@@ -10,23 +10,22 @@ import NoteDrawer from "../NoteDrawer";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {NoteSummary} from "../../main/Types";
 import {useAuth} from "../../auth/AuthProvider";
+import AuthorizedResource, {useUserAccessToResource} from "../../AuthorizedResource";
 
 type NotePageRouteProp = RouteProp<RootStackParamList, "DocumentNotePage">;
 type NavigationProps = StackNavigationProp<RootStackParamList, 'DocumentNotePage'>;
 
 
-const DocumentNotePage: React.FC = () => {
+const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: string}) => {
     const iframeRef = useRef(null);
-    const route = useRoute<NotePageRouteProp>();
-    const {noteId, workspaceId} = route.params;
     const httpClient = useHttpClient();
     const [confirmed, setConfirmed] = useState(false);
     const navigation = useNavigation<NavigationProps>();
     const { toggleDrawer, setDrawerContent, drawerVisible } = useContext(DrawerContext);
     const [noteDetails, setNoteDetails] = useState<NoteSummary | undefined>(undefined);
     const { user } = useAuth();
-
-
+    const {userAccess} = useUserAccessToResource();
+    const editable = userAccess === "RW";
 
     useEffect(() => {
         setDrawerContent(
@@ -40,6 +39,7 @@ const DocumentNotePage: React.FC = () => {
     }, [drawerVisible]);
 
     const sendMessageToIframe = (message: string) => {
+        console.log('sdaf ', message);
         if (iframeRef.current) {
             console.log('Sending message to iframe:', message);
             // @ts-ignore
@@ -75,7 +75,7 @@ const DocumentNotePage: React.FC = () => {
             .getDocumentPageContent(workspaceId, noteId, 1)
             .then((content) => {
                 setTimeout(() => {
-                    sendMessageToIframe(content);
+                    sendMessageToIframe({editable: editable, content: content});
                 }, 100);
             })
             .catch(console.error);
@@ -117,10 +117,17 @@ const DocumentNotePage: React.FC = () => {
 
 const DocumentNoteWrapper: React.FC = () => {
 
+    const route = useRoute<NotePageRouteProp>();
+    const {noteId, workspaceId} = route.params;
+
     return (
-        <DrawerProvider>
-            <DocumentNotePage/>
-        </DrawerProvider>
+        <ImageBackground source={require('../../../../assets/purple_background.png')} style={styles.container}>
+            <DrawerProvider>
+                <AuthorizedResource resourceId={noteId} resourceType="NOTE">
+                    <DocumentNotePage noteId={noteId} workspaceId={workspaceId}/>
+                </AuthorizedResource>
+            </DrawerProvider>
+        </ImageBackground>
     );
 };
 

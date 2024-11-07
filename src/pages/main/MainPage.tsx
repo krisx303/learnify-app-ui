@@ -34,7 +34,6 @@ const MainPage = () => {
         httpClient.getRecentQuizzes()
             .then(setRecentAttemptedQuizzes)
             .catch(console.error);
-
     }
 
     useEffect(() => {
