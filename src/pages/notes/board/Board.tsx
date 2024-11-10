@@ -312,6 +312,8 @@ const Board = ({noteId, workspaceId}: {noteId: string, workspaceId: string}) => 
         <View style={{width: "100%", height: "100%", maxHeight: "100%"}}>
             <TopBar
                 text={noteDetails?.title}
+                workspaceName={noteDetails?.workspace.displayName}
+                workspaceId={workspaceId}
                 withAdvancedMenu
                 onAdvancedMenuPress={toggleDrawer}
             />

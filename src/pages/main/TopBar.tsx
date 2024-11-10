@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, TouchableHighlight, TouchableOpacity, Modal, StyleSheet} from 'react-native';
-import {Avatar, Button, Provider} from 'react-native-paper';
+import {Avatar, Button, Icon, Provider} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import styles from './TopBar.scss';
 import LearnifyAppIconInner from "../../icons/learnify-app-icon-inner";
@@ -9,17 +9,20 @@ import {StackNavigationProp} from "@react-navigation/stack";
 import {useAuth} from "../auth/AuthProvider";
 
 interface TopBarProps {
+    workspaceName?: string;
+    workspaceId?: string;
     text?: string;
     children?: React.ReactElement;
     withAdvancedMenu?: boolean;
     onAdvancedMenuPress?: () => void;
+    optionsButtonText?: string;
 }
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
 
-const TopBar: React.FC<TopBarProps> = ({ text, withAdvancedMenu, onAdvancedMenuPress, children }) => {
+const TopBar: React.FC<TopBarProps> = ({optionsButtonText, workspaceName, workspaceId, text, withAdvancedMenu, onAdvancedMenuPress, children}) => {
     const navigation = useNavigation<NavigationProps>();
-    const { user, username, userProfileUri, removeUser } = useAuth();
+    const {user, username, userProfileUri, removeUser} = useAuth();
     const [menuVisible, setMenuVisible] = useState(false);
 
     const toggleMenu = () => setMenuVisible(!menuVisible);
@@ -33,24 +36,28 @@ const TopBar: React.FC<TopBarProps> = ({ text, withAdvancedMenu, onAdvancedMenuP
     return (
         <View style={styles.topBar}>
             <View style={styles.leftContent}>
-                <TouchableHighlight onPress={() => navigation.navigate('Main')} underlayColor="transparent">
-                    <View style={{ flexDirection: "row", alignItems: "center" }}>
-                        <LearnifyAppIconInner />
-                        <Text style={styles.topBarText}>{text || 'Learnify'}</Text>
-                    </View>
-                </TouchableHighlight>
+                <View style={{flexDirection: "row", alignItems: "center"}}>
+                    <TouchableHighlight onPress={() => navigation.navigate('Main')} underlayColor="transparent">
+                        <LearnifyAppIconInner/>
+                    </TouchableHighlight>
+                    {workspaceName && workspaceId && <TouchableHighlight onPress={() => navigation.navigate('WorkspacePage', {workspaceId: workspaceId })} underlayColor="transparent">
+                        <Text style={[styles.topBarText, {marginRight: 5}]}>{workspaceName}</Text>
+                    </TouchableHighlight>}
+                    {workspaceName && <Icon size={25} source="arrow-right" color="white"/>}
+                    <Text style={styles.topBarText}>{text || 'Learnify'}</Text>
+                </View>
                 {children}
             </View>
 
             <View style={{flexDirection: "row"}}>
                 {withAdvancedMenu && (
                     <Button icon="abacus" mode="contained" onPress={onAdvancedMenuPress} style={{marginRight: 10}}>
-                        View Quizzes
+                        {optionsButtonText || "Options"}
                     </Button>
                 )}
                 <TouchableOpacity onPress={toggleMenu} style={styles.userInfo}>
                     {!withAdvancedMenu && <Text style={styles.username}>{username}</Text>}
-                    <Avatar.Image size={40} source={{ uri: userProfileUri || "../../../assets/default-avatar.png" }} />
+                    <Avatar.Image size={40} source={{uri: userProfileUri || "../../../assets/default-avatar.png"}}/>
                 </TouchableOpacity>
             </View>
 
@@ -103,7 +110,7 @@ const sad = StyleSheet.create({
         borderRadius: 12,
         alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
@@ -123,8 +130,6 @@ const sad = StyleSheet.create({
         color: '#333',
     },
 });
-
-
 
 
 export default TopBar;

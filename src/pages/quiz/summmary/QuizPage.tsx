@@ -1,5 +1,5 @@
 import {RouteProp, useFocusEffect, useNavigation, useRoute} from "@react-navigation/native";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {ActivityIndicator, ImageBackground, Text, View} from "react-native";
 import PieChart from "react-native-pie-chart";
 import {Button, IconButton} from "react-native-paper";
@@ -10,25 +10,47 @@ import {QuizDetails} from "./QuizDetails";
 import {useHttpClient} from "../../../transport/HttpClient";
 import {RootStackParamList} from "../../../../App";
 import {StackNavigationProp} from "@react-navigation/stack";
+import DrawerProvider, {DrawerContext} from "../../notes/DrawerProvider";
+import AuthorizedResource from "../../AuthorizedResource";
+import QuizDrawer from "../../notes/QuizDrawer";
+import {useAuth} from "../../auth/AuthProvider";
 
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'QuizPage'>;
 type RouteProps = RouteProp<RootStackParamList, 'QuizPage'>;
 
 
-const QuizPage: React.FC = () => {
+const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }) => {
     const [quiz, setQuizDetails] = useState<QuizDetails | undefined>();
     const [loading, setLoading] = useState(true);
     const [questions, setQuestions] = useState<Question[]>([]);
     const httpClient = useHttpClient();
     const navigation = useNavigation<NavigationProps>();
-    const route = useRoute<RouteProps>();
-    const {workspaceId, quizId} = route.params;
+    const { toggleDrawer, setDrawerContent, drawerVisible } = useContext(DrawerContext);
+    const { user } = useAuth();
 
     useEffect(() => {
-        // httpClient.getQuizDetails(workspaceId, quizId)
-        //     .then(onLoadedDetails)
-        //     .catch(console.error);
+        setDrawerContent(
+            <QuizDrawer
+                quizId={quizId}
+                onClose={toggleDrawer}
+                navigateToNote={(workspaceId, noteId, noteType) => {
+                    if(noteType === 'document') {
+                        navigation.navigate('DocumentNotePage', {noteId, workspaceId});
+                    }
+                    else {
+                        navigation.navigate('BoardNotePage', {noteId, workspaceId});
+                    }
+                }}
+                isOwner={quiz?.author.id === user?.uid}
+                ownerId={quiz?.author.id ?? ""}
+            />);
+    }, [drawerVisible]);
+
+    useEffect(() => {
+        httpClient.getQuizDetails(workspaceId, quizId)
+            .then(onLoadedDetails)
+            .catch(console.error);
         httpClient.getQuizQuestions(quizId)
             .then(setQuestions)
             .catch(console.error);
@@ -104,20 +126,41 @@ const QuizPage: React.FC = () => {
         );
     }
 
+    return <>
+        <TopBar
+            text={quiz?.title}
+            optionsButtonText="Options"
+            withAdvancedMenu
+            onAdvancedMenuPress={toggleDrawer}
+            workspaceName={quiz?.workspace.displayName}
+            workspaceId={workspaceId}
+        />
+        {loading ? (
+            <ActivityIndicator size="large" color="#fff" style={styles.spinner}/>
+        ) : quiz && quiz.id === undefined ? (
+            <Text style={styles.error}>Error loading quiz details</Text>
+        ) : (
+            <QuizDetailsContent quiz={quiz!!}/>
+        )}
+    </>
+};
+
+
+const QuizPageWrapper: React.FC = () => {
+    const route = useRoute<RouteProps>();
+    const {workspaceId, quizId} = route.params;
+
     return (
         <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../../assets/purple_background.png")}
                          imageStyle={{resizeMode: "cover"}}>
-            <TopBar/>
-            {loading ? (
-                <ActivityIndicator size="large" color="#fff" style={styles.spinner}/>
-            ) : quiz && quiz.id === undefined ? (
-                <Text style={styles.error}>Error loading quiz details</Text>
-            ) : (
-                <QuizDetailsContent quiz={quiz!!}/>
-            )}
+            <DrawerProvider>
+                <AuthorizedResource resourceId={quizId} resourceType="QUIZ">
+                    <QuizPage quizId={quizId} workspaceId={workspaceId}/>
+                </AuthorizedResource>
+            </DrawerProvider>
         </ImageBackground>
     );
-
 };
 
-export default QuizPage;
+
+export default QuizPageWrapper;

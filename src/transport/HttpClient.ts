@@ -61,6 +61,20 @@ interface HttpClientBase {
     editUserPermission(resourceType: ResourceType, resourceId: string, userId: string, level: UserPermissionLevel): Promise<void>;
 
     removeUserPermission(resourceType: ResourceType, resourceId: string, userId: string): Promise<void>;
+
+    getWorkspace(workspaceId: string): Promise<Workspace>;
+
+    getNotesWithinWorkspace(workspaceId: string): Promise<NoteSummary[]>;
+
+    getQuizzesWithinWorkspace(workspaceId: string): Promise<QuizSummary[]>;
+
+    getAllNotes(): Promise<NoteSummary[]>;
+
+    getAllQuizzes(): Promise<QuizSummary[]>;
+
+    getBoundedQuizzes(noteId: string): Promise<any>;
+
+    getBoundNotes(quizId: string): Promise<NoteSummary[]>;
 }
 
 class StubHttpClient implements HttpClientBase {
@@ -289,6 +303,34 @@ class StubHttpClient implements HttpClientBase {
     getUserPermission(resourceType: ResourceType, resourceId: string, userId: string): Promise<UserPermission> {
         return Promise.resolve({} as UserPermission);
     }
+
+    getNotesWithinWorkspace(workspaceId: string): Promise<NoteSummary[]> {
+        return Promise.resolve([]);
+    }
+
+    getQuizzesWithinWorkspace(workspaceId: string): Promise<QuizSummary[]> {
+        return Promise.resolve([]);
+    }
+
+    getWorkspace(workspaceId: string): Promise<Workspace> {
+        return Promise.resolve(undefined);
+    }
+
+    getAllNotes(): Promise<NoteSummary[]> {
+        return Promise.resolve([]);
+    }
+
+    getAllQuizzes(): Promise<QuizSummary[]> {
+        return Promise.resolve([]);
+    }
+
+    getBoundNotes(quizId: string): Promise<NoteSummary[]> {
+        return Promise.resolve([]);
+    }
+
+    getBoundedQuizzes(noteId: string): Promise<any> {
+        return Promise.resolve(undefined);
+    }
 }
 
 type TokenSupplier = () => Promise<string | null>;
@@ -416,6 +458,29 @@ class RealHttpClient implements HttpClientBase {
 
     getUserPermission(resourceType: ResourceType, resourceId: string, userId: string): Promise<UserPermission> {
         return this.get(`/permissions/resources/${resourceType}/${resourceId}/users/${userId}`);
+    }
+
+    getNotesWithinWorkspace(workspaceId: string): Promise<NoteSummary[]> {
+        return this.get(`/notes?workspaceId=${workspaceId}`);
+    }
+
+    getQuizzesWithinWorkspace(workspaceId: string): Promise<QuizSummary[]> {
+        return this.get(`/quizzes?workspaceId=${workspaceId}`);
+    }
+
+    getWorkspace(workspaceId: string): Promise<Workspace> {
+        return this.get(`/workspaces/${workspaceId}`);
+    }
+
+    getAllNotes(): Promise<NoteSummary[]> {
+        return this.get(`/notes`);
+    }
+    getAllQuizzes(): Promise<QuizSummary[]> {
+        return this.get(`/quizzes`);
+    }
+
+    getBoundNotes(quizId: string): Promise<NoteSummary[]> {
+        return this.get(`/bindings/quizzes/${quizId}`);
     }
 
     private asGenericQuestion(question: Question): any {
