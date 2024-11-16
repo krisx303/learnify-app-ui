@@ -18,6 +18,7 @@ export interface NoteSummary {
     author: User;
     updatedAt: string;
     type: NoteType;
+    pagesCount: number;
 }
 
 export interface QuizSummary {
