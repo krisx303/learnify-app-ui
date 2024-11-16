@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, TouchableHighlight, TouchableOpacity, Modal, StyleSheet} from 'react-native';
-import {Avatar, Button, Icon, Provider} from 'react-native-paper';
+import React, {useState} from 'react';
+import {View, Text, TouchableHighlight, TouchableOpacity, StyleSheet} from 'react-native';
+import {Avatar, Button, Icon} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import styles from './TopBar.scss';
 import LearnifyAppIconInner from "../../icons/learnify-app-icon-inner";
@@ -22,7 +22,7 @@ type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
 
 const TopBar: React.FC<TopBarProps> = ({optionsButtonText, workspaceName, workspaceId, text, withAdvancedMenu, onAdvancedMenuPress, children}) => {
     const navigation = useNavigation<NavigationProps>();
-    const {user, username, userProfileUri, removeUser} = useAuth();
+    const {username, userProfileUri, removeUser} = useAuth();
     const [menuVisible, setMenuVisible] = useState(false);
 
     const toggleMenu = () => setMenuVisible(!menuVisible);
@@ -84,7 +84,7 @@ const sad = StyleSheet.create({
         padding: 16,
         backgroundColor: '#333',
     },
-    leftContent: {
+    content: {
         flexDirection: 'row',
         alignItems: 'center',
     },

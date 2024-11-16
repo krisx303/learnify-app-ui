@@ -1,6 +1,6 @@
 import {Canvas, Group, Path, Skia, TouchInfo, useFont, useTouchHandler} from "@shopify/react-native-skia";
 import React, {useContext, useEffect, useRef, useState} from "react";
-import {ImageBackground, StyleSheet, View,} from "react-native";
+import {ImageBackground, StyleSheet, View, Text} from "react-native";
 import styles from "../../CardPage.scss";
 import MovableImage from "./MovableImage";
 import {Action, Color, Colors, PathWithColorAndWidth, strokes, Tool,} from "./types";
@@ -9,7 +9,6 @@ import {createGrid} from "./Grid";
 import {useHttpClient, ElementDto} from "../../../transport/HttpClient";
 import {useNavigation} from "@react-navigation/native";
 import {RootStackParamList} from "../../../../App";
-import TopBar from "../../main/TopBar";
 import {
     createGenericMovableElement,
     createGenericMovableElementFromDto,
@@ -32,10 +31,11 @@ import {StackNavigationProp} from "@react-navigation/stack";
 import {NoteSummary} from "../../main/Types";
 import {useAuth} from "../../auth/AuthProvider";
 import {useUserAccessToResource} from "../../AuthorizedResource";
+import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../../components/topbar";
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'BoardNotePage'>;
 
-const Board = ({noteId, workspaceId}: {noteId: string, workspaceId: string}) => {
+const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) => {
     const [backgroundImage, setBackgroundImage] = useState("");
     const [elements, setElements] = useState<GenericMovableElement[]>([]);
     const movingElement = useRef<GenericMovableElement>(null);
@@ -49,22 +49,22 @@ const Board = ({noteId, workspaceId}: {noteId: string, workspaceId: string}) => 
     const httpClient = useHttpClient();
     const [noteDetails, setNoteDetails] = useState<NoteSummary | undefined>(undefined);
     const [canvasWidth, setCanvasWidth] = useState(0); // Current width of the canvas container
-    const canvasFixedWidth= 1800; // Original canvas width (set only once)
+    const canvasFixedWidth = 1800; // Original canvas width (set only once)
     const navigation = useNavigation<NavigationProps>();
-    const { toggleDrawer, setDrawerContent, drawerVisible } = useContext(DrawerContext);
+    const {toggleDrawer, setDrawerContent, drawerVisible} = useContext(DrawerContext);
     const font = useFont("http://localhost:19000/assets/Roboto-Medium.ttf", 20, (err) => {
         console.error(err)
     })
-    const { user } = useAuth();
+    const {user} = useAuth();
     const [lastClickTime, setLastClickTime] = useState(0);
-    const {userAccess } = useUserAccessToResource();
+    const {userAccess} = useUserAccessToResource();
     const editable = userAccess === "RW";
 
-   const asGenericMovableElements = (elements: ElementDto[]) => {
-       return elements.map((element) => {
-           return createGenericMovableElementFromDto(element, setElements);
-       });
-   };
+    const asGenericMovableElements = (elements: ElementDto[]) => {
+        return elements.map((element) => {
+            return createGenericMovableElementFromDto(element, setElements);
+        });
+    };
 
     useEffect(() => {
         setDrawerContent(
@@ -171,9 +171,9 @@ const Board = ({noteId, workspaceId}: {noteId: string, workspaceId: string}) => 
             }
             lastTouchedElement.current = touchedElement;
         }
-        if(doubleClick) {
+        if (doubleClick) {
             movingElement.current = null;
-        }else{
+        } else {
             movingElement.current = touchedElement;
         }
 
@@ -181,7 +181,7 @@ const Board = ({noteId, workspaceId}: {noteId: string, workspaceId: string}) => 
             const isTouchedElement = el.id === touchedElement?.id;
             el.isMoving = isTouchedElement;
             el.isEditingMode = isTouchedElement && doubleClick;
-            if(isTouchedElement) {
+            if (isTouchedElement) {
                 el.position = movedPosition(el, {x, y});
             }
             return el;
@@ -229,7 +229,7 @@ const Board = ({noteId, workspaceId}: {noteId: string, workspaceId: string}) => 
     );
 
     const performAction = (action: Action) => {
-        if(!editable) {
+        if (!editable) {
             return;
         }
         switch (action) {
@@ -296,26 +296,34 @@ const Board = ({noteId, workspaceId}: {noteId: string, workspaceId: string}) => 
 
     const onToolSelected = (tool: Tool) => {
         setSelectedTool(tool);
-        if(tool === "pen" || tool === "eraser") {
+        if (tool === "pen" || tool === "eraser") {
             movingElement.current = null;
             setElements(elements.map((el) => {
                 el.isMoving = false;
                 el.isEditingMode = false;
                 return el;
             }))
-        }else if (tool === "pointer") {
+        } else if (tool === "pointer") {
             setActive(false);
         }
     };
 
     return (
         <View style={{width: "100%", height: "100%", maxHeight: "100%"}}>
-            <TopBar
-                text={noteDetails?.title}
-                workspaceName={noteDetails?.workspace.displayName}
-                workspaceId={workspaceId}
-                withAdvancedMenu
-                onAdvancedMenuPress={toggleDrawer}
+            <ModularTopBar
+                breadcrumbs={[
+                    {
+                        text: noteDetails?.workspace.displayName ?? "Workspace",
+                        onPress: () => navigation.navigate('WorkspacePage', {workspaceId})
+                    },
+                    {text: noteDetails?.title ?? "Note"}
+                ]}
+                rightContent={
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <OptionsButtons onPress={toggleDrawer}/>
+                        <UserDetailsWithMenu/>
+                    </View>
+                }
             />
             <View style={styles.content}>
                 <View style={style.container} onLayout={handleLayout}>
