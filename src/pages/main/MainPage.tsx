@@ -6,14 +6,13 @@ import NoteCard from './NoteCard';
 import QuizCard from './QuizCard';
 import {useHttpClient} from '../../transport/HttpClient';
 import {NoteSummary, QuizSummary} from './Types';
-import DropdownButton from './DropdownButton';
 import CreateNoteModal, {NoteCreateDetails} from "./modals/CreateNoteModal";
 import CreateQuizModal, {QuizCreateDetails} from "./modals/CreateQuizModal";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RootStackParamList} from "../../../App";
 import {useNavigation} from "@react-navigation/native";
 import CreateWorkspaceModal, {WorkspaceCreateProps} from "./modals/CreateWorkspaceModal";
-import {ModularTopBar, UserDetailsWithMenu} from "../../components/topbar";
+import {ModularTopBar, UserDetailsWithMenu, DropdownButton} from "../../components/topbar";
 
 type Modal = 'Note' | 'Quiz' | 'Workspace' | null;
 
