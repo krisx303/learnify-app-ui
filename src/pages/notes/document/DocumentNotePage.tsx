@@ -1,7 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {ImageBackground, View} from 'react-native';
 import styles from '../../CardPage.scss';
-import TopBar from "../../main/TopBar";
 import {useHttpClient} from "../../../transport/HttpClient";
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import {RootStackParamList} from "../../../../App";
@@ -11,6 +10,7 @@ import {StackNavigationProp} from "@react-navigation/stack";
 import {NoteSummary} from "../../main/Types";
 import {useAuth} from "../../auth/AuthProvider";
 import AuthorizedResource, {useUserAccessToResource} from "../../AuthorizedResource";
+import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../../components/topbar";
 
 type NotePageRouteProp = RouteProp<RootStackParamList, "DocumentNotePage">;
 type NavigationProps = StackNavigationProp<RootStackParamList, 'DocumentNotePage'>;
@@ -105,12 +105,20 @@ const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: s
 
     return (
         <View style={styles.container}>
-            <TopBar
-                text={noteDetails?.title}
-                workspaceName={noteDetails?.workspace.displayName}
-                workspaceId={workspaceId}
-                withAdvancedMenu
-                onAdvancedMenuPress={toggleDrawer}
+            <ModularTopBar
+                breadcrumbs={[
+                    {
+                        text: noteDetails?.workspace.displayName ?? "Workspace",
+                        onPress: () => navigation.navigate('WorkspacePage', {workspaceId})
+                    },
+                    {text: noteDetails?.title ?? "Note"}
+                ]}
+                rightContent={
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <OptionsButtons onPress={toggleDrawer}/>
+                        <UserDetailsWithMenu/>
+                    </View>
+                }
             />
             <iframe src="./../../../../assets/dist/index.html" height={'100%'} width={'100%'} ref={iframeRef} style={{border: 'none'}}/>
         </View>

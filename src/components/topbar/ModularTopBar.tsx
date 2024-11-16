@@ -9,6 +9,7 @@ import BreadCrumbList from "./BreadCrumbList";
 
 interface ModularTopBarProps {
     breadcrumbs?: BreadCrumbProps[];
+    leftContent?: React.ReactElement;
     centerContent?: React.ReactElement;
     rightContent?: React.ReactElement;
 }
@@ -18,6 +19,7 @@ type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
 const ModularTopBar = (
     {
         breadcrumbs,
+        leftContent,
         centerContent,
         rightContent
     }: ModularTopBarProps
@@ -38,6 +40,7 @@ const ModularTopBar = (
                     <LearnifyAppIconInner/>
                 </TouchableHighlight>
                 <BreadCrumbList items={breadcrumbs ? breadcrumbs : defaultBreadcrumbs}/>
+                {leftContent}
             </View>
             {centerContent ? centerContent : <View style={styles.content}/>}
             {rightContent ? rightContent : <View style={styles.content}/>}

@@ -4,7 +4,6 @@ import {ActivityIndicator, ImageBackground, Text, View} from "react-native";
 import PieChart from "react-native-pie-chart";
 import {Button, IconButton} from "react-native-paper";
 import styles from './QuizPage.scss';
-import TopBar from "../../main/TopBar";
 import {Question} from "../solving/Question";
 import {QuizDetails} from "./QuizDetails";
 import {useHttpClient} from "../../../transport/HttpClient";
@@ -14,6 +13,7 @@ import DrawerProvider, {DrawerContext} from "../../notes/DrawerProvider";
 import AuthorizedResource from "../../AuthorizedResource";
 import QuizDrawer from "../../notes/QuizDrawer";
 import {useAuth} from "../../auth/AuthProvider";
+import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../../components/topbar";
 
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'QuizPage'>;
@@ -127,13 +127,20 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
     }
 
     return <>
-        <TopBar
-            text={quiz?.title}
-            optionsButtonText="Options"
-            withAdvancedMenu
-            onAdvancedMenuPress={toggleDrawer}
-            workspaceName={quiz?.workspace.displayName}
-            workspaceId={workspaceId}
+        <ModularTopBar
+            breadcrumbs={[
+                {
+                    text: quiz?.workspace.displayName ?? "Workspace",
+                    onPress: () => navigation.navigate('WorkspacePage', {workspaceId})
+                },
+                {text: quiz?.title ?? "Quiz"}
+            ]}
+            rightContent={
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <OptionsButtons onPress={toggleDrawer}/>
+                    <UserDetailsWithMenu/>
+                </View>
+            }
         />
         {loading ? (
             <ActivityIndicator size="large" color="#fff" style={styles.spinner}/>
