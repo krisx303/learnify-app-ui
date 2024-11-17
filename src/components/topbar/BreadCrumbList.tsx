@@ -13,7 +13,7 @@ const BreadCrumbList: React.FC<BreadCrumbListProps> = ({items}) => {
                 return (
                     <>
                         <BreadCrumb key={index} text={item.text} onPress={item.onPress}/>
-                        {index < items.length - 1 && <Icon size={25} source="arrow-right" color="white"/>}
+                        {index < items.length - 1 && <Icon key={index + "-icon"} size={25} source="arrow-right" color="white"/>}
                     </>
                 );
             })}

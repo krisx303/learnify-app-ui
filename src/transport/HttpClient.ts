@@ -19,6 +19,7 @@ export type PathDto = { strokeWidth: number; path: string; color: string; blendM
 export type ElementDto = { width: number; id: string; position: Position; content: string; height: number; type: ElementType };
 type BoardNotePageContent = { elements: ElementDto[]; paths: PathDto[] };
 type BoardNotePageContentWithVersion = { content: BoardNotePageContent; version: number };
+type DocumentNotePageContentWithVersion = { content: string; version: number };
 export type PermissionDto = { user: User; access: string }
 
 /** Interface representing base HTTP client */
@@ -43,7 +44,7 @@ interface HttpClientBase {
 
     getBoardPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<BoardNotePageContentWithVersion>;
 
-    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<string>;
+    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<DocumentNotePageContentWithVersion>;
 
     createNewWorkspace(title: string, resourceAccessTypeDto: string): Promise<Workspace>;
 
@@ -78,6 +79,8 @@ interface HttpClientBase {
     getBoundNotes(quizId: string): Promise<NoteSummary[]>;
 
     createNewBoardPage(workspaceId: string, noteId: string): Promise<void>;
+
+    createNewDocumentPage(workspaceId: string, noteId: string): Promise<void>;
 }
 
 class StubHttpClient implements HttpClientBase {
@@ -244,7 +247,7 @@ class StubHttpClient implements HttpClientBase {
         ]);
     }
 
-    putBoardNotePageUpdate(workspaceId: string, noteId: string, content: BoardNotePageContent) {
+    putBoardNotePageUpdate(workspaceId: string, noteId: string, pageNumber: number, version: number, content: BoardNotePageContent) {
         return Promise.resolve();
     }
 
@@ -256,8 +259,8 @@ class StubHttpClient implements HttpClientBase {
         return Promise.resolve({} as NoteSummary);
     }
 
-    getBoardPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<BoardNotePageContent> {
-        return Promise.resolve({} as BoardNotePageContent);
+    getBoardPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<BoardNotePageContentWithVersion> {
+        return Promise.resolve({} as BoardNotePageContentWithVersion);
     }
 
     createNewWorkspace(title: string): Promise<Workspace> {
@@ -271,11 +274,11 @@ class StubHttpClient implements HttpClientBase {
         return Promise.resolve({} as QuizSummary);
     }
 
-    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<string> {
-        return Promise.resolve("");
+    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<DocumentNotePageContentWithVersion> {
+        return Promise.resolve({} as DocumentNotePageContentWithVersion);
     }
 
-    putDocumentNotePageUpdate(workspaceId: string, noteId: string, content: string): Promise<void> {
+    putDocumentNotePageUpdate(workspaceId: string, noteId: string, pageNumber: number, version: number, content: string): Promise<void> {
         return Promise.resolve(undefined);
     }
 
@@ -338,6 +341,10 @@ class StubHttpClient implements HttpClientBase {
     createNewBoardPage(workspaceId: string, noteId: string): Promise<void> {
         return Promise.resolve(undefined);
     }
+
+    createNewDocumentPage(workspaceId: string, noteId: string): Promise<void> {
+        return Promise.resolve(undefined);
+    }
 }
 
 type TokenSupplier = () => Promise<string | null>;
@@ -378,8 +385,8 @@ class RealHttpClient implements HttpClientBase {
         return this.put(`/notes/${noteId}/board/pages/${pageNumber}`, {version: version, content: JSON.stringify(content)});
     }
 
-    putDocumentNotePageUpdate(workspaceId: string, noteId: string, pageNumber: number, content: string): Promise<void> {
-        return this.put(`/notes/${noteId}/document/pages/${pageNumber}`, {content: content});
+    putDocumentNotePageUpdate(workspaceId: string, noteId: string, pageNumber: number, version: number, content: string): Promise<void> {
+        return this.put(`/notes/${noteId}/document/pages/${pageNumber}`, {content: content, version: version});
     }
 
     createNewNote(note: NoteCreateDetails): Promise<NoteSummary> {
@@ -393,14 +400,19 @@ class RealHttpClient implements HttpClientBase {
     getBoardPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<BoardNotePageContentWithVersion> {
         return this.get(`/notes/${noteId}/board/pages/${pageNumber}`).then(res => {
             return {
-                content: JSON.parse(res.content),
+                content: res.content ? JSON.parse(res.content) : {},
                 version: res.version
             } as BoardNotePageContentWithVersion
         });
     }
 
-    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<string> {
-        return this.get(`/notes/${noteId}/document/pages/${pageNumber}`).then(res => JSON.parse(res.content));
+    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<DocumentNotePageContentWithVersion> {
+        return this.get(`/notes/${noteId}/document/pages/${pageNumber}`).then(res => {
+            return {
+                content: res.content ? JSON.parse(res.content) : undefined,
+                version: res.version
+            } as DocumentNotePageContentWithVersion
+        });
     }
 
     createNewWorkspace(title: string, resourceAccessTypeDto: string) {
@@ -497,6 +509,10 @@ class RealHttpClient implements HttpClientBase {
 
     createNewBoardPage(workspaceId: string, noteId: string): Promise<void> {
         return this.post(`/notes/${noteId}/board/pages`, {});
+    }
+
+    createNewDocumentPage(workspaceId: string, noteId: string): Promise<void> {
+        return this.post(`/notes/${noteId}/document/pages`, {});
     }
 
     private asGenericQuestion(question: Question): any {
