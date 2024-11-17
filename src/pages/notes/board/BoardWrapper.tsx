@@ -5,6 +5,7 @@ import AuthenticatedResource from "../../AuthorizedResource";
 import AuthorizedResource from "../../AuthorizedResource";
 import {RouteProp, useRoute} from "@react-navigation/native";
 import {RootStackParamList} from "../../../../App";
+import {BoardContextProvider} from "../../../components/notes/board/BoardContext";
 
 type NotePageRouteProp = RouteProp<RootStackParamList, "BoardNotePage">;
 
@@ -21,7 +22,9 @@ const BoardWrapper: React.FC = () => {
                 crossOrigin=""
             />
             <AuthorizedResource resourceId={noteId} resourceType="NOTE">
-                <Board noteId={noteId} workspaceId={workspaceId}/>
+                <BoardContextProvider>
+                    <Board noteId={noteId} workspaceId={workspaceId}/>
+                </BoardContextProvider>
             </AuthorizedResource>
         </DrawerProvider>
     );

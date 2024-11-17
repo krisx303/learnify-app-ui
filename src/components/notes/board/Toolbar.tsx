@@ -1,15 +1,10 @@
 import React, {useState} from "react";
 import {Pressable, StyleSheet, Text, View} from "react-native";
-import {Color, Colors, strokes, Action, Tool} from "./types";
+import {Color, Colors, strokes, Action} from "./types";
 import {IconButton, PaperProvider} from "react-native-paper";
+import {useBoardContext} from "./BoardContext";
 
 type ToolbarProps = {
-    color: Color;
-    strokeWidth: number;
-    setColor: (color: Color) => void;
-    setStrokeWidth: (strokeWidth: number) => void;
-    setSelectedTool: (tool: Tool) => void;
-    selectedTool: Tool;
     onAction: (action: Action) => void;
     editable: boolean;
 };
@@ -18,17 +13,12 @@ type Extension = "color" | "stroke" | "none";
 
 
 export const Toolbar = ({
-                            color,
-                            strokeWidth,
-                            setColor,
-                            setStrokeWidth,
-                            setSelectedTool,
-                            selectedTool,
                             onAction,
                             editable,
                         }: ToolbarProps) => {
     const [extension, setExtension] = useState<Extension>("none");
 
+    const {color, setColor, strokeWidth, setStrokeWidth, setSelectedTool, selectedTool} = useBoardContext();
     const handleStrokeWidthChange = (stroke: number) => {
         setStrokeWidth(stroke);
         setExtension("none");
