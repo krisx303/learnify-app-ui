@@ -1,5 +1,6 @@
 import {useMemo} from "react";
 import {
+    AccessType,
     FullPermissionModel,
     NoteSummary,
     QuizSummary,
@@ -81,6 +82,8 @@ interface HttpClientBase {
     createNewBoardPage(workspaceId: string, noteId: string): Promise<void>;
 
     createNewDocumentPage(workspaceId: string, noteId: string): Promise<void>;
+
+    updateResourcePermissionLevel(resourceType: ResourceType, resourceId: string, value: AccessType): Promise<void>;
 }
 
 class StubHttpClient implements HttpClientBase {
@@ -338,6 +341,10 @@ class StubHttpClient implements HttpClientBase {
         return Promise.resolve(undefined);
     }
 
+    updateResourcePermissionLevel(resourceType: ResourceType, resourceId: string, value: AccessType): Promise<void> {
+        return Promise.resolve(undefined);
+    }
+
     createNewBoardPage(workspaceId: string, noteId: string): Promise<void> {
         return Promise.resolve(undefined);
     }
@@ -513,6 +520,10 @@ class RealHttpClient implements HttpClientBase {
 
     createNewDocumentPage(workspaceId: string, noteId: string): Promise<void> {
         return this.post(`/notes/${noteId}/document/pages`, {}, true);
+    }
+
+    updateResourcePermissionLevel(resourceType: ResourceType, resourceId: string, value: AccessType) {
+        return this.put(`/permissions/resources/${resourceType}/${resourceId}`, {accessType: value});
     }
 
     private asGenericQuestion(question: Question): any {
