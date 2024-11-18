@@ -508,11 +508,11 @@ class RealHttpClient implements HttpClientBase {
     }
 
     createNewBoardPage(workspaceId: string, noteId: string): Promise<void> {
-        return this.post(`/notes/${noteId}/board/pages`, {});
+        return this.post(`/notes/${noteId}/board/pages`, {}, true);
     }
 
     createNewDocumentPage(workspaceId: string, noteId: string): Promise<void> {
-        return this.post(`/notes/${noteId}/document/pages`, {});
+        return this.post(`/notes/${noteId}/document/pages`, {}, true);
     }
 
     private asGenericQuestion(question: Question): any {
@@ -570,7 +570,7 @@ class RealHttpClient implements HttpClientBase {
             .then(response => response.json());
     }
 
-    private async post(path: string, body: any) {
+    private async post(path: string, body: any, expectEmptyResponse: boolean = false) {
         const token = await this.tokenSupplier();  // Get the token from tokenSupplier
 
         return fetch(`${this.baseUrl}/api/v1${path}`, {
@@ -581,7 +581,7 @@ class RealHttpClient implements HttpClientBase {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(body),
-        }).then(response => response.json());
+        }).then(response => expectEmptyResponse ? response : response.json());
     }
 
     private async put(path: string, body: any) {

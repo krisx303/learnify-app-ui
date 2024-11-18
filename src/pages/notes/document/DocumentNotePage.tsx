@@ -126,9 +126,11 @@ const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: s
     }
 
     const createNewPage = () => {
-        setTotalPages((prev) => prev + 1);
-        setCurrentPage((prev) => prev + 1);
         httpClient.createNewDocumentPage(workspaceId, noteId)
+            .then(() => {
+                setTotalPages((prev) => prev + 1);
+                setCurrentPage((prev) => prev + 1);
+            })
             .catch(console.error);
     }
 

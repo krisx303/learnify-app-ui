@@ -333,9 +333,11 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
     }
 
     const createNewPage = () => {
-        setTotalPages((prev) => prev + 1);
-        setCurrentPage((prev) => prev + 1);
         httpClient.createNewBoardPage(workspaceId, noteId)
+            .then(() => {
+                setTotalPages((prev) => prev + 1);
+                setCurrentPage((prev) => prev + 1);
+            })
             .catch(console.error);
     }
 
