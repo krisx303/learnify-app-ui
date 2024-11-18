@@ -2,7 +2,7 @@ import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {
   $createParagraphNode,
-  $getNodeByKey,
+  $getNodeByKey, $getRoot,
   $getSelection,
   $isRangeSelection,
   CAN_REDO_COMMAND,
@@ -488,8 +488,14 @@ export default function ToolbarPlugin() {
         if(message["content"] !== undefined) {
           const editable = message["editable"];
           editor.setEditable(editable);
-          console.log("Received message from parent window");
-          editor.setEditorState(  editor.parseEditorState(message["content"]))
+          if(message["content"] === "EMPTY") {
+            editor.update(() => {
+              const root = $getRoot();
+                root.clear();
+            });
+          }else {
+            editor.setEditorState(  editor.parseEditorState(message["content"]))
+          }
           window.parent.postMessage('CONFIRMED', '*');
         }
       }catch (e) {

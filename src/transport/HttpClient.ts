@@ -18,6 +18,8 @@ import {useAuth} from "../pages/auth/AuthProvider";
 export type PathDto = { strokeWidth: number; path: string; color: string; blendMode: string };
 export type ElementDto = { width: number; id: string; position: Position; content: string; height: number; type: ElementType };
 type BoardNotePageContent = { elements: ElementDto[]; paths: PathDto[] };
+type BoardNotePageContentWithVersion = { content: BoardNotePageContent; version: number };
+type DocumentNotePageContentWithVersion = { content: string; version: number };
 export type PermissionDto = { user: User; access: string }
 
 /** Interface representing base HTTP client */
@@ -32,17 +34,17 @@ interface HttpClientBase {
 
     getWorkspaces(): Promise<Workspace[]>;
 
-    putBoardNotePageUpdate(workspaceId: string, noteId: string, content: BoardNotePageContent): Promise<void>;
+    putBoardNotePageUpdate(workspaceId: string, noteId: string, pageNumber: number, version: number, content: BoardNotePageContent): Promise<void>;
 
-    putDocumentNotePageUpdate(workspaceId: string, noteId: string, content: string): Promise<void>;
+    putDocumentNotePageUpdate(workspaceId: string, noteId: string, pageNumber: number, version: number, content: string): Promise<void>;
 
     createNewNote(note: NoteCreateDetails): Promise<NoteSummary>;
 
     getNoteDetails(workspaceId: string, noteId: string): Promise<NoteSummary>;
 
-    getBoardPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<BoardNotePageContent>;
+    getBoardPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<BoardNotePageContentWithVersion>;
 
-    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<string>;
+    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<DocumentNotePageContentWithVersion>;
 
     createNewWorkspace(title: string, resourceAccessTypeDto: string): Promise<Workspace>;
 
@@ -75,6 +77,10 @@ interface HttpClientBase {
     getBoundedQuizzes(noteId: string): Promise<any>;
 
     getBoundNotes(quizId: string): Promise<NoteSummary[]>;
+
+    createNewBoardPage(workspaceId: string, noteId: string): Promise<void>;
+
+    createNewDocumentPage(workspaceId: string, noteId: string): Promise<void>;
 }
 
 class StubHttpClient implements HttpClientBase {
@@ -241,7 +247,7 @@ class StubHttpClient implements HttpClientBase {
         ]);
     }
 
-    putBoardNotePageUpdate(workspaceId: string, noteId: string, content: BoardNotePageContent) {
+    putBoardNotePageUpdate(workspaceId: string, noteId: string, pageNumber: number, version: number, content: BoardNotePageContent) {
         return Promise.resolve();
     }
 
@@ -253,8 +259,8 @@ class StubHttpClient implements HttpClientBase {
         return Promise.resolve({} as NoteSummary);
     }
 
-    getBoardPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<BoardNotePageContent> {
-        return Promise.resolve({} as BoardNotePageContent);
+    getBoardPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<BoardNotePageContentWithVersion> {
+        return Promise.resolve({} as BoardNotePageContentWithVersion);
     }
 
     createNewWorkspace(title: string): Promise<Workspace> {
@@ -268,11 +274,11 @@ class StubHttpClient implements HttpClientBase {
         return Promise.resolve({} as QuizSummary);
     }
 
-    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<string> {
-        return Promise.resolve("");
+    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<DocumentNotePageContentWithVersion> {
+        return Promise.resolve({} as DocumentNotePageContentWithVersion);
     }
 
-    putDocumentNotePageUpdate(workspaceId: string, noteId: string, content: string): Promise<void> {
+    putDocumentNotePageUpdate(workspaceId: string, noteId: string, pageNumber: number, version: number, content: string): Promise<void> {
         return Promise.resolve(undefined);
     }
 
@@ -331,6 +337,14 @@ class StubHttpClient implements HttpClientBase {
     getBoundedQuizzes(noteId: string): Promise<any> {
         return Promise.resolve(undefined);
     }
+
+    createNewBoardPage(workspaceId: string, noteId: string): Promise<void> {
+        return Promise.resolve(undefined);
+    }
+
+    createNewDocumentPage(workspaceId: string, noteId: string): Promise<void> {
+        return Promise.resolve(undefined);
+    }
 }
 
 type TokenSupplier = () => Promise<string | null>;
@@ -367,12 +381,12 @@ class RealHttpClient implements HttpClientBase {
         return this.get('/workspaces');
     }
 
-    putBoardNotePageUpdate(workspaceId: string, noteId: string, content: BoardNotePageContent): Promise<void> {
-        return this.put(`/notes/${noteId}/board/pages/1`, {content: JSON.stringify(content)});
+    putBoardNotePageUpdate(workspaceId: string, noteId: string, pageNumber: number, version: number, content: BoardNotePageContent): Promise<void> {
+        return this.put(`/notes/${noteId}/board/pages/${pageNumber}`, {version: version, content: JSON.stringify(content)});
     }
 
-    putDocumentNotePageUpdate(workspaceId: string, noteId: string, content: string): Promise<void> {
-        return this.put(`/notes/${noteId}/document/pages/1`, {content: content});
+    putDocumentNotePageUpdate(workspaceId: string, noteId: string, pageNumber: number, version: number, content: string): Promise<void> {
+        return this.put(`/notes/${noteId}/document/pages/${pageNumber}`, {content: content, version: version});
     }
 
     createNewNote(note: NoteCreateDetails): Promise<NoteSummary> {
@@ -383,12 +397,22 @@ class RealHttpClient implements HttpClientBase {
         return this.get(`/notes/${noteId}`);
     }
 
-    getBoardPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<BoardNotePageContent> {
-        return this.get(`/notes/${noteId}/board/pages/${pageNumber}`).then(res => JSON.parse(res.content));
+    getBoardPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<BoardNotePageContentWithVersion> {
+        return this.get(`/notes/${noteId}/board/pages/${pageNumber}`).then(res => {
+            return {
+                content: res.content ? JSON.parse(res.content) : {},
+                version: res.version
+            } as BoardNotePageContentWithVersion
+        });
     }
 
-    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<string> {
-        return this.get(`/notes/${noteId}/document/pages/${pageNumber}`).then(res => JSON.parse(res.content));
+    getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<DocumentNotePageContentWithVersion> {
+        return this.get(`/notes/${noteId}/document/pages/${pageNumber}`).then(res => {
+            return {
+                content: res.content ? JSON.parse(res.content) : undefined,
+                version: res.version
+            } as DocumentNotePageContentWithVersion
+        });
     }
 
     createNewWorkspace(title: string, resourceAccessTypeDto: string) {
@@ -483,6 +507,14 @@ class RealHttpClient implements HttpClientBase {
         return this.get(`/bindings/quizzes/${quizId}`);
     }
 
+    createNewBoardPage(workspaceId: string, noteId: string): Promise<void> {
+        return this.post(`/notes/${noteId}/board/pages`, {}, true);
+    }
+
+    createNewDocumentPage(workspaceId: string, noteId: string): Promise<void> {
+        return this.post(`/notes/${noteId}/document/pages`, {}, true);
+    }
+
     private asGenericQuestion(question: Question): any {
         const answer = question.type === 'single-choice' ?
             question.answer.toString() :
@@ -538,7 +570,7 @@ class RealHttpClient implements HttpClientBase {
             .then(response => response.json());
     }
 
-    private async post(path: string, body: any) {
+    private async post(path: string, body: any, expectEmptyResponse: boolean = false) {
         const token = await this.tokenSupplier();  // Get the token from tokenSupplier
 
         return fetch(`${this.baseUrl}/api/v1${path}`, {
@@ -549,7 +581,7 @@ class RealHttpClient implements HttpClientBase {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(body),
-        }).then(response => response.json());
+        }).then(response => expectEmptyResponse ? response : response.json());
     }
 
     private async put(path: string, body: any) {

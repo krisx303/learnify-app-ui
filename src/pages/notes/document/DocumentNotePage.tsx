@@ -10,7 +10,7 @@ import {StackNavigationProp} from "@react-navigation/stack";
 import {NoteSummary} from "../../main/Types";
 import {useAuth} from "../../auth/AuthProvider";
 import AuthorizedResource, {useUserAccessToResource} from "../../AuthorizedResource";
-import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../../components/topbar";
+import {ModularTopBar, OptionsButtons, PageControlPanel, UserDetailsWithMenu} from "../../../components/topbar";
 
 type NotePageRouteProp = RouteProp<RootStackParamList, "DocumentNotePage">;
 type NavigationProps = StackNavigationProp<RootStackParamList, 'DocumentNotePage'>;
@@ -26,6 +26,9 @@ const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: s
     const { user } = useAuth();
     const {userAccess} = useUserAccessToResource();
     const editable = userAccess === "RW";
+    const [currentPage, setCurrentPage] = useState(1);
+    const [version, setVersion] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
         setDrawerContent(
@@ -38,7 +41,7 @@ const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: s
             />);
     }, [drawerVisible]);
 
-    const sendMessageToIframe = (message: string) => {
+    const sendMessageToIframe = (message: any) => {
         console.log('sdaf ', message);
         if (iframeRef.current) {
             console.log('Sending message to iframe:', message);
@@ -53,7 +56,7 @@ const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: s
     };
 
     useEffect(() => {
-        const handleEvent = (event) => {
+        const handleEvent = (event: any) => {
             if (event.ctrlKey && event.key === "s") {
                 event.preventDefault();
             }
@@ -67,19 +70,30 @@ const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: s
     }, []);
 
     useEffect(() => {
+        setCurrentPage(1);
+        setVersion(1);
+        setTotalPages(1);
         httpClient
             .getNoteDetails(workspaceId, noteId)
-            .then(setNoteDetails)
-            .catch(console.error);
-        httpClient
-            .getDocumentPageContent(workspaceId, noteId, 1)
-            .then((content) => {
-                setTimeout(() => {
-                    sendMessageToIframe({editable: editable, content: content});
-                }, 100);
+            .then((note) => {
+                setNoteDetails(note);
+                setTotalPages(note.pagesCount);
             })
             .catch(console.error);
     }, [workspaceId, noteId, httpClient]);
+
+    useEffect(() => {
+        httpClient
+            .getDocumentPageContent(workspaceId, noteId, currentPage)
+            .then((content) => {
+                setVersion(content.version);
+                setTimeout(() => {
+                    const contentToSend = content.content ? content.content : "EMPTY";
+                    sendMessageToIframe({editable: editable, content: contentToSend});
+                }, 100);
+            })
+            .catch(console.error);
+    }, [currentPage]);
 
     useEffect(() => {
         const receiveMessage = (event: any) => {
@@ -89,7 +103,7 @@ const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: s
             else if (event.data.startsWith('SAVE ')) {
                 const content = event.data.substring(5);
                 httpClient
-                    .putDocumentNotePageUpdate(workspaceId, noteId, content)
+                    .putDocumentNotePageUpdate(workspaceId, noteId, currentPage, version, content)
                     .then(() => {console.log('Content saved');})
                     .catch(console.error);
             }
@@ -101,7 +115,24 @@ const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: s
         return () => {
             window.removeEventListener('message', receiveMessage);
         };
-    }, []);
+    }, [currentPage, version]);
+
+    const onPreviousPage = () => {
+        setCurrentPage(currentPage - 1);
+    }
+
+    const onNextPage = () => {
+        setCurrentPage(currentPage + 1);
+    }
+
+    const createNewPage = () => {
+        httpClient.createNewDocumentPage(workspaceId, noteId)
+            .then(() => {
+                setTotalPages((prev) => prev + 1);
+                setCurrentPage((prev) => prev + 1);
+            })
+            .catch(console.error);
+    }
 
     return (
         <View style={styles.container}>
@@ -113,6 +144,16 @@ const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: s
                     },
                     {text: noteDetails?.title ?? "Note"}
                 ]}
+                centerContent={noteDetails &&
+                    <PageControlPanel
+                        pageNumber={currentPage}
+                        totalPages={totalPages}
+                        previousPage={onPreviousPage}
+                        nextPage={onNextPage}
+                        canCreateNewPage={editable}
+                        createNewPage={createNewPage}
+                    />
+                }
                 rightContent={
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <OptionsButtons onPress={toggleDrawer}/>

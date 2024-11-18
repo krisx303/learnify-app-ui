@@ -31,7 +31,7 @@ import {StackNavigationProp} from "@react-navigation/stack";
 import {NoteSummary} from "../../main/Types";
 import {useAuth} from "../../auth/AuthProvider";
 import {useUserAccessToResource} from "../../AuthorizedResource";
-import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../../components/topbar";
+import {ModularTopBar, OptionsButtons, PageControlPanel, UserDetailsWithMenu} from "../../../components/topbar";
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'BoardNotePage'>;
 
@@ -59,6 +59,9 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
     const [lastClickTime, setLastClickTime] = useState(0);
     const {userAccess} = useUserAccessToResource();
     const editable = userAccess === "RW";
+    const [currentPage, setCurrentPage] = useState(1);
+    const [version, setVersion] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     const asGenericMovableElements = (elements: ElementDto[]) => {
         return elements.map((element) => {
@@ -108,19 +111,32 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
         const gridImage = createGrid(30);
         setPaths([]);
         setElements([]);
+        setCurrentPage(1);
         setBackgroundImage(gridImage);
+        setVersion(1);
+        setTotalPages(1);
         httpClient
             .getNoteDetails(workspaceId, noteId)
-            .then(setNoteDetails)
-            .catch(console.error);
-        httpClient
-            .getBoardPageContent(workspaceId, noteId, 1)
-            .then((content) => {
-                setPaths(content.paths.map(asPathWithColorAndWidth));
-                setElements(asGenericMovableElements(content.elements));
+            .then((note) => {
+                setNoteDetails(note);
+                setTotalPages(note.pagesCount);
             })
             .catch(console.error);
     }, [workspaceId, noteId, httpClient]);
+
+    useEffect(() => {
+        setPaths([]);
+        setElements([]);
+        setVersion(1);
+        httpClient
+            .getBoardPageContent(workspaceId, noteId, currentPage)
+            .then((content) => {
+                setPaths(content.content.paths.map(asPathWithColorAndWidth));
+                setElements(asGenericMovableElements(content.content.elements));
+                setVersion(content.version);
+            })
+            .catch(console.error);
+    }, [currentPage]);
 
     const onDrawingStart = (touchInfo: TouchInfo) => {
         setActive(true);
@@ -275,7 +291,7 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
     useEffect(() => {
         if (shouldSendState) {
             httpClient
-                .putBoardNotePageUpdate(workspaceId, noteId, {
+                .putBoardNotePageUpdate(workspaceId, noteId, currentPage, version, {
                     elements: elements.map(asElementDto),
                     paths: paths.map(asPathDto),
                 })
@@ -308,6 +324,23 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
         }
     };
 
+    const onPreviousPage = () => {
+        setCurrentPage(currentPage - 1);
+    }
+
+    const onNextPage = () => {
+        setCurrentPage(currentPage + 1);
+    }
+
+    const createNewPage = () => {
+        httpClient.createNewBoardPage(workspaceId, noteId)
+            .then(() => {
+                setTotalPages((prev) => prev + 1);
+                setCurrentPage((prev) => prev + 1);
+            })
+            .catch(console.error);
+    }
+
     return (
         <View style={{width: "100%", height: "100%", maxHeight: "100%"}}>
             <ModularTopBar
@@ -318,6 +351,16 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                     },
                     {text: noteDetails?.title ?? "Note"}
                 ]}
+                centerContent={noteDetails &&
+                    <PageControlPanel
+                        pageNumber={currentPage}
+                        totalPages={totalPages}
+                        previousPage={onPreviousPage}
+                        nextPage={onNextPage}
+                        canCreateNewPage={editable}
+                        createNewPage={createNewPage}
+                    />
+                }
                 rightContent={
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <OptionsButtons onPress={toggleDrawer}/>
