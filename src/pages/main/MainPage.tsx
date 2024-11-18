@@ -4,16 +4,15 @@ import {Title} from 'react-native-paper';
 import styles from './MainPage.scss';
 import NoteCard from './NoteCard';
 import QuizCard from './QuizCard';
-import TopBar from './TopBar';
 import {useHttpClient} from '../../transport/HttpClient';
 import {NoteSummary, QuizSummary} from './Types';
-import DropdownButton from './DropdownButton';
 import CreateNoteModal, {NoteCreateDetails} from "./modals/CreateNoteModal";
 import CreateQuizModal, {QuizCreateDetails} from "./modals/CreateQuizModal";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RootStackParamList} from "../../../App";
 import {useNavigation} from "@react-navigation/native";
 import CreateWorkspaceModal, {WorkspaceCreateProps} from "./modals/CreateWorkspaceModal";
+import {ModularTopBar, UserDetailsWithMenu, DropdownButton} from "../../components/topbar";
 
 type Modal = 'Note' | 'Quiz' | 'Workspace' | null;
 
@@ -94,10 +93,13 @@ const MainPage = () => {
         >
             <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../assets/purple_background.png")}
                              imageStyle={{resizeMode: "cover"}}>
-                <TopBar>
-                    <DropdownButton setDropdownVisible={setIsDropdownVisible} dropdownVisible={isDropdownVisible}
-                                    onItemSelected={onCreateDropdownSelected}/>
-                </TopBar>
+                <ModularTopBar
+                    leftContent={
+                        <DropdownButton setDropdownVisible={setIsDropdownVisible} dropdownVisible={isDropdownVisible}
+                                        onItemSelected={onCreateDropdownSelected}/>
+                    }
+                    rightContent={<UserDetailsWithMenu displayUsername/>}
+                />
                 <View style={windowWidth < 700 ? styles.contentVertical : styles.contentHorizontal}>
                     <View style={windowWidth < 700 ? styles.sectionVertical : styles.sectionHorizontal}>
                         <Title style={styles.sectionTitle}>Recent Viewed Notes</Title>

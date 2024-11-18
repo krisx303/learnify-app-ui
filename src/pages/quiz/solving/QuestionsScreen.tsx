@@ -3,10 +3,10 @@ import {Button, StyleSheet, View} from "react-native";
 import QuestionsHolder from "./QuestionsHolder";
 import {Question} from "./Question";
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
-import TopBar from "../../main/TopBar";
 import {RootStackParamList} from "../../../../App";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {useHttpClient} from "../../../transport/HttpClient";
+import {ModularTopBar, UserDetailsWithMenu} from "../../../components/topbar";
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'QuestionsScreen'>;
 type RouteProps = RouteProp<RootStackParamList, 'QuestionsScreen'>;
@@ -75,7 +75,14 @@ const QuestionsScreen: React.FC = () => {
 
     return (
         <View style={styles.container2}>
-            <TopBar/>
+            {/*TODO add here some title - likely description of what user does, f.e. quiz with question number*/}
+            <ModularTopBar
+                breadcrumbs={[
+                    {text: "<Quiz name>"},
+                    {text: "1/10"}
+                ]}
+                rightContent={<UserDetailsWithMenu displayUsername/>}
+            />
             <View style={styles.container}>
                 <h4 style={styles.questionText}>
                     {question.question}

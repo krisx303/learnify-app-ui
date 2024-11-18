@@ -4,7 +4,6 @@ import {Title} from 'react-native-paper';
 import styles from './MainPage.scss';
 import NoteCard from './NoteCard';
 import QuizCard from './QuizCard';
-import TopBar from './TopBar';
 import {useHttpClient} from '../../transport/HttpClient';
 import {NoteSummary, QuizSummary, Workspace} from './Types';
 import {RootStackParamList} from "../../../App";
@@ -13,6 +12,7 @@ import DrawerProvider, {DrawerContext} from "../notes/DrawerProvider";
 import AuthorizedResource from "../AuthorizedResource";
 import WorkspaceDrawer from "../notes/WorkspaceDrawer";
 import {useAuth} from "../auth/AuthProvider";
+import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../components/topbar";
 
 type RouteProps = RouteProp<RootStackParamList, 'WorkspacePage'>
 
@@ -53,11 +53,14 @@ const WorkspacePage = ({workspaceId}: {workspaceId: string}) => {
 
     return (
         <>
-            <TopBar
-                text={workspaceDetails?.displayName}
-                withAdvancedMenu={workspaceDetails?.author.id === user?.uid}
-                optionsButtonText="Options"
-                onAdvancedMenuPress={toggleDrawer}
+            <ModularTopBar
+                breadcrumbs={[{text: workspaceDetails?.displayName || "Workspace"}]}
+                rightContent={
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <OptionsButtons onPress={toggleDrawer}/>
+                        <UserDetailsWithMenu/>
+                    </View>
+                }
             />
             <View style={windowWidth < 700 ? styles.contentVertical : styles.contentHorizontal}>
                 <View style={windowWidth < 700 ? styles.sectionVertical : styles.sectionHorizontal}>

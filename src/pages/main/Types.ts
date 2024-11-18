@@ -1,6 +1,6 @@
 export type NoteType = 'document' | 'board';
 export type AccessType = 'PUBLIC' | 'PRIVATE';
-export type ResourceType = 'NOTE' | ' QUIZ' | 'WORKSPACE';
+export type ResourceType = 'NOTE' | 'QUIZ' | 'WORKSPACE';
 export type UserPermissionLevel = 'RO' | 'RW' | 'DENIED';
 export type UserPermission = { user: User; accessLevel: UserPermissionLevel };
 export type FullPermissionModel = {

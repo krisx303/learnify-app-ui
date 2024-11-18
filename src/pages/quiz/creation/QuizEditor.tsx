@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {RouteProp, useRoute} from '@react-navigation/native';
-import TopBar from '../../main/TopBar';
 import {RootStackParamList} from "../../../../App";
 import {QuestionCard} from "./QuestionCard";
 import {EditableQuestionCard} from "./EditableQuestionCard";
@@ -9,6 +8,7 @@ import {useHttpClient} from "../../../transport/HttpClient";
 import {QuizDetails} from "../summmary/QuizDetails";
 import {Question} from "../solving/Question";
 import {Button, IconButton, Menu, PaperProvider} from "react-native-paper";
+import {ModularTopBar, UserDetailsWithMenu} from "../../../components/topbar";
 
 type QuizEditorRouteProp = RouteProp<RootStackParamList, 'QuizEditor'>;
 
@@ -113,7 +113,12 @@ const QuizEditor: React.FC = () => {
 
     return (
         <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../../assets/purple_background.png")} imageStyle={{resizeMode: "cover"}}>
-            <TopBar text={quizDetails.title}/>
+            <ModularTopBar
+                breadcrumbs={[
+                    {text: quizDetails?.title ?? "Quiz editor"}
+                ]}
+                rightContent={<UserDetailsWithMenu/>}
+            />
             <View style={styles.innerContainer}>
                 <View style={styles.quizInfoContainer}>
                     <Text style={styles.quizTitle}>{quizDetails.title}</Text>
