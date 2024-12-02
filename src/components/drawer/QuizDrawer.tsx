@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import {Button} from "react-native-paper";
 import {SceneMap, TabBar, TabView} from "react-native-tab-view";
 import PermissionsTabContent from "./PermissionsTabContent";
-import {NoteType} from "../main/Types";
+import {NoteType} from "../../pages/main/Types";
 import ConnectedNotesTabContent from "./ConnectedNotesTabContent";
 
 interface DrawerProps {

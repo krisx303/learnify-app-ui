@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, TextInput, FlatList, StyleSheet, Picker} from 'react-native';
 import {Button, IconButton, Menu, PaperProvider} from "react-native-paper";
 import {useHttpClient} from "../../transport/HttpClient";
-import {AccessType, FullPermissionModel, ResourceType, User, UserPermission, UserPermissionLevel} from "../main/Types";
+import {AccessType, FullPermissionModel, ResourceType, User, UserPermission, UserPermissionLevel} from "../../pages/main/Types";
 
 type PermissionTabContentProps = {
     resourceType: ResourceType;

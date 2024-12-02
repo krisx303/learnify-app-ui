@@ -1,37 +1,37 @@
 import React, {useEffect, useState} from "react";
-import {NoteSummary, NoteType, QuizSummary} from "../main/Types";
+import {QuizSummary} from "../../pages/main/Types";
 import {useHttpClient} from "../../transport/HttpClient";
 import {useFocusEffect} from "@react-navigation/native";
 import {StyleSheet, Text, View} from "react-native";
 import {Button, IconButton, Menu, PaperProvider} from "react-native-paper";
 
-function ConnectedNotesTabContent({quizId, navigateToNoteInternal}: {
-    quizId: string,
-    navigateToNoteInternal: (workspaceId: string, quizId: string, noteType: NoteType) => void,
+function ConnectedQuizzesTabContent({noteId, navigateToQuizInternal}: {
+    noteId: string,
+    navigateToQuizInternal: (workspaceId: string, quizId: string) => void,
 }) {
     const [menuVisible, setMenuVisible] = useState(false);
-    const [boundNotes, setBoundNotes] = useState<NoteSummary[]>([]);
-    const [allNotes, setAllNotes] = useState<NoteSummary[]>([]);
+    const [boundQuizzes, setBoundQuizzes] = useState<QuizSummary[]>([]);
+    const [recentQuizzes, setRecentQuizzes] = useState<QuizSummary[]>([]);
     const [shouldRefresh, setShouldRefresh] = useState(false);
-    const [availableNotes, setAvailableNotes] = useState<NoteSummary[]>([]);
+    const [availableQuizzes, setAvailableQuizzes] = useState<QuizSummary[]>([]);
     const httpClient = useHttpClient();
 
     useEffect(() => {
-        const boundNoteIds = boundNotes.map(note => note.id);
-        if (boundNotes && allNotes) {
-            setAvailableNotes(allNotes.filter(note => !boundNoteIds.includes(note.id)));
+        const boundQuizIds = boundQuizzes.map(quiz => quiz.id);
+        if (boundQuizzes && recentQuizzes) {
+            setAvailableQuizzes(recentQuizzes.filter(quiz => !boundQuizIds.includes(quiz.id)));
         }
-    }, [boundNotes, allNotes]);
+    }, [boundQuizzes, recentQuizzes]);
 
     useFocusEffect(
         React.useCallback(() => {
-            httpClient.getBoundNotes(quizId).then(setBoundNotes);
-            httpClient.getAllNotes().then(setAllNotes);
-        }, [quizId, httpClient, shouldRefresh])
+            httpClient.getBoundedQuizzes(noteId).then(setBoundQuizzes);
+            httpClient.getRecentQuizzes().then(setRecentQuizzes);
+        }, [noteId, httpClient, shouldRefresh])
     );
     return <View style={styles.content}>
-        {boundNotes.map((note) => (
-            <View key={note.id} style={styles.card}>
+        {boundQuizzes.map((quiz) => (
+            <View key={quiz.id} style={styles.card}>
                 <View style={{
                     display: "flex",
                     flexDirection: "row",
@@ -39,13 +39,13 @@ function ConnectedNotesTabContent({quizId, navigateToNoteInternal}: {
                     justifyContent: "space-between"
                 }}>
                     <View>
-                        <Text style={styles.title}>{note.title}</Text>
-                        <Text style={styles.author}>{note.author.displayName}</Text>
-                        <Text style={styles.workspace}>{note.workspace.displayName}</Text>
+                        <Text style={styles.title}>{quiz.title}</Text>
+                        <Text style={styles.author}>{quiz.author.displayName}</Text>
+                        <Text style={styles.workspace}>{quiz.workspace.displayName}</Text>
                     </View>
                     <View>
                         <IconButton size={35} iconColor="green" icon={'chevron-right-circle-outline'} onPress={() => {
-                            navigateToNoteInternal(note.workspace.id, note.id, note.type);
+                            navigateToQuizInternal(quiz.workspace.id, quiz.id);
                         }}/>
                     </View>
                 </View>
@@ -65,18 +65,18 @@ function ConnectedNotesTabContent({quizId, navigateToNoteInternal}: {
                     (<Button mode="contained" onPress={() => {
                         setMenuVisible(true)
                     }}>
-                        Attach New Note
+                        Attach New Quiz
                     </Button>)
                 }>
-                {availableNotes.map((note) => (
-                    <Menu.Item key={note.id} onPress={() => {
-                        httpClient.createNewBinding(quizId, note.id)
+                {availableQuizzes.map((quiz) => (
+                    <Menu.Item key={quiz.id} onPress={() => {
+                        httpClient.createNewBinding(quiz.id, noteId)
                             .then(() => {
                                 setShouldRefresh(true);
                                 setMenuVisible(false);
                             });
 
-                    }} title={note.title}/>
+                    }} title={quiz.title}/>
                 ))}
             </Menu>
         </PaperProvider>
@@ -117,4 +117,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ConnectedNotesTabContent;
+export default ConnectedQuizzesTabContent;
