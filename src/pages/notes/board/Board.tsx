@@ -1,11 +1,9 @@
-import {Canvas, Group, Path, Skia, TouchInfo, useFont, useTouchHandler} from "@shopify/react-native-skia";
-import React, {useContext, useEffect, useRef, useState} from "react";
-import {ImageBackground, StyleSheet, View, Text} from "react-native";
+import React, {useContext, useEffect, useState} from "react";
+import {ImageBackground, StyleSheet, View} from "react-native";
 import styles from "../../CardPage.scss";
-import MovableImage from "./MovableImage";
-import {Action, Color, Colors, PathWithColorAndWidth, strokes, Tool,} from "./types";
-import {Toolbar} from "./Toolbar";
-import {createGrid} from "./Grid";
+import {Action, PathWithColorAndWidth} from "../../../components/notes/board/types";
+import {Toolbar} from "../../../components/notes/board/Toolbar";
+import {createGrid} from "../../../components/notes/board/Grid";
 import {useHttpClient, ElementDto} from "../../../transport/HttpClient";
 import {useNavigation} from "@react-navigation/native";
 import {RootStackParamList} from "../../../../App";
@@ -13,18 +11,15 @@ import {
     createGenericMovableElement,
     createGenericMovableElementFromDto,
     GenericMovableElement
-} from "./GenericMovableElement";
-import MovableText from "./MoveableText";
+} from "../../../components/notes/board/GenericMovableElement";
 import {
     asElementDto,
     asPathDto,
-    asPathWithColorAndWidth, movedPosition,
-    positionWithinElement,
+    asPathWithColorAndWidth,
     randomId,
     randomPosition,
-    scaledPosition
-} from "./Utils";
-import {TextInputComponent} from "./TextInputComponent";
+} from "../../../components/notes/board/Utils";
+import {TextInputComponent} from "../../../components/notes/board/TextInputComponent";
 import {DrawerContext} from "../DrawerProvider";
 import NoteDrawer from "../NoteDrawer";
 import {StackNavigationProp} from "@react-navigation/stack";
@@ -32,31 +27,21 @@ import {NoteSummary} from "../../main/Types";
 import {useAuth} from "../../auth/AuthProvider";
 import {useUserAccessToResource} from "../../AuthorizedResource";
 import {ModularTopBar, OptionsButtons, PageControlPanel, UserDetailsWithMenu} from "../../../components/topbar";
+import BoardCanvas from "../../../components/notes/board/BoardCanvas";
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'BoardNotePage'>;
 
 const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) => {
     const [backgroundImage, setBackgroundImage] = useState("");
     const [elements, setElements] = useState<GenericMovableElement[]>([]);
-    const movingElement = useRef<GenericMovableElement>(null);
-    const lastTouchedElement = useRef<GenericMovableElement>(null);
-    const [selectedTool, setSelectedTool] = useState<Tool>("pen");
     const [paths, setPaths] = useState<PathWithColorAndWidth[]>([]);
-    const [color, setColor] = useState<Color>(Colors[0]);
-    const [active, setActive] = useState(false);
-    const [strokeWidth, setStrokeWidth] = useState(strokes[0]);
     const [shouldSendState, setShouldSendState] = useState(false);
     const httpClient = useHttpClient();
     const [noteDetails, setNoteDetails] = useState<NoteSummary | undefined>(undefined);
     const [canvasWidth, setCanvasWidth] = useState(0); // Current width of the canvas container
-    const canvasFixedWidth = 1800; // Original canvas width (set only once)
     const navigation = useNavigation<NavigationProps>();
     const {toggleDrawer, setDrawerContent, drawerVisible} = useContext(DrawerContext);
-    const font = useFont("http://localhost:19000/assets/Roboto-Medium.ttf", 20, (err) => {
-        console.error(err)
-    })
     const {user} = useAuth();
-    const [lastClickTime, setLastClickTime] = useState(0);
     const {userAccess} = useUserAccessToResource();
     const editable = userAccess === "RW";
     const [currentPage, setCurrentPage] = useState(1);
@@ -138,112 +123,6 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
             .catch(console.error);
     }, [currentPage]);
 
-    const onDrawingStart = (touchInfo: TouchInfo) => {
-        setActive(true);
-        setPaths((currentPaths) => {
-            const {x, y, force} = scaledPosition(touchInfo, scale);
-            const newPath = Skia.Path.Make();
-            newPath.moveTo(x, y);
-            return [
-                ...currentPaths,
-                {
-                    path: newPath,
-                    color,
-                    strokeWidth,
-                    blendMode: selectedTool === "pen" ? "src" : "clear",
-                },
-            ];
-        });
-    };
-
-    const onDrawingActive = (touchInfo: TouchInfo) => {
-        if (touchInfo.force == 0) {
-            setActive(false);
-            return;
-        } else if (!active) {
-            onDrawingStart(touchInfo);
-        }
-        setPaths((currentPaths) => {
-            if (!active || currentPaths.length === 0) return currentPaths;
-            const {x, y, force} = scaledPosition(touchInfo, scale);
-            const currentPath = currentPaths[currentPaths.length - 1];
-            const lastPoint = currentPath.path.getLastPt();
-            const xMid = (lastPoint.x + x) / 2;
-            const yMid = (lastPoint.y + y) / 2;
-
-            currentPath.path.quadTo(lastPoint.x, lastPoint.y, xMid, yMid);
-            return [...currentPaths.slice(0, currentPaths.length - 1), currentPath];
-        });
-    };
-
-    const onStartedTouchElement = (touchInfo: TouchInfo) => {
-        const {x, y} = scaledPosition(touchInfo, scale);
-        const touchedElement = elements.find((el) => positionWithinElement({x, y}, el));
-        let doubleClick = false;
-        const now = Date.now();
-        if (touchedElement !== undefined) {
-            if (now - lastClickTime < 300 && touchedElement.id === lastTouchedElement.current?.id) {
-                doubleClick = true;
-            }
-            lastTouchedElement.current = touchedElement;
-        }
-        if (doubleClick) {
-            movingElement.current = null;
-        } else {
-            movingElement.current = touchedElement;
-        }
-
-        setElements(elements.map((el) => {
-            const isTouchedElement = el.id === touchedElement?.id;
-            el.isMoving = isTouchedElement;
-            el.isEditingMode = isTouchedElement && doubleClick;
-            if (isTouchedElement) {
-                el.position = movedPosition(el, {x, y});
-            }
-            return el;
-        }))
-        setLastClickTime(now);
-    }
-
-    const touchHandler = useTouchHandler(
-        {
-            onStart: (touchInfo) => {
-                setActive(false);
-                switch (selectedTool) {
-                    case "pointer":
-                        onStartedTouchElement(touchInfo);
-                        break;
-                    case "pen":
-                        onDrawingStart(touchInfo);
-                        break;
-                    case "eraser":
-                        onDrawingStart(touchInfo);
-                        break;
-                }
-            },
-            onActive: (touchInfo) => {
-                switch (selectedTool) {
-                    case "pointer":
-                        const {x, y, force} = scaledPosition(touchInfo, scale);
-                        if (movingElement.current && force > 0) {
-                            movingElement.current.setPosition(movedPosition(movingElement.current, {x, y}));
-                        }
-                        break;
-                    case "pen":
-                        onDrawingActive(touchInfo);
-                        break;
-                    case "eraser":
-                        onDrawingActive(touchInfo);
-                        break;
-                }
-            },
-            onEnd: () => {
-                setActive(false);
-            },
-        },
-        [workspaceId, noteId, elements, onDrawingActive, onDrawingStart]
-    );
-
     const performAction = (action: Action) => {
         if (!editable) {
             return;
@@ -269,8 +148,8 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
     };
 
     useEffect(() => {
-        const performPasteAction = (event) => performAction("paste");
-        const handleEvent = (event) => {
+        const performPasteAction = (event: any) => performAction("paste");
+        const handleEvent = (event: any) => {
             if (event.ctrlKey && event.key === "z") {
                 performAction("undo");
             } else if (event.ctrlKey && event.key === "s") {
@@ -303,41 +182,15 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
         }
     }, [shouldSendState]);
 
-    const handleLayout = (event) => {
+    const handleLayout = (event: any) => {
         const {width} = event.nativeEvent.layout;
         setCanvasWidth(width);
     };
 
-    const scale = canvasWidth ? canvasWidth / canvasFixedWidth : 1;
-
-    const onToolSelected = (tool: Tool) => {
-        setSelectedTool(tool);
-        if (tool === "pen" || tool === "eraser") {
-            movingElement.current = null;
-            setElements(elements.map((el) => {
-                el.isMoving = false;
-                el.isEditingMode = false;
-                return el;
-            }))
-        } else if (tool === "pointer") {
-            setActive(false);
-        }
-    };
-
-    const onPreviousPage = () => {
-        setCurrentPage(currentPage - 1);
-    }
-
-    const onNextPage = () => {
-        setCurrentPage(currentPage + 1);
-    }
-
     const createNewPage = () => {
+        setCurrentPage((prev) => prev + 1);
+        setTotalPages((prev) => prev + 1);
         httpClient.createNewBoardPage(workspaceId, noteId)
-            .then(() => {
-                setTotalPages((prev) => prev + 1);
-                setCurrentPage((prev) => prev + 1);
-            })
             .catch(console.error);
     }
 
@@ -355,8 +208,8 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                     <PageControlPanel
                         pageNumber={currentPage}
                         totalPages={totalPages}
-                        previousPage={onPreviousPage}
-                        nextPage={onNextPage}
+                        previousPage={() => setCurrentPage(currentPage - 1)}
+                        nextPage={() => setCurrentPage(currentPage + 1)}
                         canCreateNewPage={editable}
                         createNewPage={createNewPage}
                     />
@@ -375,39 +228,20 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                         style={styles.imageBackground}
                         resizeMode="repeat"
                     >
-                        <Canvas style={style.canvas} onTouch={editable ? touchHandler : undefined}>
-                            <Group transform={[{scale: scale}]}>
-                                {paths.map((path, index) => (
-                                    <Path
-                                        key={index}
-                                        path={path.path}
-                                        color={path.color}
-                                        style={"stroke"}
-                                        strokeWidth={path.strokeWidth}
-                                        blendMode={path.blendMode}
-                                    />
-                                ))}
-                                {elements.map((element, index) => (
-                                    element.type === "image" ? (
-                                        <MovableImage key={element.id} element={element}/>
-                                    ) : (
-                                        <MovableText key={element.id} font={font} element={element}/>
-                                    )
-                                ))}
-                            </Group>
-                        </Canvas>
+                        <BoardCanvas
+                            editable={editable}
+                            paths={paths}
+                            canvasWidth={canvasWidth}
+                            setPaths={setPaths}
+                            elements={elements}
+                            setElements={setElements}
+                        />
 
                         <TextInputComponent genericMovableElements={elements} setElements={setElements}/>
                     </ImageBackground>
                 </View>
                 <View style={styles.toolPanel}>
                     <Toolbar
-                        color={color}
-                        strokeWidth={strokeWidth}
-                        setColor={setColor}
-                        setStrokeWidth={setStrokeWidth}
-                        selectedTool={selectedTool}
-                        setSelectedTool={onToolSelected}
                         onAction={performAction}
                         editable={editable}
                     />
@@ -424,9 +258,5 @@ const style = StyleSheet.create({
         flex: 1,
         width: "100%",
         aspectRatio: 2,
-    },
-    canvas: {
-        flex: 1,
-        width: "100%",
     },
 });

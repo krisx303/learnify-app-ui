@@ -13,7 +13,7 @@ import {QuizDetails} from "../pages/quiz/summmary/QuizDetails";
 import {Question} from "../pages/quiz/solving/Question";
 import {NoteCreateDetails} from "../pages/main/modals/CreateNoteModal";
 import {QuizCreateDetails} from "../pages/main/modals/CreateQuizModal";
-import {ElementType, Position} from "../pages/notes/board/types";
+import {ElementType, Position} from "../components/notes/board/types";
 import {useAuth} from "../pages/auth/AuthProvider";
 
 export type PathDto = { strokeWidth: number; path: string; color: string; blendMode: string };
