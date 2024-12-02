@@ -116,7 +116,7 @@ export const Toolbar = ({
                     icon={'plus'}
                     size={26}
                     iconColor={'#000000'}
-                    onPress={() => {onAction('add-image')}}
+                    onPress={() => {onAction('add')}}
                 />
                 <IconButton
                     icon={'undo'}

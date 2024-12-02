@@ -28,6 +28,8 @@ import {useAuth} from "../../auth/AuthProvider";
 import {useUserAccessToResource} from "../../AuthorizedResource";
 import {ModularTopBar, OptionsButtons, PageControlPanel, UserDetailsWithMenu} from "../../../components/topbar";
 import BoardCanvas from "../../../components/notes/board/BoardCanvas";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../../../../firebase";
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'BoardNotePage'>;
 
@@ -123,13 +125,77 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
             .catch(console.error);
     }, [currentPage]);
 
+    const handleTextContent = async () => {
+        const text = await navigator.clipboard.readText();
+        const element = createGenericMovableElement(
+            randomId(),
+            randomPosition(),
+            text,
+            text.length * 10,
+            30,
+            'text',
+            setElements
+        );
+        setElements((prevElements) => [...prevElements, element]);
+    };
+
+    const handleImageContent = async (clipboardItem: ClipboardItem) => {
+        const blob = await clipboardItem.getType("image/png");
+
+        // Upload image to Firebase Storage
+        const imageId = randomId(); // Generate unique ID for the image
+        const storageRef = ref(storage, `images/${noteId}/${imageId}.png`);
+
+        try {
+            await uploadBytes(storageRef, blob);
+            const downloadURL = await getDownloadURL(storageRef);
+
+            // Load and display the image from Firebase Storage
+            const img = new Image();
+            img.src = downloadURL;
+
+            img.onload = () => {
+                console.log(`Image Dimensions: ${img.width}x${img.height}`);
+                const element = createGenericMovableElement(
+                    randomId(),
+                    randomPosition(),
+                    downloadURL,
+                    img.width,
+                    img.height,
+                    'image',
+                    setElements
+                );
+                setElements((prevElements) => [...prevElements, element]);
+            };
+        } catch (error) {
+            console.error("Error uploading image:", error);
+        }
+    };
+
+    const pasteContent = async () => {
+        try {
+            const clipboardItems = await navigator.clipboard.read();
+            for (const clipboardItem of clipboardItems) {
+                for (const type of clipboardItem.types) {
+                    if (type === "text/plain") {
+                        await handleTextContent();
+                    } else if (type === "image/png") {
+                        await handleImageContent(clipboardItem);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error reading clipboard content:", error);
+        }
+    };
+
+
     const performAction = (action: Action) => {
         if (!editable) {
             return;
         }
         switch (action) {
-            case "add-image":
-                createMovableImage();
+            case "add":
                 break;
             case "undo":
                 setPaths((currentPaths) =>
@@ -137,6 +203,7 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                 );
                 break;
             case "paste":
+                pasteContent();
                 break;
             case "save":
                 setShouldSendState(true);
@@ -148,7 +215,6 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
     };
 
     useEffect(() => {
-        const performPasteAction = (event: any) => performAction("paste");
         const handleEvent = (event: any) => {
             if (event.ctrlKey && event.key === "z") {
                 performAction("undo");
@@ -157,13 +223,13 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                 performAction("save");
             }
         };
-        window.addEventListener("paste", performPasteAction);
+        window.addEventListener("paste", pasteContent);
 
         window.addEventListener("keydown", handleEvent);
 
         return () => {
             window.removeEventListener("keydown", handleEvent);
-            window.removeEventListener("paste", performPasteAction);
+            window.removeEventListener("paste", pasteContent);
         };
     }, []);
 
