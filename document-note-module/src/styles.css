@@ -351,6 +351,11 @@ pre::-webkit-scrollbar-thumb {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   vertical-align: middle;
+
+  /* Add sticky behavior */
+  position: sticky;
+  top: 0; /* Adjust if you want some offset */
+  z-index: 1000; /* Ensure it stays above other content */
 }
 
 .toolbar button.toolbar-item {
@@ -748,4 +753,8 @@ i.right-align {
 
 i.justify-align {
   background-image: url(../public/images/icons/justify.svg);
+}
+
+i.clipboard {
+  background-image: url(../public/images/icons/clipboard.svg);
 }

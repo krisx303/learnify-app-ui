@@ -17,7 +17,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
     const navigation = useNavigation<NavigationProps>();
 
     const handlePress = () => {
-        if(note.type === 'document') {
+        if(note.type === 'DOCUMENT') {
             navigation.navigate('DocumentNotePage', { noteId: note.id, workspaceId: note.workspace.id});
         }else {
             navigation.navigate('BoardNotePage', { noteId: note.id, workspaceId: note.workspace.id});
@@ -41,7 +41,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                         <Text>Z przestrzeni: {note.workspace.displayName}</Text>
                     </Paragraph>
                     <View style={styles.iconContainer}>
-                        {note.type === 'document' ? (
+                        {note.type === 'DOCUMENT' ? (
                             <Icon
                                 source="text"
                                 color="#000"
