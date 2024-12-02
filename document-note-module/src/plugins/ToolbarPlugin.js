@@ -11,7 +11,8 @@ import {
   FORMAT_TEXT_COMMAND,
   REDO_COMMAND,
   SELECTION_CHANGE_COMMAND,
-  UNDO_COMMAND
+  UNDO_COMMAND,
+  CONTROLLED_TEXT_INSERTION_COMMAND
 } from "lexical";
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from "@lexical/link";
 import {$isAtNodeEnd, $isParentElementRTL, $wrapNodes} from "@lexical/selection";
@@ -26,6 +27,7 @@ import {
 import {createPortal} from "react-dom";
 import {$createHeadingNode, $createQuoteNode, $isHeadingNode} from "@lexical/rich-text";
 import {$createCodeNode, $isCodeNode, getCodeLanguages, getDefaultCodeLanguage} from "@lexical/code";
+import {INSERT_IMAGE_COMMAND} from "./ImagesPlugin";
 
 const LowPriority = 1;
 
@@ -402,7 +404,7 @@ function BlockOptionsDropdownList({
   );
 }
 
-export default function ToolbarPlugin() {
+export default function ToolbarPlugin(type, payload) {
   const [editor] = useLexicalComposerContext();
   const toolbarRef = useRef(null);
   const [canUndo, setCanUndo] = useState(false);
@@ -472,36 +474,46 @@ export default function ToolbarPlugin() {
         window.parent.postMessage('SAVE ' + editorState, '*');
       }
     };
+    window.addEventListener("paste", justPasteClipboard);
     window.addEventListener("keydown", handleEvent);
 
     return () => {
       window.removeEventListener("keydown", handleEvent);
+      window.removeEventListener("paste", justPasteClipboard);
     };
   }, []);
 
-  useEffect(() => {
-    return window.addEventListener('message', (nativeEvent) => {
-      console.log("Received message from parent window", nativeEvent.data);
-      try {
-        const message = nativeEvent.data;
+  const handleParentMessage = (nativeEvent) => {
+    console.log("Received message from parent window", nativeEvent);
+    try {
+      const message = nativeEvent.data;
 
-        if(message["content"] !== undefined) {
-          const editable = message["editable"];
-          editor.setEditable(editable);
-          if(message["content"] === "EMPTY") {
-            editor.update(() => {
-              const root = $getRoot();
-                root.clear();
-            });
-          }else {
-            editor.setEditorState(  editor.parseEditorState(message["content"]))
-          }
-          window.parent.postMessage('CONFIRMED', '*');
+      if(message["content"] !== undefined) {
+        const editable = message["editable"];
+        editor.setEditable(editable);
+        if(message["content"] === "EMPTY") {
+          editor.update(() => {
+            const root = $getRoot();
+            root.clear();
+          });
+        }else {
+          editor.setEditorState(  editor.parseEditorState(message["content"]))
         }
-      }catch (e) {
-        console.log(e);
+        window.parent.postMessage('CONFIRMED', '*');
+      }else if(message["request"] === "INSERT_IMAGE") {
+        editor.dispatchCommand(INSERT_IMAGE_COMMAND, {altText: "Image", src: message["src"]});
       }
-    });
+    }catch (e) {
+      console.log(e);
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('message', handleParentMessage);
+
+    return () => {
+        window.removeEventListener('message', handleParentMessage);
+    }
   }, [editor]);
 
   useEffect(() => {
@@ -564,6 +576,49 @@ export default function ToolbarPlugin() {
   if(editor.isEditable() === false) {
     return null;
   }
+
+  const justPasteClipboard = async () => {
+    console.log("Just pasting clipboard");
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      for (const clipboardItem of clipboardItems) {
+        for (const type of clipboardItem.types) {
+          if (type === "image/png") {
+            console.log("Image found in clipboard");
+            console.log("Sending IMAGE_REQUEST")
+            window.parent.postMessage('REQUEST_IMAGE_INSERTION', '*');
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error reading clipboard content:", error);
+    }
+  };
+
+  const pasteClipboard = async () => {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+
+      const pasteEvent = new ClipboardEvent("paste", {
+        bubbles: true,
+        cancelable: true,
+        clipboardData: new DataTransfer(),
+      });
+
+      for (const clipboardItem of clipboardItems) {
+        for (const type of clipboardItem.types) {
+          const data = await clipboardItem.getType(type).then((blob) => blob.text());
+          pasteEvent.clipboardData.setData(type, data);
+        }
+      }
+      const editorRoot = editor.getRootElement();
+      if (editorRoot) {
+        editorRoot.dispatchEvent(pasteEvent);
+      }
+    } catch (error) {
+      console.error("Error handling clipboard content:", error);
+    }
+  };
 
   return (
     <div className="toolbar" ref={toolbarRef}>
@@ -718,6 +773,13 @@ export default function ToolbarPlugin() {
             aria-label="Justify Align"
           >
             <i className="format justify-align" />
+          </button>
+          <button
+              onClick={pasteClipboard}
+              className="toolbar-item"
+              aria-label="Clipboard"
+          >
+            <i className="format clipboard" />
           </button>{" "}
         </>
       )}

@@ -11,6 +11,9 @@ import {NoteSummary} from "../../main/Types";
 import {useAuth} from "../../auth/AuthProvider";
 import AuthorizedResource, {useUserAccessToResource} from "../../AuthorizedResource";
 import {ModularTopBar, OptionsButtons, PageControlPanel, UserDetailsWithMenu} from "../../../components/topbar";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../../../../firebase";
+import {randomId} from "../../../components/notes/board/Utils";
 
 type NotePageRouteProp = RouteProp<RootStackParamList, "DocumentNotePage">;
 type NavigationProps = StackNavigationProp<RootStackParamList, 'DocumentNotePage'>;
@@ -41,8 +44,25 @@ const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: s
             />);
     }, [drawerVisible]);
 
+    const handleImageContent = async (clipboardItem: ClipboardItem) => {
+        const blob = await clipboardItem.getType("image/png");
+
+        // Upload image to Firebase Storage
+        const imageId = randomId(); // Generate unique ID for the image
+        const storageRef = ref(storage, `images/${noteId}/${imageId}.png`);
+
+        try {
+            await uploadBytes(storageRef, blob);
+            const downloadURL = await getDownloadURL(storageRef);
+
+            // Send the image URL to the iframe
+            sendMessageToIframe({request: 'INSERT_IMAGE', src: downloadURL});
+        } catch (error) {
+            console.error("Error uploading image:", error);
+        }
+    };
+
     const sendMessageToIframe = (message: any) => {
-        console.log('sdaf ', message);
         if (iframeRef.current) {
             console.log('Sending message to iframe:', message);
             // @ts-ignore
@@ -54,20 +74,6 @@ const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: s
             }, 100);
         }
     };
-
-    useEffect(() => {
-        const handleEvent = (event: any) => {
-            if (event.ctrlKey && event.key === "s") {
-                event.preventDefault();
-            }
-        };
-
-        window.addEventListener("keydown", handleEvent);
-
-        return () => {
-            window.removeEventListener("keydown", handleEvent);
-        };
-    }, []);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -106,6 +112,16 @@ const DocumentNotePage = ({noteId, workspaceId}: {noteId: string, workspaceId: s
                     .putDocumentNotePageUpdate(workspaceId, noteId, currentPage, version, content)
                     .then(() => {console.log('Content saved');})
                     .catch(console.error);
+            }else if (event.data === 'REQUEST_IMAGE_INSERTION') {
+                navigator.clipboard.read().then((clipboardItems) => {
+                    clipboardItems.forEach((clipboardItem) => {
+                        clipboardItem.types.forEach((type) => {
+                            if (type === "image/png") {
+                                handleImageContent(clipboardItem);
+                            }
+                        });
+                    });
+                });
             }
             // Handle the message received from the iframe
         };
