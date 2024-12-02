@@ -25,7 +25,7 @@ export type RootStackParamList = {
     DocumentNotePage: { workspaceId: string, noteId: string };
     QuizPage: { workspaceId: string, quizId: string };
     // TODO delete advanced objects from route
-    QuestionsScreen: { questions: Question[]; quizId: string, quiz: QuizDetails };
+    QuestionsScreen: { questions: Question[]; quizId: string, quiz: QuizDetails, previouslyCorrect: number};
     QuizEditor: { workspaceId: string, quizId: string };
     WorkspacePage: { workspaceId: string };
 };
