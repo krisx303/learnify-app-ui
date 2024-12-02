@@ -155,7 +155,8 @@ const PermissionTabContent = ({resourceType, resourceId, ownerId}: PermissionTab
 
     const handleAccessLevelChange = (value: AccessType) => {
         setAccessLevel(value);
-        // TODO - update access level when new endpoint will be available
+        httpClient.updateResourcePermissionLevel(resourceType, resourceId, value)
+            .catch(console.error);
     };
 
     const handlePermissionChange = (user: User, level: UserPermissionLevel) => {
