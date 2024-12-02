@@ -63,9 +63,9 @@ const MainPage = () => {
 
     const navigateToNotePage = (parse: NoteSummary) => {
         fetchRecent();
-        if (parse.type === 'document') {
+        if (parse.type === 'DOCUMENT') {
             navigation.navigate('DocumentNotePage', {noteId: parse.id, workspaceId: parse.workspace.id});
-        } else if (parse.type === 'board') {
+        } else if (parse.type === 'BOARD') {
             navigation.navigate('BoardNotePage', {noteId: parse.id, workspaceId: parse.workspace.id});
         }
     }

@@ -1,4 +1,4 @@
-export type NoteType = 'document' | 'board';
+export type NoteType = 'DOCUMENT' | 'BOARD';
 export type AccessType = 'PUBLIC' | 'PRIVATE';
 export type ResourceType = 'NOTE' | 'QUIZ' | 'WORKSPACE';
 export type UserPermissionLevel = 'RO' | 'RW' | 'DENIED';

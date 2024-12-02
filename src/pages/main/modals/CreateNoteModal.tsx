@@ -24,7 +24,7 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
     const [noteName, setNoteName] = useState('');
     const [description, setDescription] = useState('');
     const [workspace, setWorkspace] = useState('');
-    const [noteType, setNoteType] = useState<NoteType>('board');
+    const [noteType, setNoteType] = useState<NoteType>('BOARD');
     const [accessType, setAccessType] = useState<AccessType>('PUBLIC');
     const [errorNoteName, setErrorNoteName] = useState('');
     const [workspaceOptions, setWorkspaceOptions] = useState<Workspace[]>([]);
@@ -73,10 +73,10 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
                 <Text style={{marginBottom: 5}}>Type:</Text>
                 <SegmentedButtons
                     value={noteType}
-                    onValueChange={(value) => setNoteType(value === 'board' ? 'board' : 'document')}
+                    onValueChange={(value) => setNoteType(value === 'board' ? 'BOARD' : 'DOCUMENT')}
                     buttons={[
-                        {value: 'board', label: 'Board'},
-                        {value: 'document', label: 'Document'},
+                        {value: 'BOARD', label: 'Board'},
+                        {value: 'DOCUMENT', label: 'Document'},
                     ]}
                     style={{marginBottom: 10}}
                 />
