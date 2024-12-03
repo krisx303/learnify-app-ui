@@ -91,8 +91,6 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
 
     const QuizDetailsContent = ({quiz}: { quiz: QuizDetails }) => {
         const navigateToQuestionScreen = () => {
-            console.log("correct: \nquizId: ", quizId, ",\nincorrectSize: ", incorrectQuestions.length, ",\nincorrect: ", incorrectQuestions,
-                ",\nlastCorrect: ", 0);
             navigation.navigate("QuestionsScreen", {
                 quizId: quizId,
                 questions: questions,
@@ -101,8 +99,6 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
             });
         };
         const navigateToOnlyIncorrectQuestionScreen = () => {
-            console.log("navigateToOnlyIncorrectQuestionScreen: \nquizId: ", quizId, ",\nincorrectSize: ", incorrectQuestions.length, ",\nincorrect: ", incorrectQuestions,
-                ",\nlastCorrect: ", quiz.lastScore.correct);
             navigation.navigate("QuestionsScreen", {
                 quizId: quizId,
                 questions: incorrectQuestions,
