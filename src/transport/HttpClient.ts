@@ -376,6 +376,13 @@ class RealHttpClient implements HttpClientBase {
             })
     }
 
+    getIncorrectQuizQuestions(quizId: string): Promise<Question[]> {
+        return this.get(`/quizzes/${quizId}/questions/incorrect`)
+            .then((questions: any[]) => {
+                return questions.map(this.fromGenericQuestion);
+            })
+    }
+
     getRecentNotes(): Promise<NoteSummary[]> {
         return this.get('/notes/recent');
     }
@@ -434,8 +441,8 @@ class RealHttpClient implements HttpClientBase {
         return this.put(`/quizzes/${quizId}/questions/${editableQuestion.questionId}`, this.asGenericQuestion(editableQuestion));
     }
 
-    updateQuizResult(quizId: string, correct: number, incorrect: number) {
-        return this.put(`/quizzes/${quizId}/results`, this.asEditableQuestion(correct, incorrect));
+    updateQuizResult(quizId: string, correct: number, incorrect: number, incorrectIds: string[]) {
+        return this.put(`/quizzes/${quizId}/results`, this.asEditableQuestion(correct, incorrect, incorrectIds));
     }
 
     saveQuestion(quizId: string, editableQuestion: Question) {
@@ -559,10 +566,11 @@ class RealHttpClient implements HttpClientBase {
         };
     }
 
-    private asEditableQuestion(correct: number, incorrect: number) {
+    private asEditableQuestion(correct: number, incorrect: number, incorrectIds: string[]) {
         return {
             correct: correct,
-            incorrect: incorrect
+            incorrect: incorrect,
+            incorrectIds: incorrectIds
         }
     }
 

@@ -24,10 +24,11 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
     const [quiz, setQuizDetails] = useState<QuizDetails | undefined>();
     const [loading, setLoading] = useState(true);
     const [questions, setQuestions] = useState<Question[]>([]);
+    const [incorrectQuestions, setIncorrectQuestions] = useState<Question[]>([]);
     const httpClient = useHttpClient();
     const navigation = useNavigation<NavigationProps>();
-    const { toggleDrawer, setDrawerContent, drawerVisible } = useContext(DrawerContext);
-    const { user } = useAuth();
+    const {toggleDrawer, setDrawerContent, drawerVisible} = useContext(DrawerContext);
+    const {user} = useAuth();
 
     useEffect(() => {
         setDrawerContent(
@@ -35,10 +36,9 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
                 quizId={quizId}
                 onClose={toggleDrawer}
                 navigateToNote={(workspaceId, noteId, noteType) => {
-                    if(noteType === 'document') {
+                    if (noteType === 'document') {
                         navigation.navigate('DocumentNotePage', {noteId, workspaceId});
-                    }
-                    else {
+                    } else {
                         navigation.navigate('BoardNotePage', {noteId, workspaceId});
                     }
                 }}
@@ -53,6 +53,9 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
             .catch(console.error);
         httpClient.getQuizQuestions(quizId)
             .then(setQuestions)
+            .catch(console.error);
+        httpClient.getIncorrectQuizQuestions(quizId)
+            .then(setIncorrectQuestions)
             .catch(console.error);
     }, [httpClient, workspaceId, quizId]);
 
@@ -71,6 +74,9 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
             httpClient.getQuizDetails(workspaceId, quizId)
                 .then(onLoadedDetails)
                 .catch(console.error);
+            httpClient.getIncorrectQuizQuestions(quizId)
+                .then(setIncorrectQuestions)
+                .catch(console.error);
         }, [httpClient.getQuizDetails])
     );
 
@@ -88,7 +94,16 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
             navigation.navigate("QuestionsScreen", {
                 quizId: quizId,
                 questions: questions,
-                quiz: quiz
+                quiz: quiz,
+                previouslyCorrect: 0
+            });
+        };
+        const navigateToOnlyIncorrectQuestionScreen = () => {
+            navigation.navigate("QuestionsScreen", {
+                quizId: quizId,
+                questions: incorrectQuestions,
+                quiz: quiz,
+                previouslyCorrect: quiz.lastScore.correct
             });
         };
         return (
@@ -121,6 +136,11 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
                 ) : <Text style={styles.info}>No data available</Text>}
                 <Button style={styles.button} onPress={navigateToQuestionScreen}>
                     <Text style={styles.buttonText}>Start quiz</Text>
+                </Button>
+                <Button disabled={incorrectQuestions.length == 0}
+                        style={incorrectQuestions.length == 0 ? styles.incorrectButtonDisabled : styles.incorrectButton}
+                        onPress={navigateToOnlyIncorrectQuestionScreen}>
+                    <Text style={styles.buttonText}>Repeat only incorrect</Text>
                 </Button>
             </View>
         );

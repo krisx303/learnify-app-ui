@@ -25,7 +25,7 @@ const getBaseUserAnswer = (q: Question): any => {
 const QuestionsScreen: React.FC = () => {
     const httpClient = useHttpClient();
     const route = useRoute<RouteProps>();
-    const {questions, quiz} = route.params;
+    const {questions, quiz, previouslyCorrect} = route.params;
     const [index, setIndex] = useState<number>(0);
     const [question, setQuestion] = useState<Question>(questions[0]);
     const [userAnswer, setUserAnswer] = useState<any>(getBaseUserAnswer(question));
@@ -55,12 +55,21 @@ const QuestionsScreen: React.FC = () => {
     }
 
     const updateResultsAndNavigate = () => {
+        const incorrectQuestions = questions.filter((_, index) => !correctness[index]).map(question => question.questionId);
         httpClient.updateQuizResult(quiz.id,
-            correctness.filter((answer) => answer).length,
-            correctness.filter((answer) => !answer).length)
+            previouslyCorrect + correctness.filter((answer) => answer).length,
+            correctness.filter((answer) => !answer).length,
+            incorrectQuestions)
             .then(() => navigation.navigate('QuizPage', {quizId: quiz.id, workspaceId: 'semestr1'}))
             .catch(console.error);
     }
+
+    useEffect(() => {
+        setCorrectness([]);
+        setQuestion(questions[0]);
+        setUserAnswer(getBaseUserAnswer(questions[0]));
+        setIndex(0);
+    }, [questions, quiz, previouslyCorrect]);
 
     useEffect(() => {
         const q = questions[index];
