@@ -65,6 +65,13 @@ const QuestionsScreen: React.FC = () => {
     }
 
     useEffect(() => {
+        setCorrectness([]);
+        setQuestion(questions[0]);
+        setUserAnswer(getBaseUserAnswer(questions[0]));
+        setIndex(0);
+    }, [questions, quiz, previouslyCorrect]);
+
+    useEffect(() => {
         const q = questions[index];
         setQuestion(q)
         setUserAnswer(getBaseUserAnswer(q))

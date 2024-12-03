@@ -14,7 +14,6 @@ import AuthorizedResource from "../../AuthorizedResource";
 import QuizDrawer from "../../notes/QuizDrawer";
 import {useAuth} from "../../auth/AuthProvider";
 import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../../components/topbar";
-import {isDisabled} from "@expo/metro-runtime/build/error-overlay/Data/LogBoxData";
 
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'QuizPage'>;
@@ -75,6 +74,9 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
             httpClient.getQuizDetails(workspaceId, quizId)
                 .then(onLoadedDetails)
                 .catch(console.error);
+            httpClient.getIncorrectQuizQuestions(quizId)
+                .then(setIncorrectQuestions)
+                .catch(console.error);
         }, [httpClient.getQuizDetails])
     );
 
@@ -89,6 +91,8 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
 
     const QuizDetailsContent = ({quiz}: { quiz: QuizDetails }) => {
         const navigateToQuestionScreen = () => {
+            console.log("correct: \nquizId: ", quizId, ",\nincorrectSize: ", incorrectQuestions.length, ",\nincorrect: ", incorrectQuestions,
+                ",\nlastCorrect: ", 0);
             navigation.navigate("QuestionsScreen", {
                 quizId: quizId,
                 questions: questions,
@@ -97,11 +101,13 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
             });
         };
         const navigateToOnlyIncorrectQuestionScreen = () => {
+            console.log("navigateToOnlyIncorrectQuestionScreen: \nquizId: ", quizId, ",\nincorrectSize: ", incorrectQuestions.length, ",\nincorrect: ", incorrectQuestions,
+                ",\nlastCorrect: ", quiz.lastScore.correct);
             navigation.navigate("QuestionsScreen", {
                 quizId: quizId,
                 questions: incorrectQuestions,
                 quiz: quiz,
-                previouslyCorrect: quiz.bestScore.correct
+                previouslyCorrect: quiz.lastScore.correct
             });
         };
         return (
