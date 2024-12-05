@@ -20,8 +20,8 @@ import {
     randomPosition,
 } from "../../../components/notes/board/Utils";
 import {TextInputComponent} from "../../../components/notes/board/TextInputComponent";
-import {DrawerContext} from "../DrawerProvider";
-import NoteDrawer from "../NoteDrawer";
+import {DrawerContext} from "../../../components/drawer/DrawerProvider";
+import NoteDrawer from "../../../components/drawer/NoteDrawer";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {NoteSummary} from "../../main/Types";
 import {useAuth} from "../../auth/AuthProvider";

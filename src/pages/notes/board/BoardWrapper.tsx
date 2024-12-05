@@ -1,6 +1,6 @@
 import React from 'react';
 import Board from "./Board";
-import DrawerProvider from "../DrawerProvider";
+import DrawerProvider from "../../../components/drawer/DrawerProvider";
 import AuthenticatedResource from "../../AuthorizedResource";
 import AuthorizedResource from "../../AuthorizedResource";
 import {RouteProp, useRoute} from "@react-navigation/native";

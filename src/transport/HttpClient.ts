@@ -361,6 +361,14 @@ class RealHttpClient implements HttpClientBase {
             }
         });
     }
+
+    getComments(resourceType: ResourceType, resourceId: string) {
+        return this.get(`/resources/${resourceType}/${resourceId}/comments`);
+    }
+
+    addComment(resourceType: ResourceType, resourceId: string, comment: any) {
+        return this.post(`/resources/${resourceType}/${resourceId}/comments`, comment);
+    }
 }
 
 /** Hook to provide an instance of the HTTP client */

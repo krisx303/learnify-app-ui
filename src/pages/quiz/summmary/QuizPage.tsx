@@ -9,9 +9,9 @@ import {QuizDetails} from "./QuizDetails";
 import {useHttpClient} from "../../../transport/HttpClient";
 import {RootStackParamList} from "../../../../App";
 import {StackNavigationProp} from "@react-navigation/stack";
-import DrawerProvider, {DrawerContext} from "../../notes/DrawerProvider";
+import DrawerProvider, {DrawerContext} from "../../../components/drawer/DrawerProvider";
 import AuthorizedResource from "../../AuthorizedResource";
-import QuizDrawer from "../../notes/QuizDrawer";
+import QuizDrawer from "../../../components/drawer/QuizDrawer";
 import {useAuth} from "../../auth/AuthProvider";
 import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../../components/topbar";
 

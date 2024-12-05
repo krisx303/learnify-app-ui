@@ -4,6 +4,7 @@ import {Button} from "react-native-paper";
 import {TabView, SceneMap, TabBar} from "react-native-tab-view";
 import ConnectedQuizzesTabContent from "./ConnectedQuizzesTabContent";
 import PermissionsTabContent from "./PermissionsTabContent";
+import RatingsTabContent from "./RatingsTabContent";
 
 interface DrawerProps {
     noteId: string;
@@ -18,7 +19,7 @@ const NoteDrawer = ({onClose, noteId, navigateToQuiz, isOwner, ownerId}: DrawerP
     const [routes, setRoutes] = useState([
         {key: 'quizzes', title: 'Quizzes'},
         {key: 'permissions', title: 'Permissions'},
-        {key: 'comments', title: 'Comments'},
+        {key: 'comments', title: 'Ratings'},
     ]);
 
     useEffect(() => {
@@ -26,13 +27,13 @@ const NoteDrawer = ({onClose, noteId, navigateToQuiz, isOwner, ownerId}: DrawerP
             setRoutes([
                 {key: 'quizzes', title: 'Quizzes'},
                 {key: 'permissions', title: 'Permissions'},
-                {key: 'comments', title: 'Comments'}
+                {key: 'comments', title: 'Ratings'}
             ])
         }
         else {
             setRoutes([
                 {key: 'quizzes', title: 'Quizzes'},
-                {key: 'comments', title: 'Comments'}
+                {key: 'comments', title: 'Ratings'}
             ])
         }
     }, [noteId, isOwner]);
@@ -45,11 +46,7 @@ const NoteDrawer = ({onClose, noteId, navigateToQuiz, isOwner, ownerId}: DrawerP
     const renderScene = SceneMap({
         quizzes: () => <ConnectedQuizzesTabContent noteId={noteId} navigateToQuizInternal={navigateToQuizInternal}/>,
         permissions: () => <PermissionsTabContent resourceId={noteId} resourceType={'NOTE'} ownerId={ownerId}/>,
-        comments: () => (
-            <View style={styles.tabContent}>
-                {/* Add Comments content here */}
-            </View>
-        ),
+        comments: () => <RatingsTabContent resourceId={noteId} resourceType={'NOTE'}/>,
     });
 
     return (
