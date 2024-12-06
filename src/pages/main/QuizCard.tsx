@@ -20,7 +20,7 @@ const QuizCard: React.FC<QuizCardProps> = ({quiz}) => {
     const handlePress = () => {
         navigation.navigate('QuizPage', {quizId: quiz.id, workspaceId: quiz.workspace.id});
     };
-
+    const lastTryDate = new Date(quiz.lastTryDate);
     return (
         <TouchableRipple onPress={handlePress} style={styles.cardContainer}>
             <Card key={quiz.id} style={styles.card}>
@@ -29,7 +29,7 @@ const QuizCard: React.FC<QuizCardProps> = ({quiz}) => {
                     <View style={styles.line}/>
                     <Paragraph style={styles.details}>Score: {quiz.score === "-1" ? "0" : quiz.score}</Paragraph>
                     <Paragraph style={styles.details}>
-                        <Text>{quiz.score === "-1" ? "Jeszcze nie rozwiązywano" : "Rozwiązywano: dziś"}</Text>
+                        <Text>{quiz.score === "-1" ? "Jeszcze nie rozwiązywano" : lastTryDate.toDateString() + "\n" + lastTryDate.toTimeString()}</Text>
                     </Paragraph>
                     <Paragraph style={styles.details}>
                         <Text>Autor: {quiz.author.displayName}</Text>
