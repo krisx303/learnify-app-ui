@@ -1,16 +1,16 @@
-import React, {useEffect, useState} from 'react';
-import {View, ScrollView, Text, StyleSheet, ImageBackground} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, ScrollView, Text, StyleSheet, ImageBackground } from 'react-native';
 import { TextInput, Button, Title } from 'react-native-paper';
-import {ModularTopBar, UserDetailsWithMenu} from "../../components/topbar";
-import OwnerDropdown, {OwnerProps} from "../../components/search/OwnerDropdown";
-import WorkspaceDropdown, {WorkspaceProps} from "../../components/search/WorkspaceDropdown";
-import {ResourceSummary, useHttpClient} from "../../transport/HttpClient";
+import { ModularTopBar, UserDetailsWithMenu } from "../../components/topbar";
+import OwnerDropdown, { OwnerProps } from "../../components/search/OwnerDropdown";
+import WorkspaceDropdown, { WorkspaceProps } from "../../components/search/WorkspaceDropdown";
+import { ResourceSummary, useHttpClient } from "../../transport/HttpClient";
 import GenericFilterButtons from '../../components/search/GenericFilterButtons';
 import ResourceCard from "../../components/search/ResourceCard";
-import {NoteSummary} from "./Types";
-import {useNavigation} from "@react-navigation/native";
-import {StackNavigationProp} from "@react-navigation/stack";
-import {RootStackParamList} from "../../../App";
+import { NoteSummary } from "./Types";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../../../App";
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'ResourceSearchPage'>;
 
@@ -57,26 +57,27 @@ const ResourceSearchPage = () => {
         switch (resource.resourceType) {
             case "NOTE":
                 const noteSummary = resource as NoteSummary;
-                if(noteSummary.type === "BOARD") {
-                    navigation.navigate("BoardNotePage", {workspaceId: noteSummary.workspace.id, noteId: noteSummary.id});
-                }else if(noteSummary.type === "DOCUMENT") {
-                    navigation.navigate("DocumentNotePage", {workspaceId: noteSummary.workspace.id, noteId: noteSummary.id});
+                if (noteSummary.type === "BOARD") {
+                    navigation.navigate("BoardNotePage", { workspaceId: noteSummary.workspace.id, noteId: noteSummary.id });
+                } else if (noteSummary.type === "DOCUMENT") {
+                    navigation.navigate("DocumentNotePage", { workspaceId: noteSummary.workspace.id, noteId: noteSummary.id });
                 }
                 break;
             case "QUIZ":
-                navigation.navigate("QuizPage", {workspaceId: resource.workspace.id, quizId: resource.id});
+                navigation.navigate("QuizPage", { workspaceId: resource.workspace.id, quizId: resource.id });
                 break;
             default:
                 console.error('Unknown resource type:', resource.resourceType);
         }
     };
+
     return (
         <ImageBackground
             source={require("../../../assets/purple_background.png")}
             style={styles.background}
         >
             <ModularTopBar
-                rightContent={<UserDetailsWithMenu displayUsername/>}
+                rightContent={<UserDetailsWithMenu displayUsername />}
             />
             <View style={styles.container}>
                 {/* Filter Panel */}
@@ -129,16 +130,18 @@ const ResourceSearchPage = () => {
                     </Button>
                 </View>
 
-                <ScrollView style={styles.resourceList}>
-                    <Title style={styles.resourceTitle}>Resources</Title>
-                    {resources.map((resource) => (
-                        <ResourceCard
-                            key={resource.id}
-                            resource={resource}
-                            onPress={() => navigateToResource(resource)}
-                        />
-                    ))}
-                </ScrollView>
+                {/* Scrollable Resource List */}
+                <View style={styles.resourceListWrapper}>
+                    <ScrollView contentContainerStyle={styles.resourceList} style={styles.scrollView}>
+                        {resources.map((resource) => (
+                            <ResourceCard
+                                key={resource.id}
+                                resource={resource}
+                                onPress={() => navigateToResource(resource)}
+                            />
+                        ))}
+                    </ScrollView>
+                </View>
             </View>
         </ImageBackground>
     );
@@ -159,6 +162,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f4f4f4',
         borderRightWidth: 1,
         borderColor: '#ccc',
+        maxHeight: '100%', // Prevent filter panel from stretching too far
     },
     filterTitle: {
         marginBottom: 16,
@@ -170,25 +174,22 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         fontSize: 16,
     },
-    filterButton: {
-        marginRight: 8,
-        marginBottom: 8,
-    },
     textInput: {
         marginBottom: 16,
     },
     applyButton: {
         marginTop: 24,
     },
-    resourceList: {
+    resourceListWrapper: {
         flex: 1,
-        padding: 16,
+        padding: 10,
+        maxHeight: 880,
     },
-    resourceTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 16,
-        color: '#fff',
+    scrollView: {
+        flexGrow: 0,
+    },
+    resourceList: {
+        padding: 20,
     },
 });
 

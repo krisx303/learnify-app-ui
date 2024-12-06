@@ -2,7 +2,7 @@ import {useMemo} from "react";
 import {
     AccessType,
     FullPermissionModel,
-    NoteSummary,
+    NoteSummary, NoteType,
     QuizSummary,
     ResourceType,
     User, UserPermission,
@@ -30,6 +30,9 @@ export type ResourceSummary = {
     author: User;
     resourceType: ResourceType;
     accessType: AccessType;
+    pagesCount?: number;
+    score?: string;
+    type?: NoteType;
 }
 
 /** Interface representing base HTTP client */
