@@ -14,6 +14,7 @@ import BoardNotePage from "./src/pages/notes/board/BoardNotePage";
 import DocumentNotePage from "./src/pages/notes/document/DocumentNotePage";
 import {AuthProvider} from "./src/pages/auth/AuthProvider";
 import WorkspacePage from "./src/pages/main/WorkspacePage";
+import ResourceSearchPage from "./src/pages/main/ResourceSearchPage";
 
 const Stack = createStackNavigator();
 
@@ -28,6 +29,7 @@ export type RootStackParamList = {
     QuestionsScreen: { questions: Question[]; quizId: string, quiz: QuizDetails, previouslyCorrect: number};
     QuizEditor: { workspaceId: string, quizId: string };
     WorkspacePage: { workspaceId: string };
+    ResourceSearchPage: undefined;
 };
 
 const linking = {
@@ -42,7 +44,8 @@ const linking = {
             QuizPage: 'workspaces/:workspaceId/quizzes/:quizId',
             QuestionsScreen: 'quizzes/:quizId/',
             QuizEditor: 'workspaces/:workspaceId/quizzes/:quizId/edit',
-            WorkspacePage: 'workspaces/:workspaceId'
+            WorkspacePage: 'workspaces/:workspaceId',
+            ResourceSearchPage: '/search',
         },
     },
 };
@@ -69,6 +72,7 @@ function App() {
                     <Stack.Screen name="QuestionsScreen" component={QuestionsScreen} options={navigationOptions}/>
                     <Stack.Screen name="QuizEditor" component={QuizEditor} options={navigationOptions}/>
                     <Stack.Screen name="WorkspacePage" component={WorkspacePage} options={navigationOptions}/>
+                    <Stack.Screen name="ResourceSearchPage" component={ResourceSearchPage} options={navigationOptions}/>
                 </Stack.Navigator>
             </NavigationContainer>
         </AuthProvider>

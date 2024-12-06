@@ -22,6 +22,15 @@ type BoardNotePageContent = { elements: ElementDto[]; paths: PathDto[] };
 type BoardNotePageContentWithVersion = { content: BoardNotePageContent; version: number };
 type DocumentNotePageContentWithVersion = { content: string; version: number };
 export type PermissionDto = { user: User; access: string }
+export type ResourceSummary = {
+    id: string;
+    title: string;
+    description: string;
+    workspace: Workspace;
+    author: User;
+    resourceType: ResourceType;
+    accessType: AccessType;
+}
 
 /** Interface representing base HTTP client */
 interface HttpClientBase {
@@ -369,6 +378,68 @@ class RealHttpClient implements HttpClientBase {
     addComment(resourceType: ResourceType, resourceId: string, comment: any) {
         return this.post(`/resources/${resourceType}/${resourceId}/comments`, comment);
     }
+
+    searchNotes(resourceName: string, selectedOwner: string | undefined, selectedWorkspace: string | undefined, isPublic: boolean | undefined): Promise<NoteSummary[]> {
+        let query = `?name=${resourceName}`;
+
+        if (selectedWorkspace) {
+            query += `&workspaceId=${selectedWorkspace}`;
+        }
+
+        if (selectedOwner) {
+            query += `&ownerId=${selectedOwner}`;
+        }
+
+        if (isPublic !== undefined) {
+            query += `&accessType=${isPublic ? 'PUBLIC' : 'PRIVATE'}`;
+        }
+
+        return this.get(`/notes${query}`);
+    }
+
+    searchQuizzes(resourceName: string, selectedOwner: string | undefined, selectedWorkspace: string | undefined, isPublic: boolean | undefined): Promise<QuizSummary[]> {
+        let query = `?name=${resourceName}`;
+
+        if (selectedWorkspace) {
+            query += `&workspaceId=${selectedWorkspace}`;
+        }
+
+        if (selectedOwner) {
+            query += `&ownerId=${selectedOwner}`;
+        }
+
+        if (isPublic !== undefined) {
+            query += `&accessType=${isPublic ? 'PUBLIC' : 'PRIVATE'}`;
+        }
+
+        return this.get(`/quizzes${query}`);
+    }
+
+    searchResources(
+        resourceType: string | undefined,
+        resourceName: string,
+        ownerId: string | undefined,
+        workspaceId: string | undefined,
+        isPublic: undefined | boolean
+    ): Promise<ResourceSummary[]> {
+        const notePromise = resourceType === 'Note' || resourceType === undefined
+            ? this.searchNotes(resourceName, ownerId, workspaceId, isPublic)
+            : Promise.resolve([]);  // Return an empty array if we are not searching for notes
+
+        const quizPromise = resourceType === 'Quiz' || resourceType === undefined
+            ? this.searchQuizzes(resourceName, ownerId, workspaceId, isPublic)
+            : Promise.resolve([]);  // Return an empty array if we are not searching for quizzes
+
+        return Promise.all([notePromise, quizPromise])
+            .then(([notes, quizzes]) => {
+                const results = [
+                    ...notes.map(note => ({ ...note, resourceType: 'NOTE' })),
+                    ...quizzes.map(quiz => ({ ...quiz, resourceType: 'QUIZ' }))
+                ];
+                return results as ResourceSummary[];
+            });
+    }
+
 }
 
 /** Hook to provide an instance of the HTTP client */
