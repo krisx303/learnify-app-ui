@@ -3,16 +3,18 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Divider } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
 import { ResourceSummary } from "../../transport/HttpClient";
-import ProgressBar from "../../pages/main/ProgressBar";  // Assuming you're using this for icon
+import ProgressBar from "../../pages/main/ProgressBar";
+import StarRating from "../StarRating";
 
 type ResourceCardProps = {
     resource: ResourceSummary;
-    onPress: () => void; // Optional: onPress callback for the card
+    onPress: () => void;
 };
 
 const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onPress }) => {
     const isNote = resource.resourceType === 'NOTE';
     const isQuiz = resource.resourceType === 'QUIZ';
+    const icon = isNote ? (resource.type === 'DOCUMENT' ? 'description' : 'edit') : 'school';
 
     // Mocked average rating (you can replace this with actual data later)
     const averageRating = 4;
@@ -20,18 +22,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onPress }) => {
     return (
         <TouchableOpacity key={resource.id} style={styles.resourceItem} onPress={onPress}>
             <View style={styles.resourceHeader}>
-                {/* Icon for resource type */}
                 <View style={styles.iconContainer}>
-                    {isNote && resource.type === 'DOCUMENT' ? (
-                        <MaterialIcons name="description" color="#000" size={26} />
-                    ) : isNote && resource.type === 'BOARD' ? (
-                        <MaterialIcons name="edit" color="#000" size={26} />
-                    ) : isQuiz ? (
-                        <MaterialIcons name="school" color="#000" size={26} />
-                    ) : null}
+                    <MaterialIcons name={icon} color="#000" size={26} />
                 </View>
 
-                {/* Resource title and type */}
                 <View style={styles.textContainer}>
                     <Text style={styles.resourceName}>{resource.title}</Text>
                     <Text style={styles.resourceType}>{resource.resourceType}</Text>
@@ -39,7 +33,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onPress }) => {
             </View>
             <Divider style={styles.divider} />
 
-            {/* Resource details */}
             <View style={styles.resourceDetails}>
                 <View style={styles.row}>
                     <View style={styles.column}>
@@ -69,11 +62,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onPress }) => {
 
                     <View style={[styles.column, {alignItems: "flex-end"}]}>
                         <Text style={styles.sectionTitle}>Ratings</Text>
-                        <View style={styles.starContainer}>
                             <Text style={styles.resourceDetail}>
                                 <Text style={styles.detailLabel}>Average:</Text> {averageRating.toFixed(1)}{' '}
                             </Text>
-                        </View>
                         <StarRating rating={averageRating} />
                     </View>
                 </View>
@@ -84,19 +75,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onPress }) => {
 
 export default ResourceCard;
 
-// Star rating component
-const StarRating = ({ rating }: { rating: number }) => (
-    <View style={styles.starContainer}>
-        {[...Array(5)].map((_, index) => (
-            <MaterialIcons
-                key={index}
-                name={index < rating ? 'star' : 'star-border'}
-                size={24}
-                color="#f2c80c"
-            />
-        ))}
-    </View>
-);
 
 const styles = StyleSheet.create({
     resourceItem: {
@@ -154,9 +132,5 @@ const styles = StyleSheet.create({
     },
     detailLabel: {
         fontWeight: 'bold',
-    },
-    starContainer: {
-        flexDirection: 'row',
-        marginTop: 4,
     },
 });
