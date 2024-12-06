@@ -29,7 +29,7 @@ const QuizCard: React.FC<QuizCardProps> = ({quiz}) => {
                     <View style={styles.line}/>
                     <Paragraph style={styles.details}>Score: {quiz.score === "-1" ? "0" : quiz.score}</Paragraph>
                     <Paragraph style={styles.details}>
-                        <Text>{quiz.score === "-1" ? "Jeszcze nie rozwiązywano" : lastTryDate.toDateString() + "\n" + lastTryDate.toTimeString()}</Text>
+                        <Text>{quiz.score === "-1" ? "Jeszcze nie rozwiązywano" : lastTryDate.toDateString() + ", " + lastTryDate.toLocaleTimeString()}</Text>
                     </Paragraph>
                     <Paragraph style={styles.details}>
                         <Text>Autor: {quiz.author.displayName}</Text>
