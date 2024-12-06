@@ -27,6 +27,7 @@ export interface QuizSummary {
     title: string;
     score: string;
     author: User;
+    lastTryDate: Date;
 }
 
 export interface Workspace {

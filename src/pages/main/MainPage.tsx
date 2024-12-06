@@ -10,7 +10,7 @@ import CreateNoteModal, {NoteCreateDetails} from "./modals/CreateNoteModal";
 import CreateQuizModal, {QuizCreateDetails} from "./modals/CreateQuizModal";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RootStackParamList} from "../../../App";
-import {useNavigation} from "@react-navigation/native";
+import {useFocusEffect, useNavigation} from "@react-navigation/native";
 import CreateWorkspaceModal, {WorkspaceCreateProps} from "./modals/CreateWorkspaceModal";
 import {ModularTopBar, UserDetailsWithMenu, DropdownButton} from "../../components/topbar";
 
@@ -38,6 +38,12 @@ const MainPage = () => {
     useEffect(() => {
         fetchRecent();
     }, [httpClient, openedModal]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchRecent();
+        }, [httpClient.getRecentQuizzes, httpClient.getRecentNotes])
+    );
 
     const onCreateDropdownSelected = (item: string) => {
         switch (item) {
