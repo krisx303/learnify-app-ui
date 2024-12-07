@@ -16,7 +16,8 @@ export interface NoteSummary {
     title: string;
     description: string;
     author: User;
-    updatedAt: string;
+    updatedAt: Date;
+    viewedAt: Date;
     type: NoteType;
     pagesCount: number;
 }

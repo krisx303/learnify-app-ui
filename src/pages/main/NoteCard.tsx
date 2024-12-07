@@ -1,9 +1,9 @@
 import React from 'react';
 import {Card, Title, Paragraph, TouchableRipple, Text, Icon} from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { View } from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {View} from 'react-native';
 import styles from './Card.scss';
-import { NoteSummary } from './Types';
+import {NoteSummary} from './Types';
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RootStackParamList} from "../../../App";
 
@@ -13,26 +13,27 @@ interface NoteCardProps {
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'Main'>;
 
-const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
+const NoteCard: React.FC<NoteCardProps> = ({note}) => {
     const navigation = useNavigation<NavigationProps>();
 
     const handlePress = () => {
-        if(note.type === 'DOCUMENT') {
-            navigation.navigate('DocumentNotePage', { noteId: note.id, workspaceId: note.workspace.id});
-        }else {
-            navigation.navigate('BoardNotePage', { noteId: note.id, workspaceId: note.workspace.id});
+        if (note.type === 'DOCUMENT') {
+            navigation.navigate('DocumentNotePage', {noteId: note.id, workspaceId: note.workspace.id});
+        } else {
+            navigation.navigate('BoardNotePage', {noteId: note.id, workspaceId: note.workspace.id});
         }
     };
+    const lastViewDate = note.viewedAt !== null ? new Date(note.viewedAt) : new Date(note.updatedAt);
 
     return (
         <TouchableRipple onPress={handlePress} style={styles.cardContainer}>
             <Card key={note.id} style={styles.card}>
                 <Card.Content style={{height: 280}}>
                     <Title style={styles.cardHeader}>{note.title}</Title>
-                    <View style={styles.line} />
+                    <View style={styles.line}/>
                     <Paragraph style={styles.details}>{note.description}</Paragraph>
                     <Paragraph style={styles.details}>
-                        <Text>Przeglądano: {note.updatedAt?.substring(0, 10)}</Text>
+                        <Text>Przeglądano: {lastViewDate.toLocaleDateString() + ", " + lastViewDate.toLocaleTimeString()}</Text>
                     </Paragraph>
                     <Paragraph style={styles.details}>
                         <Text>Autor: {note.author?.displayName}</Text>
@@ -47,7 +48,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                                 color="#000"
                                 size={26}
                             />
-                            ) : (
+                        ) : (
                             <Icon
                                 source="fountain-pen"
                                 color="#000"
