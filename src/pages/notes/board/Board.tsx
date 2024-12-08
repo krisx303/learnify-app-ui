@@ -67,19 +67,6 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
             />);
     }, [drawerVisible]);
 
-    const createMovableImage = () => {
-        const element = createGenericMovableElement(
-            randomId(),
-            randomPosition(),
-            "https://miro.medium.com/v2/resize:fit:700/1*TtczOh1ZzrAsPLBaA5SxHg.png",
-            560,
-            480,
-            'image',
-            setElements
-        );
-        setElements((prevElements) => [...prevElements, element]);
-    };
-
     const createMovableText = () => {
         const element = createGenericMovableElement(
             randomId(),

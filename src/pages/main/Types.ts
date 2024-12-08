@@ -19,6 +19,7 @@ export interface NoteSummary {
     updatedAt: string;
     type: NoteType;
     pagesCount: number;
+    accessType: AccessType;
 }
 
 export interface QuizSummary {
@@ -28,6 +29,7 @@ export interface QuizSummary {
     score: string;
     author: User;
     lastTryDate: Date;
+    accessType: AccessType;
 }
 
 export interface Workspace {

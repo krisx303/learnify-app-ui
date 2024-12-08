@@ -6,6 +6,7 @@ import {MaterialIcons} from "@expo/vector-icons";
 import {ResourceType, User} from "../../pages/main/Types";
 import AddRatingModal, {RatingCreateDetails} from "../../pages/main/modals/AddRatingModal";
 import {useAuth} from "../../pages/auth/AuthProvider";
+import StarRating from "../StarRating";
 
 type Rating = {
     id: string;
@@ -19,19 +20,6 @@ type RatingsTabContentProps = {
     resourceType: ResourceType;
     resourceId: string;
 };
-
-const StarRating = ({rating}: { rating: number }) => (
-    <View style={styles.starContainer}>
-        {[...Array(5)].map((_, index) => (
-            <MaterialIcons
-                key={index}
-                name={index < rating ? "star" : "star-border"}
-                size={24}
-                color="#f2c80c"
-            />
-        ))}
-    </View>
-);
 
 const UserRatingCard = ({
                             userRating,
