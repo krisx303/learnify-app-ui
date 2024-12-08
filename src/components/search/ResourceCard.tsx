@@ -16,9 +16,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onPress }) => {
     const isQuiz = resource.resourceType === 'QUIZ';
     const icon = isNote ? (resource.type === 'DOCUMENT' ? 'description' : 'edit') : 'school';
 
-    // Mocked average rating (you can replace this with actual data later)
-    const averageRating = 4;
-
     return (
         <TouchableOpacity key={resource.id} style={styles.resourceItem} onPress={onPress}>
             <View style={styles.resourceHeader}>
@@ -63,9 +60,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onPress }) => {
                     <View style={[styles.column, {alignItems: "flex-end"}]}>
                         <Text style={styles.sectionTitle}>Ratings</Text>
                             <Text style={styles.resourceDetail}>
-                                <Text style={styles.detailLabel}>Average:</Text> {averageRating.toFixed(1)}{' '}
+                                <Text style={styles.detailLabel}>Average:</Text> {resource.ratingStats.average.toFixed(1)}{' '}
                             </Text>
-                        <StarRating rating={averageRating} />
+                        <StarRating rating={resource.ratingStats.average} />
                     </View>
                 </View>
             </View>

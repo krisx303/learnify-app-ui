@@ -1,3 +1,5 @@
+import {RatingStats} from "../../transport/HttpClient";
+
 export type NoteType = 'DOCUMENT' | 'BOARD';
 export type AccessType = 'PUBLIC' | 'PRIVATE';
 export type ResourceType = 'NOTE' | 'QUIZ' | 'WORKSPACE';
@@ -21,6 +23,7 @@ export interface NoteSummary {
     type: NoteType;
     pagesCount: number;
     accessType: AccessType;
+    ratingStats: RatingStats;
 }
 
 export interface QuizSummary {
@@ -31,6 +34,7 @@ export interface QuizSummary {
     author: User;
     lastTryDate: Date;
     accessType: AccessType;
+    ratingStats: RatingStats;
 }
 
 export interface Workspace {
