@@ -8,7 +8,7 @@ import { ResourceSummary, useHttpClient } from "../../transport/HttpClient";
 import GenericFilterButtons from '../../components/search/GenericFilterButtons';
 import ResourceCard from "../../components/search/ResourceCard";
 import { NoteSummary } from "./Types";
-import { useNavigation } from "@react-navigation/native";
+import {useFocusEffect, useNavigation} from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../../App";
 import {StarRatingInput} from "../../components/StarRating";
@@ -37,6 +37,12 @@ const ResourceSearchPage = () => {
             .then(setWorkspaces)
             .catch(console.error);
     }, []);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            filterResources();
+        }, [])
+    );
 
     useEffect(() => {
         filterResources();

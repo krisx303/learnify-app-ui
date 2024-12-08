@@ -24,6 +24,7 @@ export interface NoteSummary {
     pagesCount: number;
     accessType: AccessType;
     ratingStats: RatingStats;
+    viewedAt: string;
 }
 
 export interface QuizSummary {

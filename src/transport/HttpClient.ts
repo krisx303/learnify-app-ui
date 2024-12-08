@@ -24,6 +24,8 @@ type DocumentNotePageContentWithVersion = { content: string; version: number };
 export type PermissionDto = { user: User; access: string }
 export type RatingStats = { average: number; count: number; };
 export type ResourceSummary = {
+    viewedAt? : string;
+    lastTryDate? : string;
     id: string;
     title: string;
     description: string;
