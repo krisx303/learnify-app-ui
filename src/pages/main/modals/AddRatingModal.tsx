@@ -3,6 +3,7 @@ import {StyleSheet, Text, View, TouchableOpacity} from "react-native";
 import {Button, TextInput, Title} from "react-native-paper";
 import GenericModal from "./GenericModal";
 import {MaterialIcons} from "@expo/vector-icons";
+import {StarRatingInput} from "../../../components/StarRating";
 
 export type RatingCreateDetails = {
     title: string;
@@ -76,21 +77,7 @@ const AddRatingModal: React.FC<AddRatingModalProps> = ({
                     multiline={true}
                 />
                 <Text style={styles.ratingLabel}>Rating:</Text>
-                <View style={styles.starContainer}>
-                    {[1, 2, 3, 4, 5].map((value) => (
-                        <TouchableOpacity
-                            key={value}
-                            onPress={() => handleStarPress(value)}
-                        >
-                            <MaterialIcons
-                                name={value <= rating ? "star" : "star-border"}
-                                size={32}
-                                color="#f2c80c"
-                                style={styles.starIcon}
-                            />
-                        </TouchableOpacity>
-                    ))}
-                </View>
+                <StarRatingInput rating={rating} onRatingChange={handleStarPress}/>
                 {errorRating ? <Text style={styles.errorText}>{errorRating}</Text> : null}
             </GenericModal.Body>
             <GenericModal.Footer>
@@ -129,13 +116,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
         color: "#333",
-    },
-    starContainer: {
-        flexDirection: "row",
-        marginVertical: 10,
-    },
-    starIcon: {
-        marginHorizontal: 4,
     },
     button: {
         marginHorizontal: 10,

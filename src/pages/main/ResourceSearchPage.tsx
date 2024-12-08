@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, Text, StyleSheet, ImageBackground } from 'react-native';
+import {View, ScrollView, Text, StyleSheet, ImageBackground, TouchableOpacity} from 'react-native';
 import { TextInput, Button, Title } from 'react-native-paper';
 import { ModularTopBar, UserDetailsWithMenu } from "../../components/topbar";
 import OwnerDropdown, { OwnerProps } from "../../components/search/OwnerDropdown";
@@ -8,9 +8,11 @@ import { ResourceSummary, useHttpClient } from "../../transport/HttpClient";
 import GenericFilterButtons from '../../components/search/GenericFilterButtons';
 import ResourceCard from "../../components/search/ResourceCard";
 import { NoteSummary } from "./Types";
-import { useNavigation } from "@react-navigation/native";
+import {useFocusEffect, useNavigation} from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../../App";
+import {StarRatingInput} from "../../components/StarRating";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'ResourceSearchPage'>;
 
@@ -24,6 +26,7 @@ const ResourceSearchPage = () => {
     const [resources, setResources] = useState<ResourceSummary[]>([]);
     const [owners, setOwners] = useState<OwnerProps[]>([]);
     const [workspaces, setWorkspaces] = useState<WorkspaceProps[]>([]);
+    const [averageRating, setAverageRating] = useState<number>(0);
     const navigation = useNavigation<NavigationProps>();
 
     useEffect(() => {
@@ -35,12 +38,18 @@ const ResourceSearchPage = () => {
             .catch(console.error);
     }, []);
 
+    useFocusEffect(
+        React.useCallback(() => {
+            filterResources();
+        }, [])
+    );
+
     useEffect(() => {
         filterResources();
-    }, [resourceType, resourceName, selectedAuthor, selectedWorkspace, isPublic]);
+    }, [resourceType, resourceName, selectedAuthor, selectedWorkspace, isPublic, averageRating]);
 
     const filterResources = () => {
-        httpClient.searchResources(resourceType, resourceName, selectedAuthor?.id, selectedWorkspace?.id, isPublic)
+        httpClient.searchResources(resourceType, resourceName, selectedAuthor?.id, selectedWorkspace?.id, isPublic, averageRating)
             .then(setResources)
             .catch(console.error);
     };
@@ -125,6 +134,19 @@ const ResourceSearchPage = () => {
                         onSelect={setIsPublic}
                     />
 
+                    <Text style={styles.filterLabel}>Min average ratings:</Text>
+                    <View style={{flexDirection: "row", alignItems: "center"}}>
+                        <StarRatingInput rating={averageRating} onRatingChange={setAverageRating}/>
+                        {averageRating !== 0 && (
+                            <TouchableOpacity
+                                style={styles.clearButton}
+                                onPress={() => setAverageRating(0)}
+                            >
+                                <AntDesign name="closecircle" size={25} color="gray" />
+                            </TouchableOpacity>
+                        )}
+                    </View>
+
                     <Button mode="contained" onPress={resetFilters} style={styles.applyButton}>
                         Reset Filters
                     </Button>
@@ -191,6 +213,10 @@ const styles = StyleSheet.create({
     resourceList: {
         padding: 20,
     },
+    clearButton: {
+        borderRadius: 50,
+        marginLeft: 10,
+    }
 });
 
 export default ResourceSearchPage;

@@ -22,7 +22,10 @@ type BoardNotePageContent = { elements: ElementDto[]; paths: PathDto[] };
 type BoardNotePageContentWithVersion = { content: BoardNotePageContent; version: number };
 type DocumentNotePageContentWithVersion = { content: string; version: number };
 export type PermissionDto = { user: User; access: string }
+export type RatingStats = { average: number; count: number; };
 export type ResourceSummary = {
+    viewedAt? : string;
+    lastTryDate? : string;
     id: string;
     title: string;
     description: string;
@@ -33,6 +36,7 @@ export type ResourceSummary = {
     pagesCount?: number;
     score?: string;
     type?: NoteType;
+    ratingStats: RatingStats;
 }
 
 /** Interface representing base HTTP client */
@@ -382,8 +386,8 @@ class RealHttpClient implements HttpClientBase {
         return this.post(`/resources/${resourceType}/${resourceId}/comments`, comment);
     }
 
-    searchNotes(resourceName: string, selectedOwner: string | undefined, selectedWorkspace: string | undefined, isPublic: boolean | undefined): Promise<NoteSummary[]> {
-        let query = `?name=${resourceName}`;
+    searchNotes(resourceName: string, selectedOwner: string | undefined, selectedWorkspace: string | undefined, isPublic: boolean | undefined, averageRating: number): Promise<NoteSummary[]> {
+        let query = `?name=${resourceName}&averageRating=${averageRating}`;
 
         if (selectedWorkspace) {
             query += `&workspaceId=${selectedWorkspace}`;
@@ -400,8 +404,8 @@ class RealHttpClient implements HttpClientBase {
         return this.get(`/notes${query}`);
     }
 
-    searchQuizzes(resourceName: string, selectedOwner: string | undefined, selectedWorkspace: string | undefined, isPublic: boolean | undefined): Promise<QuizSummary[]> {
-        let query = `?name=${resourceName}`;
+    searchQuizzes(resourceName: string, selectedOwner: string | undefined, selectedWorkspace: string | undefined, isPublic: boolean | undefined, averageRating: number): Promise<QuizSummary[]> {
+        let query = `?name=${resourceName}&averageRating=${averageRating}`;
 
         if (selectedWorkspace) {
             query += `&workspaceId=${selectedWorkspace}`;
@@ -423,14 +427,15 @@ class RealHttpClient implements HttpClientBase {
         resourceName: string,
         ownerId: string | undefined,
         workspaceId: string | undefined,
-        isPublic: undefined | boolean
+        isPublic: undefined | boolean,
+        averageRating: number
     ): Promise<ResourceSummary[]> {
         const notePromise = resourceType === 'Note' || resourceType === undefined
-            ? this.searchNotes(resourceName, ownerId, workspaceId, isPublic)
+            ? this.searchNotes(resourceName, ownerId, workspaceId, isPublic, averageRating)
             : Promise.resolve([]);  // Return an empty array if we are not searching for notes
 
         const quizPromise = resourceType === 'Quiz' || resourceType === undefined
-            ? this.searchQuizzes(resourceName, ownerId, workspaceId, isPublic)
+            ? this.searchQuizzes(resourceName, ownerId, workspaceId, isPublic, averageRating)
             : Promise.resolve([]);  // Return an empty array if we are not searching for quizzes
 
         return Promise.all([notePromise, quizPromise])
