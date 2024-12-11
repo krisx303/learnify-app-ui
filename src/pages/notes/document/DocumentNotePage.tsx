@@ -9,7 +9,7 @@ import NoteDrawer from "../../../components/drawer/NoteDrawer";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {NoteSummary} from "../../main/Types";
 import {useAuth} from "../../auth/AuthProvider";
-import AuthorizedResource, {useUserAccessToResource} from "../../AuthorizedResource";
+import AuthorizedResource, {useUserAccessToResource} from "../../../components/AuthorizedResource";
 import {ModularTopBar, OptionsButtons, PageControlPanel, UserDetailsWithMenu} from "../../../components/topbar";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../../../firebase";

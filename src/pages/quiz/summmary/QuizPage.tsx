@@ -10,7 +10,7 @@ import {useHttpClient} from "../../../transport/HttpClient";
 import {RootStackParamList} from "../../../../App";
 import {StackNavigationProp} from "@react-navigation/stack";
 import DrawerProvider, {DrawerContext} from "../../../components/drawer/DrawerProvider";
-import AuthorizedResource from "../../AuthorizedResource";
+import AuthorizedResource from "../../../components/AuthorizedResource";
 import QuizDrawer from "../../../components/drawer/QuizDrawer";
 import {useAuth} from "../../auth/AuthProvider";
 import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../../components/topbar";

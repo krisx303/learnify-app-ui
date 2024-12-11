@@ -8,7 +8,7 @@ import {NoteSummary, QuizSummary, Workspace} from '../main/Types';
 import {RootStackParamList} from "../../../App";
 import {RouteProp, useRoute} from "@react-navigation/native";
 import DrawerProvider, {DrawerContext} from "../../components/drawer/DrawerProvider";
-import AuthorizedResource from "../AuthorizedResource";
+import AuthorizedResource from "../../components/AuthorizedResource";
 import WorkspaceDrawer from "../../components/drawer/WorkspaceDrawer";
 import {useAuth} from "../auth/AuthProvider";
 import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../components/topbar";
