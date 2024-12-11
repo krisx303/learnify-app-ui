@@ -448,6 +448,9 @@ class RealHttpClient implements HttpClientBase {
             });
     }
 
+    deleteQuestion(quizId: string, questionId: string) {
+        return this.delete(`/quizzes/${quizId}/questions/${questionId}`);
+    }
 }
 
 /** Hook to provide an instance of the HTTP client */

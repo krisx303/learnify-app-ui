@@ -108,7 +108,7 @@ const QuizEditor: React.FC = () => {
     const deleteQuestion = (index: number) => {
         setQuestions(questions.filter((_, i) => i !== index));
         setExpanded(expanded.filter((_, i) => i !== index));
-        //TODO delete question from backend
+        httpClient.deleteQuestion(quizId, questions[index].questionId!!)
     };
 
     return (
