@@ -1,6 +1,5 @@
 import React, {useContext, useEffect, useState} from "react";
 import {ImageBackground, StyleSheet, View} from "react-native";
-import styles from "../../CardPage.scss";
 import {Action, PathWithColorAndWidth} from "../../../components/notes/board/types";
 import {Toolbar} from "../../../components/notes/board/Toolbar";
 import {createGrid} from "../../../components/notes/board/Grid";
@@ -274,11 +273,11 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                     </View>
                 }
             />
-            <View style={styles.content}>
+            <View style={style.content}>
                 <View style={style.container} onLayout={handleLayout}>
                     <ImageBackground
                         source={{uri: backgroundImage}}
-                        style={styles.imageBackground}
+                        style={style.imageBackground}
                         resizeMode="repeat"
                     >
                         <BoardCanvas
@@ -293,7 +292,7 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                         <TextInputComponent genericMovableElements={elements} setElements={setElements}/>
                     </ImageBackground>
                 </View>
-                <View style={styles.toolPanel}>
+                <View style={style.toolPanel}>
                     <Toolbar
                         onAction={performAction}
                         editable={editable}
@@ -307,9 +306,34 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
 export default Board;
 
 const style = StyleSheet.create({
+    content: {
+        paddingHorizontal: 40,
+        flex: 1,
+        flexDirection: 'row-reverse',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     container: {
         flex: 1,
         width: "100%",
         aspectRatio: 2,
+    },
+    toolPanel: {
+        width: 60,
+        backgroundColor: '#fff',
+        marginRight: 20,
+        padding: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 'fit-content',
+        borderRadius: 40,
+    },
+    imageBackground: {
+        aspectRatio: 2,
+        backgroundColor: '#ffffff',
+        flex: 1,
+        width: '100%',
+        height: '100%',
+        borderRadius: 10,
     },
 });

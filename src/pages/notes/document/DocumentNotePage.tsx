@@ -1,6 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {ImageBackground, View} from 'react-native';
-import styles from '../../CardPage.scss';
+import {ImageBackground, View, StyleSheet} from 'react-native';
 import {useHttpClient} from "../../../transport/HttpClient";
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import {RootStackParamList} from "../../../../App";
@@ -197,6 +196,13 @@ const DocumentNoteWrapper: React.FC = () => {
         </ImageBackground>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        width: '100%',
+        height: '100%',
+    }
+})
 
 
 export default DocumentNoteWrapper;

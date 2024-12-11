@@ -1,9 +1,8 @@
 import {RouteProp, useFocusEffect, useNavigation, useRoute} from "@react-navigation/native";
 import React, {useContext, useEffect, useState} from "react";
-import {ActivityIndicator, ImageBackground, Text, View} from "react-native";
+import {ActivityIndicator, ImageBackground, Text, View, StyleSheet} from "react-native";
 import PieChart from "react-native-pie-chart";
 import {Button, IconButton} from "react-native-paper";
-import styles from './QuizPage.scss';
 import {Question} from "../solving/Question";
 import {QuizDetails} from "./QuizDetails";
 import {useHttpClient} from "../../../transport/HttpClient";
@@ -171,6 +170,93 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
         )}
     </>
 };
+
+const styles = StyleSheet.create({
+    error: {
+        color: "white",
+    },
+    button: {
+        backgroundColor: "white",
+        marginTop: 20,
+        width: 160,
+    },
+    incorrectButton: {
+        marginTop: 50,
+        backgroundColor: "white",
+        width: 260,
+    },
+    incorrectButtonDisabled: {
+        marginTop: 50,
+        backgroundColor: "grey",
+        width: 260,
+    },
+    buttonText: {
+        color: "#590d82",
+        fontSize: 20,
+        fontWeight: "bold",
+    },
+    subtitle: {
+        fontSize: 28,
+        marginTop: 10,
+        marginBottom: 10,
+        color: "white",
+    },
+    percentageText: {
+        fontSize: 18,
+    },
+    percentageContainer: {
+        flexDirection: "column",
+        marginTop: 30,
+    },
+    chartContainer: {
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        marginVertical: 30,
+    },
+    description: {
+        fontSize: 22,
+        color: "white",
+    },
+    info: {
+        fontSize: 18,
+        color: "white",
+        marginVertical: 10
+    },
+
+    row: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        alignItems: "center",
+    },
+    title: {
+        fontSize: 33,
+        fontWeight: "bold",
+        marginBottom: 10,
+        color: "white",
+    },
+    container2: {
+        flex: 1,
+        padding: 30,
+        alignItems: "center",
+    },
+    container: {
+        width: "100%",
+        height: "100%",
+    },
+    spinner: {
+        marginTop: 100,
+    },
+    content: {
+        flex: 1,
+        padding: 40,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
+    },
+});
 
 
 const QuizPageWrapper: React.FC = () => {
