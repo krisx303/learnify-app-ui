@@ -2,7 +2,7 @@ import React, {createContext, useContext, useEffect, useState, ReactNode} from '
 import {View, Text, ActivityIndicator, Button, StyleSheet} from 'react-native';
 import {ResourceType, UserPermissionLevel} from "../pages/main/Types";
 import {useHttpClient} from "../transport/HttpClient";
-import {useAuth} from "../pages/auth/AuthProvider";
+import {useAuth} from "./auth/AuthProvider";
 import {useNavigation} from "@react-navigation/native";
 
 interface PermissionContextType {

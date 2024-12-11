@@ -14,7 +14,7 @@ import {Question} from "../pages/quiz/solving/Question";
 import {NoteCreateDetails} from "../components/modals/CreateNoteModal";
 import {QuizCreateDetails} from "../components/modals/CreateQuizModal";
 import {ElementType, Position} from "../components/notes/board/types";
-import {useAuth} from "../pages/auth/AuthProvider";
+import {useAuth} from "../components/auth/AuthProvider";
 
 export type PathDto = { strokeWidth: number; path: string; color: string; blendMode: string };
 export type ElementDto = { width: number; id: string; position: Position; content: string; height: number; type: ElementType };
