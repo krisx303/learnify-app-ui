@@ -1,6 +1,5 @@
 import React from 'react';
-import {Text, ActivityIndicator} from 'react-native';
-import styles from './AsyncButton.scss';
+import {Text, ActivityIndicator, StyleSheet} from 'react-native';
 import {Button} from "react-native-paper";
 
 interface AsyncButtonProps {
@@ -15,10 +14,23 @@ const AsyncButton: React.FC<AsyncButtonProps> = ({loading, onPress, buttonText})
             {loading ? (
                 <ActivityIndicator size="small" color="#fff" style={styles.spinner}/>
             ) : (
-                <Text style={styles.buttonText}>{buttonText}</Text>
+                <Text>{buttonText}</Text>
             )}
         </Button>
     );
 };
+
+const styles = StyleSheet.create({
+    button: {
+        marginTop: 20,
+        backgroundColor: '#590d82',
+        width: '70%',
+        minWidth: 200,
+        maxWidth: 400,
+    },
+    spinner: {
+        marginRight: 10,
+    },
+})
 
 export default AsyncButton;

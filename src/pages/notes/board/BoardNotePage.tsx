@@ -1,6 +1,5 @@
 import React from 'react';
-import {ImageBackground} from 'react-native';
-import styles from '../../CardPage.scss';
+import {ImageBackground, StyleSheet} from 'react-native';
 import {version} from "canvaskit-wasm/package.json";
 import {WithSkiaWeb} from "@shopify/react-native-skia/lib/module/web";
 
@@ -18,6 +17,14 @@ const BoardNotePage: React.FC = () => {
         </ImageBackground>
     );
 };
+
+
+const styles = StyleSheet.create({
+    container: {
+        width: '100%',
+        height: '100%',
+    }
+})
 
 
 export default BoardNotePage;

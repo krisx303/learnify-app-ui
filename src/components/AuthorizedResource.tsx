@@ -1,6 +1,6 @@
 import React, {createContext, useContext, useEffect, useState, ReactNode} from 'react';
 import {View, Text, ActivityIndicator, Button, StyleSheet} from 'react-native';
-import {ResourceType, UserPermissionLevel} from "./main/Types";
+import {ResourceType, UserPermissionLevel} from "../pages/main/Types";
 import {useHttpClient} from "../transport/HttpClient";
 import {useAuth} from "./auth/AuthProvider";
 import {useNavigation} from "@react-navigation/native";

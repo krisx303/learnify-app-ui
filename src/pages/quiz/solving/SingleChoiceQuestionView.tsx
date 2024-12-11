@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         alignContent: "flex-start",
         marginTop: 20,
-        backgroundColor: '#390854'
     },
     choiceContainer: {
         flexDirection: "column",

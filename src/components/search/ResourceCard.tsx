@@ -3,7 +3,7 @@ import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import {Divider} from 'react-native-paper';
 import {MaterialIcons} from '@expo/vector-icons';
 import {ResourceSummary} from "../../transport/HttpClient";
-import ProgressBar from "../../pages/main/ProgressBar";
+import ProgressBar from "../ProgressBar";
 import StarRating from "../StarRating";
 
 type ResourceCardProps = {

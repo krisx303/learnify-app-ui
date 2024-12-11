@@ -12,9 +12,9 @@ import {QuizDetails} from "./src/pages/quiz/summmary/QuizDetails";
 import QuizEditor from "./src/pages/quiz/creation/QuizEditor";
 import BoardNotePage from "./src/pages/notes/board/BoardNotePage";
 import DocumentNotePage from "./src/pages/notes/document/DocumentNotePage";
-import {AuthProvider} from "./src/pages/auth/AuthProvider";
-import WorkspacePage from "./src/pages/main/WorkspacePage";
-import ResourceSearchPage from "./src/pages/main/ResourceSearchPage";
+import {AuthProvider} from "./src/components/auth/AuthProvider";
+import WorkspacePage from "./src/pages/workspace/WorkspacePage";
+import ResourceSearchPage from "./src/pages/search/ResourceSearchPage";
 
 const Stack = createStackNavigator();
 

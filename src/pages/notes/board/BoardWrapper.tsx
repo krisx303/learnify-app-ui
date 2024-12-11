@@ -1,8 +1,8 @@
 import React from 'react';
 import Board from "./Board";
 import DrawerProvider from "../../../components/drawer/DrawerProvider";
-import AuthenticatedResource from "../../AuthorizedResource";
-import AuthorizedResource from "../../AuthorizedResource";
+import AuthenticatedResource from "../../../components/AuthorizedResource";
+import AuthorizedResource from "../../../components/AuthorizedResource";
 import {RouteProp, useRoute} from "@react-navigation/native";
 import {RootStackParamList} from "../../../../App";
 import {BoardContextProvider} from "../../../components/notes/board/BoardContext";

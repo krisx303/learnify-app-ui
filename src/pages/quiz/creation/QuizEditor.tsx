@@ -112,7 +112,7 @@ const QuizEditor: React.FC = () => {
     };
 
     return (
-        <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../../assets/purple_background.png")} imageStyle={{resizeMode: "cover"}}>
+        <ImageBackground style={{flex: 1, width: "100%", height: "100%"}} source={require("../../../../assets/purple_background.png")} imageStyle={{resizeMode: "cover"}}>
             <ModularTopBar
                 breadcrumbs={[
                     {text: quizDetails?.title ?? "Quiz editor"}

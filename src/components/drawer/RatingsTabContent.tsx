@@ -4,8 +4,8 @@ import {Button, Card, PaperProvider} from "react-native-paper";
 import {useHttpClient} from "../../transport/HttpClient";
 import {MaterialIcons} from "@expo/vector-icons";
 import {ResourceType, User} from "../../pages/main/Types";
-import AddRatingModal, {RatingCreateDetails} from "../../pages/main/modals/AddRatingModal";
-import {useAuth} from "../../pages/auth/AuthProvider";
+import AddRatingModal, {RatingCreateDetails} from "../modals/AddRatingModal";
+import {useAuth} from "../auth/AuthProvider";
 import StarRating from "../StarRating";
 
 type Rating = {

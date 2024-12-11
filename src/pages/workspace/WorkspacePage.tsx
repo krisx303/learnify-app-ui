@@ -1,17 +1,16 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {ImageBackground, useWindowDimensions, View} from 'react-native';
+import {ImageBackground, StyleSheet, useWindowDimensions, View} from 'react-native';
 import {Title} from 'react-native-paper';
-import styles from './MainPage.scss';
-import NoteCard from './NoteCard';
-import QuizCard from './QuizCard';
+import NoteCard from '../../components/main/NoteCard';
+import QuizCard from '../../components/main/QuizCard';
 import {useHttpClient} from '../../transport/HttpClient';
-import {NoteSummary, QuizSummary, Workspace} from './Types';
+import {NoteSummary, QuizSummary, Workspace} from '../main/Types';
 import {RootStackParamList} from "../../../App";
 import {RouteProp, useRoute} from "@react-navigation/native";
 import DrawerProvider, {DrawerContext} from "../../components/drawer/DrawerProvider";
-import AuthorizedResource from "../AuthorizedResource";
+import AuthorizedResource from "../../components/AuthorizedResource";
 import WorkspaceDrawer from "../../components/drawer/WorkspaceDrawer";
-import {useAuth} from "../auth/AuthProvider";
+import {useAuth} from "../../components/auth/AuthProvider";
 import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../components/topbar";
 
 type RouteProps = RouteProp<RootStackParamList, 'WorkspacePage'>
@@ -88,7 +87,7 @@ const WorkspacePageWrapper: React.FC = () => {
     const route = useRoute<RouteProps>();
     const {workspaceId} = route.params;
 
-    return <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../assets/purple_background.png")}
+    return <ImageBackground style={{flex: 1, width: "100%", height: "100%"}} source={require("../../../assets/purple_background.png")}
                             imageStyle={{resizeMode: "cover"}}>
         <DrawerProvider>
             <AuthorizedResource resourceId={workspaceId} resourceType="WORKSPACE">
@@ -97,5 +96,48 @@ const WorkspacePageWrapper: React.FC = () => {
         </DrawerProvider>
     </ImageBackground>
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    content: {
+        flex: 1,
+        padding: 20,
+        flexDirection: 'row',
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 20,
+        marginLeft: 40,
+        color: '#fff',
+    },
+    sectionHorizontal: {
+        marginBottom: 10,
+        width: '50%',
+    },
+    sectionVertical: {
+        marginBottom: 20,
+        width: '100%',
+    },
+    cardContainer: {
+        flexWrap: 'wrap',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+    },
+    contentHorizontal: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        flex: 1,
+    },
+    contentVertical: {
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+    },
+})
+
 
 export default WorkspacePageWrapper;

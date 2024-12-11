@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text} from 'react-native';
 import {Button, SegmentedButtons, TextInput, Title} from 'react-native-paper';
 import GenericModal from "./GenericModal";
-import {AccessType} from "../Types";
+import {AccessType} from "../../pages/main/Types";
 
 export interface WorkspaceCreateProps {
     title: string;

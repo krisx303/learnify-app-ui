@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text} from 'react-native';
 import {Button, SegmentedButtons, TextInput, Title} from 'react-native-paper';
-import {useHttpClient} from "../../../transport/HttpClient";
-import {AccessType, Workspace} from "../Types";
+import {useHttpClient} from "../../transport/HttpClient";
+import {AccessType, Workspace} from "../../pages/main/Types";
 import GenericModal from "./GenericModal";
 import {WorkspaceDropdownSelector} from "./WorkspaceDropdownSelector";
 

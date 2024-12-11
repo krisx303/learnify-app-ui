@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import {TextInput} from 'react-native-paper';
-import styles from './RegisterForm.scss'
 import AsyncButton from "./AsyncButton";
 
 interface Props {
@@ -58,5 +57,23 @@ const RegisterForm: React.FC<Props> = ({onRegister, loading}) => {
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        width: '100%',
+        alignItems: 'center',
+        padding: 20,
+    },
+    input: {
+        marginBottom: 20,
+        width: '70%',
+        minWidth: 250,
+        maxWidth: 400,
+    },
+    passwordMatchError: {
+        color: 'red',
+        marginBottom: 10,
+    }
+})
 
 export default RegisterForm;

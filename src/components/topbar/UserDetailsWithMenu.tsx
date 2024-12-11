@@ -1,4 +1,4 @@
-import {useAuth} from "../../pages/auth/AuthProvider";
+import {useAuth} from "../auth/AuthProvider";
 import React, {useState} from "react";
 import {useNavigation} from "@react-navigation/native";
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
