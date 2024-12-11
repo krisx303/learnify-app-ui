@@ -1,11 +1,10 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {ImageBackground, useWindowDimensions, View} from 'react-native';
+import {ImageBackground, StyleSheet, useWindowDimensions, View} from 'react-native';
 import {Title} from 'react-native-paper';
-import styles from './MainPage.scss';
-import NoteCard from './NoteCard';
-import QuizCard from './QuizCard';
+import NoteCard from '../../components/main/NoteCard';
+import QuizCard from '../../components/main/QuizCard';
 import {useHttpClient} from '../../transport/HttpClient';
-import {NoteSummary, QuizSummary, Workspace} from './Types';
+import {NoteSummary, QuizSummary, Workspace} from '../main/Types';
 import {RootStackParamList} from "../../../App";
 import {RouteProp, useRoute} from "@react-navigation/native";
 import DrawerProvider, {DrawerContext} from "../../components/drawer/DrawerProvider";
@@ -97,5 +96,48 @@ const WorkspacePageWrapper: React.FC = () => {
         </DrawerProvider>
     </ImageBackground>
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    content: {
+        flex: 1,
+        padding: 20,
+        flexDirection: 'row',
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 20,
+        marginLeft: 40,
+        color: '#fff',
+    },
+    sectionHorizontal: {
+        marginBottom: 10,
+        width: '50%',
+    },
+    sectionVertical: {
+        marginBottom: 20,
+        width: '100%',
+    },
+    cardContainer: {
+        flexWrap: 'wrap',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+    },
+    contentHorizontal: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        flex: 1,
+    },
+    contentVertical: {
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+    },
+})
+
 
 export default WorkspacePageWrapper;

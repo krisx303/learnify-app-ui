@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {ImageBackground, TouchableWithoutFeedback, useWindowDimensions, View} from 'react-native';
+import {ImageBackground, TouchableWithoutFeedback, useWindowDimensions, View, StyleSheet} from 'react-native';
 import {Title} from 'react-native-paper';
-import styles from './MainPage.scss';
-import NoteCard from './NoteCard';
-import QuizCard from './QuizCard';
+import NoteCard from '../../components/main/NoteCard';
+import QuizCard from '../../components/main/QuizCard';
 import {useHttpClient} from '../../transport/HttpClient';
 import {NoteSummary, QuizSummary} from './Types';
 import CreateNoteModal, {NoteCreateDetails} from "../../components/modals/CreateNoteModal";
@@ -63,7 +62,6 @@ const MainPage = () => {
 
     const navigateToQuizEditor = (quiz: QuizSummary) => {
         fetchRecent();
-        //TODO save base quiz details to backend
         navigation.navigate('QuizEditor', {quizId: quiz.id, workspaceId: quiz.workspace.id});
     };
 
@@ -144,5 +142,46 @@ const MainPage = () => {
         </TouchableWithoutFeedback>
     );
 };
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    content: {
+        flex: 1,
+        padding: 20,
+        flexDirection: 'row',
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 20,
+        marginLeft: 40,
+        color: '#fff',
+    },
+    sectionHorizontal: {
+        marginBottom: 10,
+        width: '50%',
+    },
+    sectionVertical: {
+        marginBottom: 20,
+        width: '100%',
+    },
+    cardContainer: {
+        flexWrap: 'wrap',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+    },
+    contentHorizontal: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        flex: 1,
+    },
+    contentVertical: {
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+    },
+})
 
 export default MainPage;
