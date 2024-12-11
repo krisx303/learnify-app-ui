@@ -91,55 +91,51 @@ const MainPage = () => {
             .catch(console.error);
     };
     return (
-        <TouchableWithoutFeedback
-            onPress={() => setIsDropdownVisible(false)}
-            style={{flex: 1}}
-        >
-            <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../assets/purple_background.png")}
-                             imageStyle={{resizeMode: "cover"}}>
-                <ModularTopBar
-                    leftContent={
-                        <DropdownButton setDropdownVisible={setIsDropdownVisible} dropdownVisible={isDropdownVisible}
-                                        onItemSelected={onCreateDropdownSelected}/>
-                    }
-                    rightContent={<UserDetailsWithMenu displayUsername/>}
-                />
-                <View style={windowWidth < 700 ? styles.contentVertical : styles.contentHorizontal}>
-                    <View style={windowWidth < 700 ? styles.sectionVertical : styles.sectionHorizontal}>
-                        <Title style={styles.sectionTitle}>Recent Viewed Notes</Title>
-                        <View style={styles.cardContainer}>
-                            {recentViewedNotes.map((note) => (
-                                <NoteCard note={note} key={note.id}/>
-                            ))}
-                        </View>
-                    </View>
-                    <View style={windowWidth < 700 ? styles.sectionVertical : styles.sectionHorizontal}>
-                        <Title style={styles.sectionTitle}>Recent Attempted Tests</Title>
-                        <View style={styles.cardContainer}>
-                            {recentAttemptedQuizzes.map((quiz) => (
-                                <QuizCard quiz={quiz} key={quiz.id}/>
-                            ))}
-                        </View>
+        <ImageBackground style={{flex: 1, width: "100%", height: "100%"}}
+                         source={require("../../../assets/purple_background.png")}
+                         imageStyle={{resizeMode: "cover"}}>
+            <ModularTopBar
+                leftContent={
+                    <DropdownButton setDropdownVisible={setIsDropdownVisible} dropdownVisible={isDropdownVisible}
+                                    onItemSelected={onCreateDropdownSelected}/>
+                }
+                rightContent={<UserDetailsWithMenu displayUsername/>}
+            />
+            <View style={windowWidth < 700 ? styles.contentVertical : styles.contentHorizontal}>
+                <View style={windowWidth < 700 ? styles.sectionVertical : styles.sectionHorizontal}>
+                    <Title style={styles.sectionTitle}>Recent Viewed Notes</Title>
+                    <View style={styles.cardContainer}>
+                        {recentViewedNotes.map((note) => (
+                            <NoteCard note={note} key={note.id}/>
+                        ))}
                     </View>
                 </View>
+                <View style={windowWidth < 700 ? styles.sectionVertical : styles.sectionHorizontal}>
+                    <Title style={styles.sectionTitle}>Recent Attempted Tests</Title>
+                    <View style={styles.cardContainer}>
+                        {recentAttemptedQuizzes.map((quiz) => (
+                            <QuizCard quiz={quiz} key={quiz.id}/>
+                        ))}
+                    </View>
+                </View>
+            </View>
 
-                <CreateNoteModal
-                    isVisible={openedModal === 'Note'}
-                    onClose={() => setOpenedModal(null)}
-                    onSubmit={createNewNote}
-                />
-                <CreateQuizModal
-                    isVisible={openedModal === 'Quiz'}
-                    onClose={() => setOpenedModal(null)}
-                    onSubmit={createNewQuiz}
-                />
-                <CreateWorkspaceModal
-                    isVisible={openedModal === 'Workspace'}
-                    onClose={() => setOpenedModal(null)}
-                    onSubmit={createWorkspace}
-                />
-            </ImageBackground>
-        </TouchableWithoutFeedback>
+            <CreateNoteModal
+                isVisible={openedModal === 'Note'}
+                onClose={() => setOpenedModal(null)}
+                onSubmit={createNewNote}
+            />
+            <CreateQuizModal
+                isVisible={openedModal === 'Quiz'}
+                onClose={() => setOpenedModal(null)}
+                onSubmit={createNewQuiz}
+            />
+            <CreateWorkspaceModal
+                isVisible={openedModal === 'Workspace'}
+                onClose={() => setOpenedModal(null)}
+                onSubmit={createWorkspace}
+            />
+        </ImageBackground>
     );
 };
 const styles = StyleSheet.create({

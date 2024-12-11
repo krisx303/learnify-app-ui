@@ -87,7 +87,7 @@ const WorkspacePageWrapper: React.FC = () => {
     const route = useRoute<RouteProps>();
     const {workspaceId} = route.params;
 
-    return <ImageBackground style={{flex: 1, width: "100%"}} source={require("../../../assets/purple_background.png")}
+    return <ImageBackground style={{flex: 1, width: "100%", height: "100%"}} source={require("../../../assets/purple_background.png")}
                             imageStyle={{resizeMode: "cover"}}>
         <DrawerProvider>
             <AuthorizedResource resourceId={workspaceId} resourceType="WORKSPACE">
