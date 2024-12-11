@@ -11,8 +11,8 @@ import {
 } from "../pages/main/Types";
 import {QuizDetails} from "../pages/quiz/summmary/QuizDetails";
 import {Question} from "../pages/quiz/solving/Question";
-import {NoteCreateDetails} from "../pages/main/modals/CreateNoteModal";
-import {QuizCreateDetails} from "../pages/main/modals/CreateQuizModal";
+import {NoteCreateDetails} from "../components/modals/CreateNoteModal";
+import {QuizCreateDetails} from "../components/modals/CreateQuizModal";
 import {ElementType, Position} from "../components/notes/board/types";
 import {useAuth} from "../pages/auth/AuthProvider";
 

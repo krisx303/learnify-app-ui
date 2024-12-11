@@ -1,6 +1,6 @@
 import {Picker, StyleSheet, Text, View} from "react-native";
 import React from "react";
-import {Workspace} from "../Types";
+import {Workspace} from "../../pages/main/Types";
 
 interface WorkspaceDropdownSelectorProps {
     selectedValue: string;
