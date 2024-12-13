@@ -1,59 +1,121 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {ImageBackground, StyleSheet, useWindowDimensions, View} from 'react-native';
-import {Title} from 'react-native-paper';
-import NoteCard from '../../components/main/NoteCard';
-import QuizCard from '../../components/main/QuizCard';
-import {useHttpClient} from '../../transport/HttpClient';
-import {NoteSummary, QuizSummary, Workspace} from '../main/Types';
-import {RootStackParamList} from "../../../App";
-import {RouteProp, useRoute} from "@react-navigation/native";
-import DrawerProvider, {DrawerContext} from "../../components/drawer/DrawerProvider";
-import AuthorizedResource from "../../components/AuthorizedResource";
-import WorkspaceDrawer from "../../components/drawer/WorkspaceDrawer";
-import {useAuth} from "../../components/auth/AuthProvider";
+import {
+    View,
+    Text,
+    StyleSheet,
+    FlatList,
+    TouchableOpacity,
+    useWindowDimensions, ImageBackground
+} from 'react-native';
 import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../components/topbar";
+import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
+import {StackNavigationProp} from "@react-navigation/stack";
+import {RootStackParamList} from "../../../App";
+import {useHttpClient} from "../../transport/HttpClient";
+import {DetailedWorkspace, NoteSummary, Workspace} from "../main/Types";
+import {MaterialIcons} from "@expo/vector-icons";
+import {DrawerContext, DrawerProvider} from "../../components/drawer/DrawerProvider";
+import WorkspaceDrawer from '../../components/drawer/WorkspaceDrawer';
+import {useAuth} from "../../components/auth/AuthProvider";
+import AuthorizedResource from "../../components/AuthorizedResource";
 
-type RouteProps = RouteProp<RootStackParamList, 'WorkspacePage'>
+type NavigationProps = StackNavigationProp<RootStackParamList, 'WorkspacePage'>;
+type RouteProps = RouteProp<RootStackParamList, 'WorkspacePage'>;
 
-const WorkspacePage = ({workspaceId}: {workspaceId: string}) => {
-    const {width: windowWidth} = useWindowDimensions();
+const WorkspacePage = ({ workspaceId}: {workspaceId: string}) => {
+    const { width: windowWidth } = useWindowDimensions();
     const httpClient = useHttpClient();
-    const [workspaceDetails, setWorkspaceDetails] = useState<Workspace | undefined>(undefined);
-    const [notes, setNotes] = useState<NoteSummary[]>([]);
-    const [quizzes, setQuizzes] = useState<QuizSummary[]>([]);
+    const [workspace, setWorkspace] = useState<DetailedWorkspace>();
+    const [resources, setResources] = useState<any[]>([]);
     const { toggleDrawer, setDrawerContent, drawerVisible } = useContext(DrawerContext);
+    const [subWorkspaces, setSubWorkspaces] = useState<Workspace[]>([]);
     const { user } = useAuth();
+    const navigation = useNavigation<NavigationProps>();
+
+    useEffect(() => {
+        fetchWorkspaceData();
+    }, [workspaceId])
 
     useEffect(() => {
         setDrawerContent(
             <WorkspaceDrawer
                 workspaceId={workspaceId}
                 onClose={toggleDrawer}
-                isOwner={workspaceDetails?.author.id === user?.uid}
-                ownerId={workspaceDetails?.author.id ?? ""}
+                isOwner={workspace?.author.id === user?.uid}
+                ownerId={workspace?.author.id ?? ""}
             />);
     }, [drawerVisible]);
 
-    const fetchResources = () => {
-        httpClient.getNotesWithinWorkspace(workspaceId)
-            .then(setNotes)
-            .catch(console.error);
-        httpClient.getQuizzesWithinWorkspace(workspaceId)
-            .then(setQuizzes)
-            .catch(console.error);
+    const fetchWorkspaceData = () => {
+        httpClient.searchResources(undefined, "", undefined, workspaceId, undefined, 0)
+            .then(setResources);
+        httpClient.getWorkspaceDetails(workspaceId)
+            .then((workspaceDetails) => {
+                setWorkspace(workspaceDetails);
+                setSubWorkspaces(workspaceDetails.childWorkspaces.map(w => ({ ...w, resourceType: 'WORKSPACE' })));
+            });
     }
 
-    useEffect(() => {
-        fetchResources();
-        httpClient.getWorkspace(workspaceId)
-            .then(setWorkspaceDetails)
-            .catch(console.error);
-    }, [httpClient, workspaceId]);
+    function onNavigateToItem(item: any) {
+        switch (item.resourceType) {
+            case 'WORKSPACE':
+                navigation.navigate("WorkspacePage", { workspaceId: item.id });
+                break;
+            case "NOTE":
+                const noteSummary = item as NoteSummary;
+                if (noteSummary.type === "BOARD") {
+                    navigation.push("BoardNotePage", { workspaceId: noteSummary.workspace.id, noteId: noteSummary.id });
+                } else if (noteSummary.type === "DOCUMENT") {
+                    navigation.push("DocumentNotePage", { workspaceId: noteSummary.workspace.id, noteId: noteSummary.id });
+                }
+                break;
+            case "QUIZ":
+                navigation.push("QuizPage", { workspaceId: item.workspace.id, quizId: item.id });
+                break;
+        }
+    }
+
+    function onNavigateBack() {
+        if (workspace?.parentWorkspace) {
+            navigation.navigate("WorkspacePage", { workspaceId: workspace.parentWorkspace.id });
+        }
+    }
+
+    const getIcon = (item: any) => {
+        switch (item.resourceType) {
+            case 'WORKSPACE':
+                return 'folder';
+            case 'NOTE':
+                if (item.type === 'DOCUMENT')
+                    return 'description';
+                return 'edit';
+            case 'QUIZ':
+                return 'school';
+        }
+    }
+
+    const renderItem = ({ item }: {item: any}) => {
+        const icon = getIcon(item);
+        return (
+            <TouchableOpacity
+                style={styles.itemContainer}
+                onPress={() => onNavigateToItem(item)}>
+                <View style={{marginRight: 10}}>
+                    <MaterialIcons name={icon} color="#000" size={26}/>
+                </View>
+                <View style={{flexDirection: "column"}}>
+                    <Text style={styles.itemType}>{item.resourceType === "WORKSPACE" ? 'Workspace' : 'Resource'}</Text>
+                    <Text
+                        style={styles.itemName}>{item.resourceType === "WORKSPACE" ? item.displayName : item.title}</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    };
 
     return (
-        <>
+       <>
             <ModularTopBar
-                breadcrumbs={[{text: workspaceDetails?.displayName || "Workspace"}]}
+                breadcrumbs={[{text: workspace?.displayName || 'Workspace'}]}
                 rightContent={
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <OptionsButtons onPress={toggleDrawer}/>
@@ -61,25 +123,22 @@ const WorkspacePage = ({workspaceId}: {workspaceId: string}) => {
                     </View>
                 }
             />
-            <View style={windowWidth < 700 ? styles.contentVertical : styles.contentHorizontal}>
-                <View style={windowWidth < 700 ? styles.sectionVertical : styles.sectionHorizontal}>
-                    <Title style={styles.sectionTitle}>Notes</Title>
-                    <View style={styles.cardContainer}>
-                        {notes.map((note) => (
-                            <NoteCard note={note} key={note.id}/>
-                        ))}
-                    </View>
-                </View>
-                <View style={windowWidth < 700 ? styles.sectionVertical : styles.sectionHorizontal}>
-                    <Title style={styles.sectionTitle}>Tests</Title>
-                    <View style={styles.cardContainer}>
-                        {quizzes.map((quiz) => (
-                            <QuizCard quiz={quiz} key={quiz.id}/>
-                        ))}
-                    </View>
-                </View>
-            </View>
-        </>
+        <View style={[styles.container, { width: windowWidth < 650 ? '95%' : '60%' }]}>
+            {workspace && workspace.parentWorkspace && (
+                <TouchableOpacity style={styles.backButton} onPress={onNavigateBack}>
+                    <Text style={styles.backButtonText}>Back to {workspace.parentWorkspace.displayName}</Text>
+                </TouchableOpacity>
+            )}
+            <Text style={styles.title}>Workspace: {workspace?.displayName}</Text>
+
+               <FlatList
+                   data={[...subWorkspaces, ...resources]}
+                   keyExtractor={(item) => item.id}
+                   renderItem={renderItem}
+                   contentContainerStyle={styles.listContainer}
+               />
+        </View>
+       </>
     );
 };
 
@@ -100,44 +159,58 @@ const WorkspacePageWrapper: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        alignSelf: 'center',
+        paddingVertical: 20,
+        borderRadius: 12,
     },
-    content: {
-        flex: 1,
-        padding: 20,
-        flexDirection: 'row',
-    },
-    sectionTitle: {
-        fontSize: 18,
+    title: {
+        fontSize: 24,
         fontWeight: 'bold',
-        marginTop: 20,
-        marginLeft: 40,
+        marginBottom: 20,
         color: '#fff',
     },
-    sectionHorizontal: {
+    listContainer: {
+        paddingHorizontal: 10,
+    },
+    itemContainer: {
+        backgroundColor: '#fff',
+        padding: 15,
         marginBottom: 10,
-        width: '50%',
-    },
-    sectionVertical: {
-        marginBottom: 20,
-        width: '100%',
-    },
-    cardContainer: {
-        flexWrap: 'wrap',
+        borderRadius: 8,
+        shadowColor: '#fff',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
         flexDirection: 'row',
-        justifyContent: 'flex-start',
+        alignItems: 'center',
     },
-    contentHorizontal: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        flex: 1,
+    itemType: {
+        fontSize: 14,
+        color: '#666',
+        marginBottom: 5,
     },
-    contentVertical: {
-        display: 'flex',
-        flexDirection: 'column',
-        flex: 1,
+    itemName: {
+        fontSize: 18,
+        fontWeight: '500',
+        marginBottom: 5,
     },
-})
-
+    itemLastUpdated: {
+        fontSize: 12,
+        color: '#999',
+    },
+    backButton: {
+        marginVertical: 20,
+        backgroundColor: '#cdc8e8',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        width: 'fit-content',
+    },
+    backButtonText: {
+        color: '#45158c',
+        fontSize: 16,
+        fontWeight: '500',
+    },
+});
 
 export default WorkspacePageWrapper;

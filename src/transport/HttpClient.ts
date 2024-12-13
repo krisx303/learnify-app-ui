@@ -1,6 +1,6 @@
 import {useMemo} from "react";
 import {
-    AccessType,
+    AccessType, DetailedWorkspace,
     FullPermissionModel,
     NoteSummary, NoteType,
     QuizSummary,
@@ -450,6 +450,10 @@ class RealHttpClient implements HttpClientBase {
 
     deleteQuestion(quizId: string, questionId: string) {
         return this.delete(`/quizzes/${quizId}/questions/${questionId}`);
+    }
+
+    getWorkspaceDetails(workspaceId: string): Promise<DetailedWorkspace> {
+        return this.get(`/workspaces/${workspaceId}/details`);
     }
 }
 
