@@ -7,7 +7,7 @@ import WorkspaceDropdown, { WorkspaceProps } from "../../components/search/Works
 import { ResourceSummary, useHttpClient } from "../../transport/HttpClient";
 import GenericFilterButtons from '../../components/search/GenericFilterButtons';
 import ResourceCard from "../../components/search/ResourceCard";
-import { NoteSummary } from "./Types";
+import { NoteSummary } from "../main/Types";
 import {useFocusEffect, useNavigation} from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../../App";

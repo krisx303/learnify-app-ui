@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, StyleSheet, View} from "react-native";
+import {Button, ImageBackground, StyleSheet, View} from "react-native";
 import QuestionsHolder from "./QuestionsHolder";
 import {Question} from "./Question";
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
@@ -40,14 +40,14 @@ const QuestionsScreen: React.FC = () => {
             } else {
                 updateResultsAndNavigate();
             }
-        }else{
+        } else {
             addNewResult();
         }
         setEditable(!isEditable)
     };
 
     const addNewResult = () => {
-        if (JSON.stringify(userAnswer)==JSON.stringify(question.answer)) {
+        if (JSON.stringify(userAnswer) == JSON.stringify(question.answer)) {
             setCorrectness([...correctness, true])
         } else {
             setCorrectness([...correctness, false])
@@ -83,7 +83,8 @@ const QuestionsScreen: React.FC = () => {
     };
 
     return (
-        <View style={styles.container2}>
+        <ImageBackground style={{flex: 1, width: "100%", height: "100%"}} source={require("../../../../assets/purple_background.png")}
+                         imageStyle={{resizeMode: "cover"}}>
             {/*TODO add here some title - likely description of what user does, f.e. quiz with question number*/}
             <ModularTopBar
                 breadcrumbs={[
@@ -106,7 +107,7 @@ const QuestionsScreen: React.FC = () => {
                     <Button title={getButtonTitle()} onPress={handleNext}/>
                 </View>
             </View>
-        </View>
+        </ImageBackground>
     );
 };
 
@@ -116,7 +117,6 @@ const styles = StyleSheet.create({
         padding: 15,
         alignItems: "center",
         justifyContent: "space-between",
-        backgroundColor: '#390854'
     },
     questionText: {
         marginTop: 20,
@@ -126,12 +126,6 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         alignSelf: "center",
-    },
-    container2: {
-        flex: 1,
-        resizeMode: 'cover',
-        width: '100%',
-        height: '100%'
     },
 });
 

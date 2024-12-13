@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text} from 'react-native';
 import {Button, SegmentedButtons, TextInput, Title} from 'react-native-paper';
-import {useHttpClient} from '../../../transport/HttpClient';
+import {useHttpClient} from '../../transport/HttpClient';
 import GenericModal from "./GenericModal";
 import {WorkspaceDropdownSelector} from "./WorkspaceDropdownSelector";
-import {AccessType, NoteType, Workspace} from "../Types";
+import {AccessType, NoteType, Workspace} from "../../pages/main/Types";
 
 export type NoteCreateDetails = {
     title: string;

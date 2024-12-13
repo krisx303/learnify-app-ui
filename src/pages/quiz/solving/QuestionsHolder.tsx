@@ -42,7 +42,6 @@ const QuestionsHolder: React.FC<QuestionsHolderProps> = ({
 const styles = StyleSheet.create({
     container: {
         marginBottom: 20,
-        backgroundColor: '#390854'
     },
 });
 

@@ -3,7 +3,7 @@ import {StyleSheet, Text, View, TouchableOpacity} from "react-native";
 import {Button, TextInput, Title} from "react-native-paper";
 import GenericModal from "./GenericModal";
 import {MaterialIcons} from "@expo/vector-icons";
-import {StarRatingInput} from "../../../components/StarRating";
+import {StarRatingInput} from "../StarRating";
 
 export type RatingCreateDetails = {
     title: string;
