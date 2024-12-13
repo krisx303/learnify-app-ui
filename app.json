@@ -3,7 +3,7 @@
     "name": "Learnify",
     "packagerOpts": {
       "config": "metro.config.js",
-      "sourceExts": ["js", "jsx", "scss", "sass"]
+      "sourceExts": ["js", "jsx"]
     },
     "slug": "learnify-app-ui",
     "version": "1.0.0",
