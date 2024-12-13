@@ -9,14 +9,73 @@ import {useHttpClient} from "../../../transport/HttpClient";
 import {RootStackParamList} from "../../../../App";
 import {StackNavigationProp} from "@react-navigation/stack";
 import DrawerProvider, {DrawerContext} from "../../../components/drawer/DrawerProvider";
-import AuthorizedResource from "../../../components/AuthorizedResource";
 import QuizDrawer from "../../../components/drawer/QuizDrawer";
 import {useAuth} from "../../../components/auth/AuthProvider";
 import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../../components/topbar";
-
+import AuthorizedResource from "../../../components/AuthorizedResource";
+import StartQuizModal, {StartQuizDetails} from "../../../components/modals/StartQuizModal";
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'QuizPage'>;
 type RouteProps = RouteProp<RootStackParamList, 'QuizPage'>;
+
+const DEFAULT_START_OPTIONS: StartQuizDetails = {
+    shuffleQuestions: false,
+    shuffleAnswers: false,
+    repeatOnFailure: false,
+    repeatOnlyFailedQuestions: false,
+};
+
+function shuffle(array: any[]) {
+    array.sort(() => Math.random() - 0.5);
+}
+
+export function shuffleAnswers(questions: Question[]): Question[] {
+    return questions.map((question) => {
+        if (question.type === "multiple-choice") {
+            // Combine choices, answers, and feedback into a single array
+            const combined = question.choices.map((choice, index) => ({
+                choice,
+                answer: question.answer[index],
+                feedback: question.feedback[index],
+            }));
+
+            shuffle(combined);
+
+            const shuffledChoices = combined.map(item => item.choice);
+            const shuffledAnswers = combined.map(item => item.answer);
+            const shuffledFeedback = combined.map(item => item.feedback);
+
+            return {
+                ...question,
+                choices: shuffledChoices,
+                answer: shuffledAnswers,
+                feedback: shuffledFeedback,
+            };
+        }
+        else if (question.type === "single-choice") {
+            // Combine choices and feedback into a single array
+            const combined = question.choices.map((choice, index) => ({
+                choice,
+                feedback: question.feedback[index],
+                isAnswer: index === question.answer,
+            }));
+
+            shuffle(combined);
+
+            const shuffledChoices = combined.map(item => item.choice);
+            const shuffledFeedback = combined.map(item => item.feedback);
+            const newAnswerIndex = combined.findIndex(item => item.isAnswer);
+
+            return {
+                ...question,
+                choices: shuffledChoices,
+                feedback: shuffledFeedback,
+                answer: newAnswerIndex,
+            };
+        }
+        return question;
+    });
+}
 
 
 const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }) => {
@@ -27,6 +86,7 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
     const httpClient = useHttpClient();
     const navigation = useNavigation<NavigationProps>();
     const {toggleDrawer, setDrawerContent, drawerVisible} = useContext(DrawerContext);
+    const [isModalVisible, setIsModalVisible] = useState(false);
     const {user} = useAuth();
 
     useEffect(() => {
@@ -35,7 +95,7 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
                 quizId={quizId}
                 onClose={toggleDrawer}
                 navigateToNote={(workspaceId, noteId, noteType) => {
-                    if (noteType === 'document') {
+                    if (noteType === 'DOCUMENT') {
                         navigation.navigate('DocumentNotePage', {noteId, workspaceId});
                     } else {
                         navigation.navigate('BoardNotePage', {noteId, workspaceId});
@@ -88,23 +148,24 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
         navigation.navigate("QuizEditor", {quizId, workspaceId})
     };
 
+    const navigateToQuestionsScreenWithOptions = (options: StartQuizDetails) => {
+        const quizDetails = quiz!!;
+        const questionsToUse = options.repeatOnlyFailedQuestions ? incorrectQuestions : questions;
+        const previouslyCorrect = options.repeatOnlyFailedQuestions ? quizDetails.lastScore.correct : 0;
+        if (options.shuffleQuestions) {
+            shuffle(questionsToUse);
+        }
+        const shuffledAnswers = options.shuffleAnswers ? shuffleAnswers(questionsToUse) : questionsToUse;
+        navigation.navigate("QuestionsScreen", {
+            quizId: quizId,
+            questions: shuffledAnswers,
+            quiz: quizDetails,
+            previouslyCorrect: previouslyCorrect,
+            options: options
+        });
+    };
+
     const QuizDetailsContent = ({quiz}: { quiz: QuizDetails }) => {
-        const navigateToQuestionScreen = () => {
-            navigation.navigate("QuestionsScreen", {
-                quizId: quizId,
-                questions: questions,
-                quiz: quiz,
-                previouslyCorrect: 0
-            });
-        };
-        const navigateToOnlyIncorrectQuestionScreen = () => {
-            navigation.navigate("QuestionsScreen", {
-                quizId: quizId,
-                questions: incorrectQuestions,
-                quiz: quiz,
-                previouslyCorrect: quiz.lastScore.correct
-            });
-        };
         return (
             <View style={styles.container2}>
                 <View style={styles.row}>
@@ -133,13 +194,11 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
                         </View>
                     </View>
                 ) : <Text style={styles.info}>No data available</Text>}
-                <Button style={styles.button} onPress={navigateToQuestionScreen}>
+                <Button style={styles.button} onPress={() => {navigateToQuestionsScreenWithOptions(DEFAULT_START_OPTIONS)}}>
                     <Text style={styles.buttonText}>Start quiz</Text>
                 </Button>
-                <Button disabled={incorrectQuestions.length == 0}
-                        style={incorrectQuestions.length == 0 ? styles.incorrectButtonDisabled : styles.incorrectButton}
-                        onPress={navigateToOnlyIncorrectQuestionScreen}>
-                    <Text style={styles.buttonText}>Repeat only incorrect</Text>
+                <Button style={styles.button} onPress={() => setIsModalVisible(true)}>
+                    <Text style={styles.buttonText}>Start quiz with options</Text>
                 </Button>
             </View>
         );
@@ -161,6 +220,11 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
                 </View>
             }
         />
+        <StartQuizModal repeatOnlyFailedQuestionsPossible={incorrectQuestions.length != 0}
+                        isVisible={isModalVisible}
+                        onClose={() => {setIsModalVisible(false)}}
+                        onSubmit={navigateToQuestionsScreenWithOptions}
+        />
         {loading ? (
             <ActivityIndicator size="large" color="#fff" style={styles.spinner}/>
         ) : quiz && quiz.id === undefined ? (
@@ -178,17 +242,7 @@ const styles = StyleSheet.create({
     button: {
         backgroundColor: "white",
         marginTop: 20,
-        width: 160,
-    },
-    incorrectButton: {
-        marginTop: 50,
-        backgroundColor: "white",
-        width: 260,
-    },
-    incorrectButtonDisabled: {
-        marginTop: 50,
-        backgroundColor: "grey",
-        width: 260,
+        paddingHorizontal: 20,
     },
     buttonText: {
         color: "#590d82",

@@ -15,6 +15,7 @@ import DocumentNotePage from "./src/pages/notes/document/DocumentNotePage";
 import {AuthProvider} from "./src/components/auth/AuthProvider";
 import WorkspacePage from "./src/pages/workspace/WorkspacePage";
 import ResourceSearchPage from "./src/pages/search/ResourceSearchPage";
+import {StartQuizDetails} from "./src/components/modals/StartQuizModal";
 
 const Stack = createStackNavigator();
 
@@ -26,7 +27,7 @@ export type RootStackParamList = {
     DocumentNotePage: { workspaceId: string, noteId: string };
     QuizPage: { workspaceId: string, quizId: string };
     // TODO delete advanced objects from route
-    QuestionsScreen: { questions: Question[]; quizId: string, quiz: QuizDetails, previouslyCorrect: number};
+    QuestionsScreen: { questions: Question[]; quizId: string, quiz: QuizDetails, previouslyCorrect: number, options: StartQuizDetails};
     QuizEditor: { workspaceId: string, quizId: string };
     WorkspacePage: { workspaceId: string };
     ResourceSearchPage: undefined;
