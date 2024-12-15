@@ -12,6 +12,7 @@ import {RootStackParamList} from "../../../App";
 import {useFocusEffect, useNavigation} from "@react-navigation/native";
 import CreateWorkspaceModal, {WorkspaceCreateProps} from "../../components/modals/CreateWorkspaceModal";
 import {ModularTopBar, UserDetailsWithMenu, DropdownButton} from "../../components/topbar";
+import SearchButton from "../../components/search/SearchButton";
 
 type Modal = 'Note' | 'Quiz' | 'Workspace' | null;
 
@@ -96,8 +97,11 @@ const MainPage = () => {
                          imageStyle={{resizeMode: "cover"}}>
             <ModularTopBar
                 leftContent={
-                    <DropdownButton setDropdownVisible={setIsDropdownVisible} dropdownVisible={isDropdownVisible}
-                                    onItemSelected={onCreateDropdownSelected}/>
+                    <View style={{flexDirection: "row"}}>
+                        <DropdownButton setDropdownVisible={setIsDropdownVisible} dropdownVisible={isDropdownVisible}
+                                        onItemSelected={onCreateDropdownSelected}/>
+                        <SearchButton onPress={() => navigation.navigate("ResourceSearchPage")}/>
+                    </View>
                 }
                 rightContent={<UserDetailsWithMenu displayUsername/>}
             />
