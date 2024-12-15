@@ -41,6 +41,16 @@ export interface Workspace {
     id: string;
     displayName: string;
     author: User;
+    childWorkspaceIds: string[];
+    parentWorkspaceId: string | null;
+}
+
+export interface DetailedWorkspace {
+    id: string;
+    displayName: string;
+    author: User;
+    childWorkspaces: Workspace[];
+    parentWorkspace: Workspace | null;
 }
 
 export interface User {
