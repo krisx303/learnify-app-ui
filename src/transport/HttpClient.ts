@@ -63,7 +63,7 @@ interface HttpClientBase {
 
     getDocumentPageContent(workspaceId: string, noteId: string, pageNumber: number): Promise<DocumentNotePageContentWithVersion>;
 
-    createNewWorkspace(title: string, resourceAccessTypeDto: string): Promise<Workspace>;
+    createNewWorkspace(title: string, resourceAccessTypeDto: string, parentWorkspaceId: string | undefined): Promise<Workspace>;
 
     createNewQuiz(quiz: QuizCreateDetails): Promise<QuizSummary>;
 
@@ -177,8 +177,8 @@ class RealHttpClient implements HttpClientBase {
         });
     }
 
-    createNewWorkspace(title: string, resourceAccessTypeDto: string) {
-        return this.post('/workspaces', {displayName: title, resourceAccessTypeDto: resourceAccessTypeDto});
+    createNewWorkspace(title: string, resourceAccessTypeDto: string, parentWorkspaceId: string | undefined): Promise<Workspace> {
+        return this.post('/workspaces', {displayName: title, resourceAccessTypeDto: resourceAccessTypeDto, parentWorkspaceId: parentWorkspaceId});
     }
 
     createNewQuiz(quiz: QuizCreateDetails): Promise<QuizSummary> {

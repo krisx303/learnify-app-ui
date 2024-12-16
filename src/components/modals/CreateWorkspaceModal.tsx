@@ -3,10 +3,13 @@ import {StyleSheet, Text} from 'react-native';
 import {Button, SegmentedButtons, TextInput, Title} from 'react-native-paper';
 import GenericModal from "./GenericModal";
 import {AccessType} from "../../pages/main/Types";
+import WorkspaceDropdown, {WorkspaceProps} from "../search/WorkspaceDropdown";
+import {useHttpClient} from "../../transport/HttpClient";
 
 export interface WorkspaceCreateProps {
     title: string;
     resourceAccessTypeDto: AccessType;
+    parentWorkspaceId?: string;
 }
 
 interface CreateQuizModalProps {
@@ -19,6 +22,17 @@ const CreateWorkspaceModal: React.FC<CreateQuizModalProps> = ({isVisible, onClos
     const [workspaceName, setWorkspaceName] = useState('');
     const [errorWorkspaceName, setErrorWorkspaceName] = useState('');
     const [accessType, setAccessType] = useState<AccessType>('PUBLIC');
+    const [parentWorkspace, setParentWorkspace] = useState<WorkspaceProps | undefined>(undefined);
+    const [workspaces, setWorkspaces] = useState<WorkspaceProps[]>([]);
+    const httpClient = useHttpClient();
+
+    useEffect(() => {
+        if (isVisible) {
+            httpClient.getWorkspaces()
+                .then(setWorkspaces)
+                .catch(console.error);
+        }
+    }, [isVisible]);
 
     useEffect(() => {
         if (workspaceName) {
@@ -31,8 +45,7 @@ const CreateWorkspaceModal: React.FC<CreateQuizModalProps> = ({isVisible, onClos
             setErrorWorkspaceName('* Workspace Name is required');
             return;
         }
-        console.log(accessType)
-        onSubmit({title: workspaceName, resourceAccessTypeDto: accessType});
+        onSubmit({title: workspaceName, resourceAccessTypeDto: accessType, parentWorkspaceId: parentWorkspace?.id});
         setWorkspaceName('');
         setErrorWorkspaceName('');
         onClose();
@@ -61,7 +74,9 @@ const CreateWorkspaceModal: React.FC<CreateQuizModalProps> = ({isVisible, onClos
                     ]}
                     style={{marginBottom: 10}}
                 />
+                <Text style={{marginBottom: 5}}>Parent Workspace: (optional)</Text>
                 {errorWorkspaceName ? <Text style={styles.errorText}>{errorWorkspaceName}</Text> : null}
+                <WorkspaceDropdown workspaces={workspaces} selectedWorkspace={parentWorkspace} setSelectedWorkspace={setParentWorkspace}/>
             </GenericModal.Body>
             <GenericModal.Footer>
                 <Button
