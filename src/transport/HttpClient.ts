@@ -455,6 +455,10 @@ class RealHttpClient implements HttpClientBase {
     getWorkspaceDetails(workspaceId: string): Promise<DetailedWorkspace> {
         return this.get(`/workspaces/${workspaceId}/details`);
     }
+
+    getLeaderboard(quizId: string) {
+        return this.get(`/quizzes/${quizId}/results?numberOfTopResults=10`);
+    }
 }
 
 /** Hook to provide an instance of the HTTP client */

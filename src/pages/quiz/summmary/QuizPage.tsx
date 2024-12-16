@@ -13,6 +13,7 @@ import AuthorizedResource from "../../../components/AuthorizedResource";
 import QuizDrawer from "../../../components/drawer/QuizDrawer";
 import {useAuth} from "../../../components/auth/AuthProvider";
 import {ModularTopBar, OptionsButtons, UserDetailsWithMenu} from "../../../components/topbar";
+import LeaderboardTable from "../../../components/quiz/LeaderboardTable";
 
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'QuizPage'>;
@@ -28,6 +29,7 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
     const navigation = useNavigation<NavigationProps>();
     const {toggleDrawer, setDrawerContent, drawerVisible} = useContext(DrawerContext);
     const {user} = useAuth();
+    const [leaderboardData, setLeaderboardData] = useState([]);
 
     useEffect(() => {
         setDrawerContent(
@@ -35,7 +37,7 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
                 quizId={quizId}
                 onClose={toggleDrawer}
                 navigateToNote={(workspaceId, noteId, noteType) => {
-                    if (noteType === 'document') {
+                    if (noteType === 'DOCUMENT') {
                         navigation.navigate('DocumentNotePage', {noteId, workspaceId});
                     } else {
                         navigation.navigate('BoardNotePage', {noteId, workspaceId});
@@ -56,6 +58,9 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
         httpClient.getIncorrectQuizQuestions(quizId)
             .then(setIncorrectQuestions)
             .catch(console.error);
+        httpClient.getLeaderboard(quizId)
+            .then(setLeaderboardData)
+            .catch(console.error);
     }, [httpClient, workspaceId, quizId]);
 
     useEffect(() => {
@@ -75,6 +80,9 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
                 .catch(console.error);
             httpClient.getIncorrectQuizQuestions(quizId)
                 .then(setIncorrectQuestions)
+                .catch(console.error);
+            httpClient.getLeaderboard(quizId)
+                .then(setLeaderboardData)
                 .catch(console.error);
         }, [httpClient.getQuizDetails])
     );
@@ -106,41 +114,54 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
             });
         };
         return (
-            <View style={styles.container2}>
-                <View style={styles.row}>
-                    <Text style={styles.title}>{quiz.title}</Text>
-                    <IconButton icon={"pencil"} size={30} iconColor="white" onPress={navigateToEditor}/>
-                </View>
-                <Text style={styles.description}>{quiz.description}</Text>
-                <Text style={styles.info}>Number of questions: {quiz.numberOfQuestions} </Text>
-                <Text style={styles.info}>Best
-                    result: {quiz.bestScore == null ? "0" : asPercentage(quiz.bestScore.correct)}% </Text>
-                <Text style={styles.subtitle}>Last score</Text>
-                {quiz.lastScore ? (
-                    <View style={styles.chartContainer}>
-                        <PieChart
-                            widthAndHeight={250}
-                            series={[quiz.lastScore.correct, quiz.lastScore.incorrect]}
-                            sliceColor={["#109e16", "#ff3c00"]}
-                            coverRadius={0.5}
-                            coverFill={"#FFF"}
-                        />
-                        <View style={styles.percentageContainer}>
-                            <Text
-                                style={[styles.percentageText, {color: "#109e16"}]}>Correct: {asPercentage(quiz.lastScore.correct)}%</Text>
-                            <Text
-                                style={[styles.percentageText, {color: "#ff3c00"}]}>Incorrect: {asPercentage(quiz.lastScore.incorrect)}%</Text>
-                        </View>
+            <View style={styles.mainContent}>
+                <View style={styles.quizDetailsContainer}>
+                    <View style={styles.row}>
+                        <Text style={styles.title}>{quiz.title}</Text>
+                        <IconButton icon="pencil" size={30} iconColor="white" onPress={navigateToEditor} />
                     </View>
-                ) : <Text style={styles.info}>No data available</Text>}
-                <Button style={styles.button} onPress={navigateToQuestionScreen}>
-                    <Text style={styles.buttonText}>Start quiz</Text>
-                </Button>
-                <Button disabled={incorrectQuestions.length == 0}
-                        style={incorrectQuestions.length == 0 ? styles.incorrectButtonDisabled : styles.incorrectButton}
-                        onPress={navigateToOnlyIncorrectQuestionScreen}>
-                    <Text style={styles.buttonText}>Repeat only incorrect</Text>
-                </Button>
+                    <Text style={styles.description}>{quiz.description}</Text>
+                    <Text style={styles.info}>Number of questions: {quiz.numberOfQuestions}</Text>
+                    <Text style={styles.info}>
+                        Best result: {quiz.bestScore == null ? "0" : asPercentage(quiz.bestScore.correct)}%
+                    </Text>
+                    <Text style={styles.subtitle}>Last score</Text>
+                    {quiz.lastScore ? (
+                        <View style={styles.chartContainer}>
+                            <PieChart
+                                widthAndHeight={250}
+                                series={[quiz.lastScore.correct, quiz.lastScore.incorrect]}
+                                sliceColor={["#109e16", "#ff3c00"]}
+                                coverRadius={0.5}
+                                coverFill="#FFF"
+                            />
+                            <View style={styles.percentageContainer}>
+                                <Text style={[styles.percentageText, { color: "#109e16" }]}>
+                                    Correct: {asPercentage(quiz.lastScore.correct)}%
+                                </Text>
+                                <Text style={[styles.percentageText, { color: "#ff3c00" }]}>
+                                    Incorrect: {asPercentage(quiz.lastScore.incorrect)}%
+                                </Text>
+                            </View>
+                        </View>
+                    ) : (
+                        <Text style={styles.info}>No data available</Text>
+                    )}
+                    <Button style={styles.button} onPress={navigateToQuestionScreen}>
+                        <Text style={styles.buttonText}>Start quiz</Text>
+                    </Button>
+                    <Button
+                        disabled={incorrectQuestions.length === 0}
+                        style={incorrectQuestions.length === 0 ? styles.incorrectButtonDisabled : styles.incorrectButton}
+                        onPress={navigateToOnlyIncorrectQuestionScreen}
+                    >
+                        <Text style={styles.buttonText}>Repeat only incorrect</Text>
+                    </Button>
+                </View>
+                <View style={styles.leaderboardContainer}>
+                    <Text style={styles.leaderboardTitle}>Leaderboard</Text>
+                    <LeaderboardTable data={leaderboardData}/>
+                </View>
             </View>
         );
     }
@@ -172,6 +193,31 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
 };
 
 const styles = StyleSheet.create({
+    mainContent: {
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "flex-start",
+        paddingHorizontal: 20,
+    },
+    leaderboardContainer: {
+        flex: 1,
+        padding: 15,
+        borderRadius: 10,
+        marginRight: 20,
+        height: "90%",
+    },
+    leaderboardTitle: {
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "white",
+        marginBottom: 15,
+    },
+    quizDetailsContainer: {
+        flex: 3,
+        padding: 20,
+        borderRadius: 10,
+        alignItems: "center",
+    },
     error: {
         color: "white",
     },
