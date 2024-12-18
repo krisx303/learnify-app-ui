@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, ImageBackground, StyleSheet, View} from "react-native";
+import {ImageBackground, StyleSheet, Text, View} from "react-native";
 import QuestionsHolder from "./QuestionsHolder";
 import {Question} from "./Question";
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
@@ -7,6 +7,7 @@ import {RootStackParamList} from "../../../../App";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {useHttpClient} from "../../../transport/HttpClient";
 import {ModularTopBar, UserDetailsWithMenu} from "../../../components/topbar";
+import {Button} from "react-native-paper";
 
 type NavigationProps = StackNavigationProp<RootStackParamList, 'QuestionsScreen'>;
 type RouteProps = RouteProp<RootStackParamList, 'QuestionsScreen'>;
@@ -104,7 +105,9 @@ const QuestionsScreen: React.FC = () => {
                     isEditable={isEditable}
                 />
                 <View style={styles.buttonContainer}>
-                    <Button title={getButtonTitle()} onPress={handleNext}/>
+                    <Button style={styles.button} onPress={handleNext}>
+                        <Text style={styles.buttonText}>{getButtonTitle()}</Text>
+                    </Button>
                 </View>
             </View>
         </ImageBackground>
@@ -117,6 +120,15 @@ const styles = StyleSheet.create({
         padding: 15,
         alignItems: "center",
         justifyContent: "space-between",
+    },
+    buttonText: {
+        color: "#590d82",
+        fontSize: 20,
+        fontWeight: "bold",
+    },
+    button: {
+        backgroundColor: "white",
+        paddingHorizontal: 20,
     },
     questionText: {
         marginTop: 20,
