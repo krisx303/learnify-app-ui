@@ -82,7 +82,7 @@ const MainPage = () => {
     };
 
     const createWorkspace = (workspace: WorkspaceCreateProps) => {
-        httpClient.createNewWorkspace(workspace.title, workspace.resourceAccessTypeDto)
+        httpClient.createNewWorkspace(workspace.title, workspace.resourceAccessTypeDto, workspace.parentWorkspaceId)
             .then(console.log)
             .catch(console.error);
     };

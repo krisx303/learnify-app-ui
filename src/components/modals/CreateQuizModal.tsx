@@ -4,7 +4,7 @@ import {Button, SegmentedButtons, TextInput, Title} from 'react-native-paper';
 import {useHttpClient} from "../../transport/HttpClient";
 import {AccessType, Workspace} from "../../pages/main/Types";
 import GenericModal from "./GenericModal";
-import {WorkspaceDropdownSelector} from "./WorkspaceDropdownSelector";
+import WorkspaceDropdown, {WorkspaceProps} from "../search/WorkspaceDropdown";
 
 export interface QuizCreateDetails {
     title: string;
@@ -22,17 +22,18 @@ interface CreateQuizModalProps {
 const CreateQuizModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, onSubmit}) => {
     const [quizName, setQuizName] = useState('');
     const [description, setDescription] = useState('');
-    const [workspace, setWorkspace] = useState('');
+    const [workspace, setWorkspace] = useState<WorkspaceProps | undefined>(undefined);
     const [accessType, setAccessType] = useState<AccessType>('PUBLIC');
     const [errorQuizName, setErrorQuizName] = useState('');
     const [workspaceOptions, setWorkspaceOptions] = useState<Workspace[]>([]);
+    const [errorWorkspace, setErrorWorkspace] = useState('');
     const httpClient = useHttpClient();
 
     useEffect(() => {
         httpClient.getWorkspaces()
             .then((workspaces) => {
                 setWorkspaceOptions(workspaces);
-                setWorkspace(workspaces[0].id);
+                setWorkspace(workspaces[0]);
             })
             .catch(console.error);
     }, [httpClient, isVisible]);
@@ -41,18 +42,26 @@ const CreateQuizModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, on
         if (quizName) {
             setErrorQuizName('');
         }
-    }, [quizName]);
+        if (workspace) {
+            setErrorWorkspace('');
+        }
+    }, [quizName, workspace]);
 
     const handleQuizSubmit = () => {
         if (quizName.trim() === '') {
             setErrorQuizName('* Quiz Name is required');
             return;
         }
-        onSubmit({title: quizName, description, workspaceId: workspace, resourceAccessTypeDto: accessType});
+        if (!workspace) {
+            setErrorWorkspace('* Workspace is required');
+            return;
+        }
+        onSubmit({title: quizName, description, workspaceId: workspace.id, resourceAccessTypeDto: accessType});
         setQuizName('');
         setDescription('');
-        setWorkspace('');
+        setWorkspace(undefined);
         setErrorQuizName('');
+        setErrorWorkspace('');
         onClose();
     };
 
@@ -78,11 +87,8 @@ const CreateQuizModal: React.FC<CreateQuizModalProps> = ({isVisible, onClose, on
                     onChangeText={setDescription}
                     multiline={true}
                 />
-                <WorkspaceDropdownSelector
-                    selectedValue={workspace}
-                    onValueChange={setWorkspace}
-                    workspaceOptions={workspaceOptions}
-                />
+                <WorkspaceDropdown workspaces={workspaceOptions} setSelectedWorkspace={setWorkspace} selectedWorkspace={workspace}/>
+                {errorWorkspace ? <Text style={styles.errorText}>{errorWorkspace}</Text> : null}
                 <Text style={{marginBottom: 5, marginTop: 10}}>Permission level:</Text>
                 <SegmentedButtons
                     value={accessType}

@@ -3,8 +3,8 @@ import {StyleSheet, Text} from 'react-native';
 import {Button, SegmentedButtons, TextInput, Title} from 'react-native-paper';
 import {useHttpClient} from '../../transport/HttpClient';
 import GenericModal from "./GenericModal";
-import {WorkspaceDropdownSelector} from "./WorkspaceDropdownSelector";
 import {AccessType, NoteType, Workspace} from "../../pages/main/Types";
+import WorkspaceDropdown, {WorkspaceProps} from "../search/WorkspaceDropdown";
 
 export type NoteCreateDetails = {
     title: string;
@@ -23,18 +23,19 @@ interface CreateNoteModalProps {
 const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, onSubmit}) => {
     const [noteName, setNoteName] = useState('');
     const [description, setDescription] = useState('');
-    const [workspace, setWorkspace] = useState('');
+    const [workspace, setWorkspace] = useState<WorkspaceProps | undefined>(undefined);
     const [noteType, setNoteType] = useState<NoteType>('BOARD');
     const [accessType, setAccessType] = useState<AccessType>('PUBLIC');
     const [errorNoteName, setErrorNoteName] = useState('');
     const [workspaceOptions, setWorkspaceOptions] = useState<Workspace[]>([]);
+    const [errorWorkspace, setErrorWorkspace] = useState('');
     const httpClient = useHttpClient();
 
     useEffect(() => {
         httpClient.getWorkspaces()
             .then((workspaces) => {
                 setWorkspaceOptions(workspaces);
-                setWorkspace(workspaces[0].id);
+                setWorkspace(workspaces[0]);
             })
             .catch(console.error);
     }, [httpClient, isVisible]);
@@ -43,24 +44,32 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
         if (noteName) {
             setErrorNoteName('');
         }
-    }, [noteName]);
+        if (workspace) {
+            setErrorWorkspace('');
+        }
+    }, [noteName, workspace]);
 
     const handleNoteSubmit = () => {
         if (noteName.trim() === '') {
             setErrorNoteName('* Note Name is required');
             return;
         }
+        if (!workspace) {
+            setErrorWorkspace('* Workspace is required');
+            return;
+        }
         onSubmit({
             title: noteName,
             description,
-            workspaceId: workspace,
+            workspaceId: workspace!.id,
             type: noteType,
             resourceAccessTypeDto: accessType
         });
         setNoteName('');
         setDescription('');
-        setWorkspace('');
+        setWorkspace(undefined);
         setErrorNoteName('');
+        setErrorWorkspace('');
         onClose();
     };
 
@@ -96,11 +105,8 @@ const CreateNoteModal: React.FC<CreateNoteModalProps> = ({isVisible, onClose, on
                     onChangeText={setDescription}
                     multiline={true}
                 />
-                <WorkspaceDropdownSelector
-                    selectedValue={workspace}
-                    onValueChange={setWorkspace}
-                    workspaceOptions={workspaceOptions}
-                />
+                <WorkspaceDropdown workspaces={workspaceOptions} setSelectedWorkspace={setWorkspace} selectedWorkspace={workspace}/>
+                {errorWorkspace ? <Text style={styles.errorText}>{errorWorkspace}</Text> : null}
                 <Text style={{marginBottom: 5, marginTop: 10}}>Permission level:</Text>
                 <SegmentedButtons
                     value={accessType}
