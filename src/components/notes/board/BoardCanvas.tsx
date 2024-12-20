@@ -15,6 +15,7 @@ type BoardCanvasProps = {
     elements: any[];
     setElements: any;
     canvasWidth?: number;
+    onEndDrawing: () => void;
 }
 
 const BoardCanvas: React.FC<BoardCanvasProps> = (
@@ -25,6 +26,7 @@ const BoardCanvas: React.FC<BoardCanvasProps> = (
         elements,
         canvasWidth,
         setElements,
+        onEndDrawing,
     }
 ) => {
     const font = useFont("http://localhost:19000/assets/Roboto-Medium.ttf", 20, (err) => {
@@ -71,6 +73,9 @@ const BoardCanvas: React.FC<BoardCanvasProps> = (
 
     const onDrawingActive = (touchInfo: TouchInfo) => {
         if (touchInfo.force == 0) {
+            if(active) {
+                onEndDrawing();
+            }
             setActive(false);
             return;
         } else if (!active) {
@@ -151,6 +156,9 @@ const BoardCanvas: React.FC<BoardCanvasProps> = (
                 }
             },
             onEnd: () => {
+                if(active){
+                    onEndDrawing();
+                }
                 setActive(false);
             },
         },
