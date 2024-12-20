@@ -36,7 +36,6 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
     const [backgroundImage, setBackgroundImage] = useState("");
     const [elements, setElements] = useState<GenericMovableElement[]>([]);
     const [paths, setPaths] = useState<PathWithColorAndWidth[]>([]);
-    const [shouldSendState, setShouldSendState] = useState(false);
     const httpClient = useHttpClient();
     const [noteDetails, setNoteDetails] = useState<NoteSummary | undefined>(undefined);
     const [canvasWidth, setCanvasWidth] = useState(0); // Current width of the canvas container
@@ -49,6 +48,7 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
     const [version, setVersion] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const versionRef = useRef(1);
+    const currentPageRef = useRef(1);
 
     const asGenericMovableElements = (elements: ElementDto[]) => {
         return elements.map((element) => {
@@ -59,6 +59,10 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
     useEffect(() => {
         versionRef.current = version;
     }, [version]);
+
+    useEffect(() => {
+        currentPageRef.current = currentPage;
+    }, [currentPage]);
 
     useEffect(() => {
         setDrawerContent(
@@ -114,11 +118,11 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                 setVersion(content.version);
             })
             .catch(console.error);
-        setInterval(() => {
+        const interval = setInterval(() => {
             httpClient
                 .getBoardPageContent(workspaceId, noteId, currentPage)
                 .then((content) => {
-                    if(content.version > versionRef.current) {
+                    if(content.version > versionRef.current && currentPage === currentPageRef.current) {
                         setPaths(content.content.paths.map(asPathWithColorAndWidth));
                         setElements(asGenericMovableElements(content.content.elements));
                         setVersion(content.version);
@@ -126,6 +130,7 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                 })
                 .catch(console.error);
         }, 3000);
+        return () => clearInterval(interval);
     }, [currentPage]);
 
     const handleTextContent = async () => {
@@ -211,7 +216,18 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                 pasteContent();
                 break;
             case "save":
-                setShouldSendState(true);
+                console.log("Saving...");
+                httpClient
+                    .putBoardNotePageUpdate(workspaceId, noteId, currentPage, version, {
+                        elements: elements.map(asElementDto),
+                        paths: paths.map(asPathDto),
+                    })
+                    .then(() => {
+                        setVersion((prev) => prev + 1);
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    });
                 break;
             case "add-text":
                 createMovableText();
@@ -238,31 +254,12 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
         };
     }, []);
 
-    useEffect(() => {
-        if (shouldSendState) {
-            httpClient
-                .putBoardNotePageUpdate(workspaceId, noteId, currentPage, version, {
-                    elements: elements.map(asElementDto),
-                    paths: paths.map(asPathDto),
-                })
-                .then(() => {
-                    setShouldSendState(false);
-                    setVersion((prev) => prev + 1);
-                })
-                .catch((error) => {
-                    console.error(error);
-                    setShouldSendState(false);
-                });
-        }
-    }, [shouldSendState]);
-
     const handleLayout = (event: any) => {
         const {width} = event.nativeEvent.layout;
         setCanvasWidth(width);
     };
 
     const createNewPage = () => {
-        performAction("save");
         setCurrentPage((prev) => prev + 1);
         setTotalPages((prev) => prev + 1);
         httpClient.createNewBoardPage(workspaceId, noteId)
