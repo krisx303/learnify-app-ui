@@ -216,10 +216,10 @@ const QuizPage = ({quizId, workspaceId}: { quizId: string, workspaceId: string }
                         <Text style={styles.buttonText}>Start quiz with options</Text>
                     </Button>
                 </View>
-                <View style={styles.leaderboardContainer}>
+                {leaderboardData.length > 1 && <View style={styles.leaderboardContainer}>
                     <Text style={styles.leaderboardTitle}>Leaderboard</Text>
                     <LeaderboardTable data={leaderboardData}/>
-                </View>
+                </View>}
             </View>
         );
     }

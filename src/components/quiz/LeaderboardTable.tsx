@@ -20,7 +20,7 @@ const LeaderboardTable = ({data}: {data: UserScore[]}) => {
                     <DataTable.Title>Try Date</DataTable.Title>
                 </DataTable.Header>
 
-                {data.sort(u => -u.percentage).map((user, index) => (
+                {data.sort((a, b) => b.percentage - a.percentage).map((user, index) => (
                     <DataTable.Row key={index}>
                         <DataTable.Cell>{index + 1}</DataTable.Cell>
                         <DataTable.Cell>{user.userName}</DataTable.Cell>
