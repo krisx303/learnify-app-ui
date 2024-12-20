@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import {ImageBackground, StyleSheet, View} from "react-native";
 import {Action, PathWithColorAndWidth} from "../../../components/notes/board/types";
 import {Toolbar} from "../../../components/notes/board/Toolbar";
@@ -48,12 +48,17 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
     const [currentPage, setCurrentPage] = useState(1);
     const [version, setVersion] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const versionRef = useRef(1);
 
     const asGenericMovableElements = (elements: ElementDto[]) => {
         return elements.map((element) => {
             return createGenericMovableElementFromDto(element, setElements);
         });
     };
+
+    useEffect(() => {
+        versionRef.current = version;
+    }, [version]);
 
     useEffect(() => {
         setDrawerContent(
@@ -109,6 +114,18 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                 setVersion(content.version);
             })
             .catch(console.error);
+        setInterval(() => {
+            httpClient
+                .getBoardPageContent(workspaceId, noteId, currentPage)
+                .then((content) => {
+                    if(content.version > versionRef.current) {
+                        setPaths(content.content.paths.map(asPathWithColorAndWidth));
+                        setElements(asGenericMovableElements(content.content.elements));
+                        setVersion(content.version);
+                    }
+                })
+                .catch(console.error);
+        }, 3000);
     }, [currentPage]);
 
     const handleTextContent = async () => {
@@ -123,6 +140,7 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
             setElements
         );
         setElements((prevElements) => [...prevElements, element]);
+        performAction("save");
     };
 
     const handleImageContent = async (clipboardItem: ClipboardItem) => {
@@ -152,6 +170,7 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                     setElements
                 );
                 setElements((prevElements) => [...prevElements, element]);
+                performAction("save");
             };
         } catch (error) {
             console.error("Error uploading image:", error);
@@ -226,7 +245,10 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                     elements: elements.map(asElementDto),
                     paths: paths.map(asPathDto),
                 })
-                .then(() => setShouldSendState(false))
+                .then(() => {
+                    setShouldSendState(false);
+                    setVersion((prev) => prev + 1);
+                })
                 .catch((error) => {
                     console.error(error);
                     setShouldSendState(false);
@@ -240,6 +262,7 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
     };
 
     const createNewPage = () => {
+        performAction("save");
         setCurrentPage((prev) => prev + 1);
         setTotalPages((prev) => prev + 1);
         httpClient.createNewBoardPage(workspaceId, noteId)
@@ -287,6 +310,10 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                             setPaths={setPaths}
                             elements={elements}
                             setElements={setElements}
+                            onEndDrawing={() => {
+                                setVersion((prev) => prev + 1);
+                                performAction("save");
+                            }}
                         />
 
                         <TextInputComponent genericMovableElements={elements} setElements={setElements}/>
