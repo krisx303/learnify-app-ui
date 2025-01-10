@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import {ImageBackground, StyleSheet, View} from "react-native";
 import {Action, PathWithColorAndWidth} from "../../../components/notes/board/types";
 import {Toolbar} from "../../../components/notes/board/Toolbar";
@@ -245,6 +245,16 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
         httpClient.createNewBoardPage(workspaceId, noteId)
             .catch(console.error);
     }
+
+    useEffect(() => {
+        const styleSheet = document.styleSheets[0];
+
+        const ruleIndex = styleSheet.insertRule('#root { touch-action: none; }', styleSheet.cssRules.length);
+
+        return () => {
+            styleSheet.deleteRule(ruleIndex);
+        };
+    }, []);
 
     return (
         <View style={{width: "100%", height: "100%", maxHeight: "100%"}}>

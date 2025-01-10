@@ -1,16 +1,9 @@
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { $wrapNodeInElement, mergeRegister } from "@lexical/utils";
-import {
-    $createParagraphNode,
-    $insertNodes,
-    $isRootOrShadowRoot,
-    COMMAND_PRIORITY_EDITOR,
-    createCommand,
-    LexicalCommand
-} from "lexical";
-import { useEffect } from "react";
+import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
+import {$wrapNodeInElement, mergeRegister} from "@lexical/utils";
+import {$createParagraphNode, $insertNodes, $isRootOrShadowRoot, COMMAND_PRIORITY_EDITOR, createCommand} from "lexical";
+import {useEffect} from "react";
 
-import { $createImageNode, ImageNode, ImagePayload } from "./ImageNode";
+import {$createImageNode, ImageNode} from "./ImageNode";
 
 export const INSERT_IMAGE_COMMAND = createCommand(
     "INSERT_IMAGE_COMMAND"
@@ -18,7 +11,7 @@ export const INSERT_IMAGE_COMMAND = createCommand(
 
 export default function ImagesPlugin({
                                          captionsEnabled
-                                     }){
+                                     }) {
     const [editor] = useLexicalComposerContext();
 
     useEffect(() => {
