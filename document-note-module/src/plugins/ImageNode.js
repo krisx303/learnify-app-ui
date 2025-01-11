@@ -1,11 +1,11 @@
-import { createEditor, DecoratorNode } from "lexical";
+import {createEditor, DecoratorNode} from "lexical";
 import * as React from "react";
 
 function convertImageElement(domNode) {
     if (domNode instanceof HTMLImageElement) {
-        const { alt: altText, src } = domNode;
-        const node = $createImageNode({ altText, src });
-        return { node };
+        const {alt: altText, src} = domNode;
+        const node = $createImageNode({altText, src});
+        return {node};
     }
     return null;
 }
@@ -60,7 +60,7 @@ export class ImageNode extends DecoratorNode {
         const element = document.createElement("img");
         element.setAttribute("src", this.__src);
         element.setAttribute("alt", this.__altText);
-        return { element };
+        return {element};
     }
 
     static importDOM() {
