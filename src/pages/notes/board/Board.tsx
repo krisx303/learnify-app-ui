@@ -216,7 +216,6 @@ const Board = ({noteId, workspaceId}: { noteId: string, workspaceId: string }) =
                 pasteContent();
                 break;
             case "save":
-                console.log("Saving...");
                 httpClient
                     .putBoardNotePageUpdate(workspaceId, noteId, currentPage, version, {
                         elements: elements.map(asElementDto),
